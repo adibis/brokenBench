@@ -34,7 +34,8 @@ module top;
     end
 
     if (!saw_above_50) begin
-      $display("FAIL: value never exceeded 50 across 30 calls -- wide_item's constraint is being intersected with base_item's, not replacing it");
+      $display({"FAIL: value never exceeded 50 across 30 calls -- wide_item's constraint is ",
+          "being intersected with base_item's, not replacing it"});
       $fatal(1);
     end else begin
       $display("PASS: value reached above 50 across 30 calls");

@@ -24,7 +24,8 @@ module top;
     int ok = item.randomize();
 
     if (!ok || item.priority_lo > 3 || item.priority_hi < 4) begin
-      $display("FAIL: randomize() ok=%0d priority_lo=%0d priority_hi=%0d", ok, item.priority_lo, item.priority_hi);
+      $display("FAIL: randomize() ok=%0d priority_lo=%0d priority_hi=%0d",
+          ok, item.priority_lo, item.priority_hi);
       $fatal(1);
     end else begin
       $display("PASS: priority_lo=%0d priority_hi=%0d", item.priority_lo, item.priority_hi);

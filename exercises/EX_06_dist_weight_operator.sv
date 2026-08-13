@@ -35,10 +35,12 @@ module top;
 
     // expect roughly 50% -- allow a wide band since this is statistical
     if (zero_count < (total * 40 / 100) || zero_count > (total * 60 / 100)) begin
-      $display("FAIL: priority==0 came up %0d/%0d times (%0d%%), expected roughly 50%%", zero_count, total, (zero_count*100)/total);
+      $display("FAIL: priority==0 came up %0d/%0d times (%0d%%), expected roughly 50%%",
+          zero_count, total, (zero_count*100)/total);
       $fatal(1);
     end else begin
-      $display("PASS: priority==0 came up %0d%% of the time, roughly the intended 50/50 split", (zero_count*100)/total);
+      $display("PASS: priority==0 came up %0d%% of the time, roughly the intended 50/50 split",
+          (zero_count*100)/total);
       $finish;
     end
   end

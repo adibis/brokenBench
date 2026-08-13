@@ -32,7 +32,8 @@ module top;
       if (seen[i] != seen[0]) all_same = 0;
 
     if (all_same) begin
-      $display("FAIL: delay never changed across 5 randomize() calls (got %0d every time) -- is it actually declared `rand`?", seen[0]);
+      $display({"FAIL: delay never changed across 5 randomize() calls (got %0d every time) ",
+          "-- is it actually declared `rand`?"}, seen[0]);
       $fatal(1);
     end else begin
       $display("PASS: delay varied across calls: %p", seen);

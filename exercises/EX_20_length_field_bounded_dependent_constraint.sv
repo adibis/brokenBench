@@ -43,7 +43,8 @@ module top;
     end
 
     if (!saw_no_crc_at_60) begin
-      $display("FAIL: at len==60, has_crc was forced to 1 every time -- the spec only requires it above 60");
+      $display({"FAIL: at len==60, has_crc was forced to 1 every time -- ",
+          "the spec only requires it above 60"});
       $fatal(1);
     end
 

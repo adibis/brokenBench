@@ -28,7 +28,8 @@ module top;
     int ok = item.randomize();
 
     if (!ok) begin
-      $display("FAIL: randomize() returned 0 -- the two constraints on a and b contradict each other");
+      $display({"FAIL: randomize() returned 0 -- the two constraints on a and b ",
+          "contradict each other"});
       $fatal(1);
     end
 

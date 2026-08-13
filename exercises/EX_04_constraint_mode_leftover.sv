@@ -35,7 +35,8 @@ module top;
     end
 
     if (unaligned_count > 0) begin
-      $display("FAIL: addr was unaligned on %0d of 20 calls -- c_align isn't being enforced", unaligned_count);
+      $display("FAIL: addr was unaligned on %0d of 20 calls -- c_align isn't being enforced",
+          unaligned_count);
       $fatal(1);
     end else begin
       $display("PASS: addr was 4-byte aligned on every call");

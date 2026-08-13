@@ -57,7 +57,8 @@ module top;
           for (int i2 = 0; i2 < 3; i2++)
             for (int j2 = 0; j2 < 3; j2++)
               if (!(i==i2 && j==j2) && g.grid[i][j] == g.grid[i2][j2]) begin
-                $display("FAIL: grid[%0d][%0d]=grid[%0d][%0d]=%0d -- duplicate across the whole grid", i, j, i2, j2, g.grid[i][j]);
+                $display({"FAIL: grid[%0d][%0d]=grid[%0d][%0d]=%0d -- duplicate ",
+                    "across the whole grid"}, i, j, i2, j2, g.grid[i][j]);
                 bad_found = 1;
               end
     end

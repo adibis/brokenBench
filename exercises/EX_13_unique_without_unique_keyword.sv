@@ -40,7 +40,8 @@ module top;
       for (int i = 0; i < 8; i++)
         for (int j = i+1; j < 8; j++)
           if (item.tags[i] == item.tags[j]) begin
-            $display("FAIL: tags[%0d]=tags[%0d]=%0d, trial %0d: %p", i, j, item.tags[i], t, item.tags);
+            $display("FAIL: tags[%0d]=tags[%0d]=%0d, trial %0d: %p",
+                i, j, item.tags[i], t, item.tags);
             dup_found = 1;
           end
     end

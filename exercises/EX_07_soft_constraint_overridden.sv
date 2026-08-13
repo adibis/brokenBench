@@ -31,7 +31,8 @@ module top;
     end
 
     if (!saw_preferred) begin
-      $display("FAIL: delay never once landed in the preferred [100:110] range across 20 calls -- check what's conflicting with the soft constraint");
+      $display({"FAIL: delay never once landed in the preferred [100:110] range across 20 ",
+          "calls -- check what's conflicting with the soft constraint"});
       $fatal(1);
     end else begin
       $display("PASS: delay reached the preferred range at least once across 20 calls");
