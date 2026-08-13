@@ -1,27 +1,28 @@
-// EX 02: "random" that can only ever produce one value
+// =================================================================================================
+// EX_02 -- "random" that can only ever produce one value
+// =================================================================================================
 //
-// Every individual constraint below is completely reasonable on its own.
-// Put together, they leave exactly one legal value in the entire 8-bit
-// range -- randomize() succeeds every time, the field is genuinely
-// `rand`, nothing is illegal, and the result is not random at all. This
-// is the shape of bug that survives code review easily, because nothing
-// about any single constraint looks wrong in isolation.
+// Every individual constraint on offset below is completely reasonable on its own: a legal range,
+// an alignment rule, a narrower sub-range. Put together, they leave exactly one legal value in the
+// entire 8-bit space -- randomize() succeeds every time, offset is genuinely `rand`, nothing is
+// illegal, and the result is not random at all.
 //
-// The checker here is specific on purpose: it's not enough to make the
-// value vary at all. It has to reach exactly the legal set implied by
-// the range-and-alignment intent, and never step outside range or
-// alignment while doing it. A half-fix in either direction -- leaving it
-// too narrow, or deleting more than the one constraint that's actually
-// wrong -- will still fail.
+// This is the shape of bug that survives code review easily: nothing about any single constraint
+// looks wrong in isolation. So look at the three constraints one at a time -- which one, on its
+// own, already pins offset down to a single value before the other two even get involved?
 //
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// This class is over-constrained today. Fix it so offset reaches exactly 100, 104, and 108 across
+// repeated randomize() calls -- and nothing outside that set.
+// -------------------------------------------------------------------------------------------------
 class offset_item;
   rand bit [7:0] offset;
   constraint c_range  { offset inside {[100:110]}; }
   constraint c_align  { offset[1:0] == 2'b00; }
-  constraint c_narrow { offset inside {[104:104]}; }
+  constraint c_narrow { offset inside {[104:114]}; }
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -46,7 +47,13 @@ module top;
 
     // legal aligned offsets in [100:110] are exactly 100, 104, 108
     if (seen_mask !== (11'b1 << 0 | 11'b1 << 4 | 11'b1 << 8)) begin
-      $display("FAIL: expected exactly {100,104,108} reachable, saw mask=%011b", seen_mask);
+      $display($sformatf({"FAIL: offset should reach exactly {100, 104, 108} across 200 calls, ",
+          "no more, no less."}));
+      if (!seen_mask[0]) $display("      100 was never reached.");
+      if (!seen_mask[4]) $display("      104 was never reached.");
+      if (!seen_mask[8]) $display("      108 was never reached.");
+      if (|(seen_mask & ~(11'b1 << 0 | 11'b1 << 4 | 11'b1 << 8)))
+        $display("      a value outside {100, 104, 108} was also reached.");
       $fatal(1);
     end
 
