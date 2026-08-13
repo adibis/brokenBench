@@ -72,8 +72,13 @@ tooling quirk rather than the intended lesson:
   `EX_13_unique_without_unique_keyword`, which shows the pairwise-inequality
   workaround.
 - **`unique{}` on a row-slice of a 2D array crashes the compiler outright**
-  (an internal fault, not a graceful error). `EX_16_matrix_row_col_sum`
-  avoids it entirely and uses pairwise inequality instead.
+  (an internal fault, not a graceful error) on every released Verilator as
+  of this writing. `EX_16_matrix_row_col_sum` avoids it entirely and uses
+  pairwise inequality instead. A real fix is up for review upstream
+  ([verilator/verilator#8100](https://github.com/verilator/verilator/pull/8100));
+  `EX_21_unique_scalar_vs_slice` is written for a Verilator built from
+  that patch -- see the note at the top of that file for how to point
+  `make run` at a patched binary.
 - **A `rand`-sized dynamic array combined with a `.sum()`/`.product()`
   reduction constraint over its own contents never solves**, even with
   explicit `solve ... before` ordering hints. `EX_14_array_size_before_reduction`
