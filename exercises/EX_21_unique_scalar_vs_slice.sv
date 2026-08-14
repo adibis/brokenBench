@@ -23,10 +23,13 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// --------------------------------------------------------------------------------
+// Write constraint so that each element of the grid is between 1 and 9 and
+// each row has unique elements.
+// --------------------------------------------------------------------------------
 class grid_item;
   rand bit [4:0] grid[3][3];
-  constraint c_range { foreach (grid[i, j]) grid[i][j] inside {[1 : 9]}; }
-  constraint c_unique_row {foreach (grid[i]) unique {grid[i][0]};}
+  // write constraints here
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -45,6 +48,13 @@ module top;
       end
 
       for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+          if (g.grid[i][j] < 1 || g.grid[i][j] > 9) begin
+            $display("FAIL: grid[%0d][%0d]=%0d is outside [1:9]", i, j, g.grid[i][j]);
+            bad_found = 1;
+          end
+
+      for (int i = 0; i < 3; i++)
         for (int x = 0; x < 3; x++)
           for (int y = x + 1; y < 3; y++)
             if (g.grid[i][x] == g.grid[i][y]) begin
@@ -55,7 +65,7 @@ module top;
 
     if (bad_found) $fatal(1);
 
-    $display("PASS: 20 trials, every row has three distinct values");
+    $display("PASS: 20 trials, every row has three distinct values in [1:9]");
     $finish;
   end
 endmodule
