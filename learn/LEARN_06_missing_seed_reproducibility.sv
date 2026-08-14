@@ -46,8 +46,8 @@ module top;
     end
 
     if (a1.data === b1.data) begin
-      $display({"FAIL: different seeds (1 and 2) produced the same result: %0d ",
-          "-- that's suspicious, not reproducible"}, a1.data);
+      $display($sformatf({"FAIL: different seeds (1 and 2) produced the same result: %0d ",
+          "-- that's suspicious, not reproducible"}, a1.data));
       $fatal(1);
     end
 

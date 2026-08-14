@@ -32,8 +32,8 @@ module top;
     bit dup_found = 0;
 
     if (!ok) begin
-      $display({"FAIL: randomize() returned 0 -- %0d elements can never all be unique ",
-          "4-bit values (only 16 exist)"}, $size(item.tags));
+      $display($sformatf({"FAIL: randomize() returned 0 -- %0d elements can never all be unique ",
+          "4-bit values (only 16 exist)"}, $size(item.tags)));
       $fatal(1);
     end
 

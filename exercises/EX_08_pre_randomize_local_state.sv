@@ -42,8 +42,8 @@ module top;
     end
 
     if (!saw_normal || !saw_jumbo) begin
-      $display({"FAIL: is_jumbo never actually alternated across 20 calls ",
-          "(saw_normal=%0d saw_jumbo=%0d)"}, saw_normal, saw_jumbo);
+      $display($sformatf({"FAIL: is_jumbo never actually alternated across 20 calls ",
+          "(saw_normal=%0d saw_jumbo=%0d)"}, saw_normal, saw_jumbo));
       $fatal(1);
     end else begin
       $display("PASS: saw both normal and jumbo packets across 20 calls");

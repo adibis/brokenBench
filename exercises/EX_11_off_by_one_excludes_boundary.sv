@@ -28,8 +28,8 @@ module top;
     end
 
     if (!saw_max) begin
-      $display({"FAIL: credits never once hit 8'hFF (max value) across 10000 calls -- ",
-          "the constraint's range excludes it entirely"});
+      $display($sformatf({"FAIL: credits never once hit 8'hFF (max value) across 10000 calls ",
+          "-- the constraint's range excludes it entirely"}));
       $fatal(1);
     end else begin
       $display("PASS: credits reached 8'hFF at least once across 10000 calls");

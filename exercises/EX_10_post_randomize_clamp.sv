@@ -42,8 +42,8 @@ module top;
       if (seen[i] != seen[0]) all_same = 0;
 
     if (all_same) begin
-      $display({"FAIL: gain was %0d every time across 10 calls -- ",
-          "check what post_randomize() is doing to it"}, seen[0]);
+      $display($sformatf({"FAIL: gain was %0d every time across 10 calls -- ",
+          "check what post_randomize() is doing to it"}, seen[0]));
       $fatal(1);
     end else begin
       $display("PASS: gain varied across calls: %p", seen);
