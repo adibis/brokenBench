@@ -16,21 +16,36 @@ compiles clean and passes while not actually testing what it looks like it's
 testing. That last category is most of `exercises/`, not an afterthought.
 
 Companion to [chipdv.io](https://chipdv.io) -- real DV engineering, worked
-all the way through, not tutorials.
+all the way through, not tutorials. A full multi-file testbench (broken RTL
+plus an incomplete environment to finish) is deliberately *not* what this
+repo does -- that's a different, bigger kind of challenge, out of scope for
+a tool built around single-file, seconds-to-run exercises.
 
-## Two tracks
+## Tracks
+
+Two top-level tracks, split by **audience**, not topic:
 
 - **`learn/`** -- never touched SystemVerilog before? Start here. Missing
   keywords, `=` vs `==`, an unchecked return value, a null handle. Fast
   feedback loop, one concept per exercise (or a short, deliberate chain of
   them).
-- **`exercises/`** -- interview-prep. Every one of these is either a
-  documented real-world constrained-random gotcha or something found by
-  actually testing this repo's own exercises against Verilator: a range
-  constraint that silently narrows to one legal value, `dist` weight
-  operators that skew a distribution without erroring, non-overlapping
-  address-range generation, 2D matrix constraints, Hamming-distance
-  randomization, a genuinely unsatisfiable pair of constraints, and more.
+- **`exercises/`** -- interview-prep, organized by domain in subdirectories
+  (splitting *this* level by audience wouldn't make sense -- domain is what
+  actually changes here, difficulty stays a tag, same as everywhere else in
+  this repo):
+  - **`exercises/sv/`** -- core SystemVerilog and constrained-random gotchas.
+    Every one of these is either a documented real-world gotcha or something
+    found by actually testing this repo's own exercises against Verilator: a
+    range constraint that silently narrows to one legal value, `dist` weight
+    operators that skew a distribution without erroring, non-overlapping
+    address-range generation, 2D matrix constraints, Hamming-distance
+    randomization, a genuinely unsatisfiable pair of constraints, and more.
+  - **`exercises/uvm/`** -- UVM component-level bugs: a broken scoreboard
+    comparison, a `uvm_config_db` type/path mismatch, phasing/objection
+    issues. (Not yet populated.)
+  - **`exercises/csr/`** -- `uvm_reg` / register-map exercises: access-policy
+    mistakes, `mirror()` vs `desired()` confusion, predictor gaps. (Not yet
+    populated.)
 
 ## Requirements
 
@@ -50,15 +65,20 @@ track, order, and tags, so exercises can be reordered or retagged without
 ever renaming a file or breaking a command you've already got memorized.
 
 ```bash
-make list                              # see every exercise in both tracks, with tags
+make list                              # see every exercise in every track, with tags
 make run EX=missing_rand               # compile and run one exercise
 make run EX=and_instead_of_implies
 make check TRACK=learn                 # run a whole track in order, stop at the first failure
-make check TRACK=exercises
-make check TRACK=exercises EX=cyclic_rand_constraint   # start partway through a track
+make check TRACK=sv
+make check TRACK=sv EX=cyclic_rand_constraint   # start partway through a track
 make find TAG=multi-constraint         # list exercises with a given tag
-make find TAG=tool-limitation TRACK=exercises
+make find TAG=tool-limitation TRACK=sv
 ```
+
+`TRACK` is one of `learn`, `sv`, `uvm`, `csr` -- matching `manifest.toml`'s
+`track` field for each exercise, not the directory layout directly (`sv`,
+`uvm`, and `csr` all nest under `exercises/` on disk purely for browsing;
+the manifest is what `make check`/`make find` actually key off).
 
 Fix the class or function at the top of whichever exercise file you're stuck
 on -- never touch anything at or below the `// ---8<--- checker below: don't

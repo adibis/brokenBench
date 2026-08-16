@@ -40,7 +40,13 @@ jobs:
         # repo's deliberate conventions (every exercise uses `module top;`
         # so the Makefile can invoke any of them uniformly). Only line-length
         # is an actual house rule here.
-        run: verible-verilog-lint --ruleset=none --rules=+line-length /tmp/lint-scratch/learn/*.sv /tmp/lint-scratch/exercises/*.sv
+        # find, not a glob: exercises/ nests domain subdirectories
+        # (exercises/sv/, exercises/uvm/, exercises/csr/), so a flat *.sv
+        # glob would silently lint nothing once files aren't directly in
+        # exercises/ itself.
+        run: |
+          find /tmp/lint-scratch/learn /tmp/lint-scratch/exercises -name '*.sv' \
+            -exec verible-verilog-lint --ruleset=none --rules=+line-length {} +
 
   manifest-sync:
     name: manifest.toml matches disk

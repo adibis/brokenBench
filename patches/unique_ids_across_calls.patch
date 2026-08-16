@@ -1,7 +1,7 @@
-diff --git a/exercises/unique_ids_across_calls.sv b/exercises/unique_ids_across_calls.sv
+diff --git a/exercises/sv/unique_ids_across_calls.sv b/exercises/sv/unique_ids_across_calls.sv
 index 126cdc8..f9a8f51 100644
---- a/exercises/unique_ids_across_calls.sv
-+++ b/exercises/unique_ids_across_calls.sv
+--- a/exercises/sv/unique_ids_across_calls.sv
++++ b/exercises/sv/unique_ids_across_calls.sv
 @@ -21,15 +21,13 @@
  // out exactly once, in any order, before a randomize() call is ever allowed to fail or repeat one.
  // -------------------------------------------------------------------------------------------------

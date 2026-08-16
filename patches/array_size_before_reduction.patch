@@ -1,7 +1,7 @@
-diff --git a/exercises/array_size_before_reduction.sv b/exercises/array_size_before_reduction.sv
+diff --git a/exercises/sv/array_size_before_reduction.sv b/exercises/sv/array_size_before_reduction.sv
 index bf7c546..c2c79f2 100644
---- a/exercises/array_size_before_reduction.sv
-+++ b/exercises/array_size_before_reduction.sv
+--- a/exercises/sv/array_size_before_reduction.sv
++++ b/exercises/sv/array_size_before_reduction.sv
 @@ -18,10 +18,7 @@
  // Don't edit anything at or below the "checker" marker.
  

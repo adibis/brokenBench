@@ -1,7 +1,7 @@
-diff --git a/exercises/unique_without_unique_keyword.sv b/exercises/unique_without_unique_keyword.sv
+diff --git a/exercises/sv/unique_without_unique_keyword.sv b/exercises/sv/unique_without_unique_keyword.sv
 index 097d92b..2afe433 100644
---- a/exercises/unique_without_unique_keyword.sv
-+++ b/exercises/unique_without_unique_keyword.sv
+--- a/exercises/sv/unique_without_unique_keyword.sv
++++ b/exercises/sv/unique_without_unique_keyword.sv
 @@ -18,8 +18,9 @@ class tag_item;
    rand bit [3:0] tags[8];
    constraint c_unique {

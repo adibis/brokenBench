@@ -1,7 +1,7 @@
-diff --git a/exercises/off_by_one_excludes_boundary.sv b/exercises/off_by_one_excludes_boundary.sv
+diff --git a/exercises/sv/off_by_one_excludes_boundary.sv b/exercises/sv/off_by_one_excludes_boundary.sv
 index eb937a8..e528a84 100644
---- a/exercises/off_by_one_excludes_boundary.sv
-+++ b/exercises/off_by_one_excludes_boundary.sv
+--- a/exercises/sv/off_by_one_excludes_boundary.sv
++++ b/exercises/sv/off_by_one_excludes_boundary.sv
 @@ -12,7 +12,7 @@
  
  class credit_item;

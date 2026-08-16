@@ -1,7 +1,7 @@
-diff --git a/exercises/n_bit_hamming_delta.sv b/exercises/n_bit_hamming_delta.sv
+diff --git a/exercises/sv/n_bit_hamming_delta.sv b/exercises/sv/n_bit_hamming_delta.sv
 index 01183a6..5243237 100644
---- a/exercises/n_bit_hamming_delta.sv
-+++ b/exercises/n_bit_hamming_delta.sv
+--- a/exercises/sv/n_bit_hamming_delta.sv
++++ b/exercises/sv/n_bit_hamming_delta.sv
 @@ -14,7 +14,7 @@
  class walk_item;
    rand bit [31:0] cur;

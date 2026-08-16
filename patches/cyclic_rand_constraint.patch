@@ -1,7 +1,7 @@
-diff --git a/exercises/cyclic_rand_constraint.sv b/exercises/cyclic_rand_constraint.sv
+diff --git a/exercises/sv/cyclic_rand_constraint.sv b/exercises/sv/cyclic_rand_constraint.sv
 index 1a41518..90b8466 100644
---- a/exercises/cyclic_rand_constraint.sv
-+++ b/exercises/cyclic_rand_constraint.sv
+--- a/exercises/sv/cyclic_rand_constraint.sv
++++ b/exercises/sv/cyclic_rand_constraint.sv
 @@ -17,7 +17,6 @@ class pair_item;
    rand int b;
    constraint c_bounds { a inside {[0:100]}; }

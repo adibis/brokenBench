@@ -1,7 +1,7 @@
-diff --git a/exercises/matrix_row_col_sum.sv b/exercises/matrix_row_col_sum.sv
+diff --git a/exercises/sv/matrix_row_col_sum.sv b/exercises/sv/matrix_row_col_sum.sv
 index c084626..565107e 100644
---- a/exercises/matrix_row_col_sum.sv
-+++ b/exercises/matrix_row_col_sum.sv
+--- a/exercises/sv/matrix_row_col_sum.sv
++++ b/exercises/sv/matrix_row_col_sum.sv
 @@ -22,12 +22,11 @@ class grid_item;
    rand bit [4:0] grid[3][3];
    constraint c_range  { foreach (grid[i,j]) grid[i][j] inside {[1:9]}; }

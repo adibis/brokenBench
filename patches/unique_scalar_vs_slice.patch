@@ -1,7 +1,7 @@
-diff --git a/exercises/unique_scalar_vs_slice.sv b/exercises/unique_scalar_vs_slice.sv
+diff --git a/exercises/sv/unique_scalar_vs_slice.sv b/exercises/sv/unique_scalar_vs_slice.sv
 index 9d14bc8..78477e4 100644
---- a/exercises/unique_scalar_vs_slice.sv
-+++ b/exercises/unique_scalar_vs_slice.sv
+--- a/exercises/sv/unique_scalar_vs_slice.sv
++++ b/exercises/sv/unique_scalar_vs_slice.sv
 @@ -30,7 +30,8 @@
  // --------------------------------------------------------------------------------
  class grid_item;

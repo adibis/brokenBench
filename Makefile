@@ -7,18 +7,19 @@ VFLAGS     := --binary --timing -j 0 -Wno-fatal -Wno-IMPLICITSTATIC
 help:
 	@echo "brokenbench -- fix the broken SystemVerilog, make it pass."
 	@echo ""
-	@echo "Two tracks:"
-	@echo "  learn/      never touched SV before? start here."
-	@echo "  exercises/  interview-prep, real constrained-random gotchas."
+	@echo "learn/          never touched SV before? start here."
+	@echo "exercises/sv/   interview-prep, real constrained-random gotchas."
+	@echo "exercises/uvm/  UVM component bugs (scoreboards, config_db, phasing)."
+	@echo "exercises/csr/  uvm_reg / register-map exercises."
 	@echo ""
 	@echo "  make run EX=missing_rand              compile and run one exercise by slug"
 	@echo "  make run EX=and_instead_of_implies"
 	@echo "  make check TRACK=learn                run a whole track in order, stop at the first failure"
-	@echo "  make check TRACK=exercises"
-	@echo "  make check TRACK=exercises EX=cyclic_rand_constraint   start partway through a track"
+	@echo "  make check TRACK=sv"
+	@echo "  make check TRACK=sv EX=cyclic_rand_constraint   start partway through a track"
 	@echo "  make find TAG=multi-constraint         list exercises with a tag (see manifest.toml)"
-	@echo "  make find TAG=multi-constraint TRACK=exercises"
-	@echo "  make list                              list every exercise in both tracks, with tags"
+	@echo "  make find TAG=multi-constraint TRACK=sv"
+	@echo "  make list                              list every exercise in every track, with tags"
 	@echo "  make clean                             remove build artifacts"
 
 run:
@@ -39,7 +40,7 @@ run:
 
 check:
 	@track="$(TRACK)"; \
-	if [ -z "$$track" ]; then echo "usage: make check TRACK=learn  (or TRACK=exercises)"; exit 1; fi; \
+	if [ -z "$$track" ]; then echo "usage: make check TRACK=learn  (or TRACK=sv, uvm, csr)"; exit 1; fi; \
 	started=1; \
 	start_path=""; \
 	if [ -n "$(EX)" ]; then \
@@ -75,15 +76,21 @@ find:
 	@args=""; \
 	for t in $(TAG); do args="$$args --tag $$t"; done; \
 	if [ -n "$(TRACK)" ]; then args="$$args --track $(TRACK)"; fi; \
-	if [ -z "$$args" ]; then echo "usage: make find TAG=multi-constraint  (optionally + TRACK=learn or TRACK=exercises)"; exit 1; fi; \
+	if [ -z "$$args" ]; then echo "usage: make find TAG=multi-constraint  (optionally + TRACK=learn/sv/uvm/csr)"; exit 1; fi; \
 	$(PYTHON) $(SCRIPTS)/find_exercise.py $$args
 
 list:
 	@echo "learn/ -- never touched SV before? start here:"
 	@$(PYTHON) $(SCRIPTS)/find_exercise.py --list --track learn
 	@echo ""
-	@echo "exercises/ -- interview-prep, real constrained-random gotchas:"
-	@$(PYTHON) $(SCRIPTS)/find_exercise.py --list --track exercises
+	@echo "exercises/sv/ -- interview-prep, real constrained-random gotchas:"
+	@$(PYTHON) $(SCRIPTS)/find_exercise.py --list --track sv
+	@echo ""
+	@echo "exercises/uvm/ -- UVM component bugs:"
+	@$(PYTHON) $(SCRIPTS)/find_exercise.py --list --track uvm
+	@echo ""
+	@echo "exercises/csr/ -- uvm_reg / register-map exercises:"
+	@$(PYTHON) $(SCRIPTS)/find_exercise.py --list --track csr
 
 clean:
 	rm -rf $(BUILD_DIR)

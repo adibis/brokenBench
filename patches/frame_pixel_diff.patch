@@ -1,7 +1,7 @@
-diff --git a/exercises/frame_pixel_diff.sv b/exercises/frame_pixel_diff.sv
+diff --git a/exercises/sv/frame_pixel_diff.sv b/exercises/sv/frame_pixel_diff.sv
 index 676ff76..09857b8 100644
---- a/exercises/frame_pixel_diff.sv
-+++ b/exercises/frame_pixel_diff.sv
+--- a/exercises/sv/frame_pixel_diff.sv
++++ b/exercises/sv/frame_pixel_diff.sv
 @@ -25,7 +25,27 @@
  // -------------------------------------------------------------------------------------------------
  class frame_item;

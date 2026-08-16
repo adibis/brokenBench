@@ -1,7 +1,7 @@
-diff --git a/exercises/unique_oversized_array.sv b/exercises/unique_oversized_array.sv
+diff --git a/exercises/sv/unique_oversized_array.sv b/exercises/sv/unique_oversized_array.sv
 index 2e27efd..a8765a7 100644
---- a/exercises/unique_oversized_array.sv
-+++ b/exercises/unique_oversized_array.sv
+--- a/exercises/sv/unique_oversized_array.sv
++++ b/exercises/sv/unique_oversized_array.sv
 @@ -19,7 +19,7 @@
  // Don't edit anything at or below the "checker" marker.
  

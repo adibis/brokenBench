@@ -1,7 +1,7 @@
-diff --git a/exercises/and_instead_of_implies.sv b/exercises/and_instead_of_implies.sv
+diff --git a/exercises/sv/and_instead_of_implies.sv b/exercises/sv/and_instead_of_implies.sv
 index c999dd6..106bd94 100644
---- a/exercises/and_instead_of_implies.sv
-+++ b/exercises/and_instead_of_implies.sv
+--- a/exercises/sv/and_instead_of_implies.sv
++++ b/exercises/sv/and_instead_of_implies.sv
 @@ -16,7 +16,7 @@ class txn_item;
    rand bit [7:0] wdata;
  

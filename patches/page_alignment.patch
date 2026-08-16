@@ -1,7 +1,7 @@
-diff --git a/exercises/page_alignment.sv b/exercises/page_alignment.sv
+diff --git a/exercises/sv/page_alignment.sv b/exercises/sv/page_alignment.sv
 index b60704b..c00bbbc 100644
---- a/exercises/page_alignment.sv
-+++ b/exercises/page_alignment.sv
+--- a/exercises/sv/page_alignment.sv
++++ b/exercises/sv/page_alignment.sv
 @@ -20,7 +20,8 @@
  // -------------------------------------------------------------------------------------------------
  class page_item;

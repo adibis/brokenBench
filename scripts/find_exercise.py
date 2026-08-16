@@ -51,7 +51,8 @@ def parse_manifest(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--slug", help="resolve a single exercise's path by its slug")
-    parser.add_argument("--track", choices=["learn", "exercises"], help="filter to one track")
+    parser.add_argument("--track", choices=["learn", "sv", "uvm", "csr"],
+                         help="filter to one track")
     parser.add_argument("--tag", action="append", default=[],
                          help="filter to exercises with this tag (repeatable, AND semantics)")
     parser.add_argument("--list", action="store_true",
@@ -81,8 +82,19 @@ def main():
     results.sort(key=lambda e: (e["track"], e["order"]))
 
     if not results:
-        print("no exercises match that filter", file=sys.stderr)
-        sys.exit(1)
+        # Not an error: an empty track (e.g. uvm/csr before any exercises
+        # exist there yet) or a tag with no current matches is a normal,
+        # expected state, not a lookup failure -- only --slug (a specific,
+        # named lookup) hard-fails on no match, handled above. The "nothing
+        # found" note goes to stderr, not stdout: callers like `make check`
+        # capture stdout expecting either file paths or nothing, and a
+        # human-readable sentence on stdout would get word-split into bogus
+        # filenames.
+        if args.json:
+            print("[]")
+        else:
+            print("(no exercises match that filter yet)", file=sys.stderr)
+        return
 
     if args.json:
         print(json.dumps(results))

@@ -23,12 +23,9 @@ VFLAGS = ["--binary", "--timing", "-j", "0", "-Wno-fatal", "-Wno-IMPLICITSTATIC"
 
 
 def all_exercises():
-    exercises = []
-    for track in ("learn", "exercises"):
-        result = subprocess.run([sys.executable, FIND_EXERCISE, "--json", "--track", track],
-                                 capture_output=True, text=True)
-        exercises += json.loads(result.stdout) if result.returncode == 0 else []
-    return exercises
+    result = subprocess.run([sys.executable, FIND_EXERCISE, "--json"],
+                             capture_output=True, text=True)
+    return json.loads(result.stdout) if result.returncode == 0 else []
 
 
 def main():

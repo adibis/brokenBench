@@ -1,7 +1,7 @@
-diff --git a/exercises/constraint_mode_leftover.sv b/exercises/constraint_mode_leftover.sv
+diff --git a/exercises/sv/constraint_mode_leftover.sv b/exercises/sv/constraint_mode_leftover.sv
 index fa8e03e..1fc45d9 100644
---- a/exercises/constraint_mode_leftover.sv
-+++ b/exercises/constraint_mode_leftover.sv
+--- a/exercises/sv/constraint_mode_leftover.sv
++++ b/exercises/sv/constraint_mode_leftover.sv
 @@ -15,11 +15,6 @@ class addr_item;
  
    constraint c_range { addr inside {[16'h1000:16'hFFFF]}; }

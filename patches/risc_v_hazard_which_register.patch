@@ -1,7 +1,7 @@
-diff --git a/exercises/risc_v_hazard_which_register.sv b/exercises/risc_v_hazard_which_register.sv
+diff --git a/exercises/sv/risc_v_hazard_which_register.sv b/exercises/sv/risc_v_hazard_which_register.sv
 index 8dddd0f..4269024 100644
---- a/exercises/risc_v_hazard_which_register.sv
-+++ b/exercises/risc_v_hazard_which_register.sv
+--- a/exercises/sv/risc_v_hazard_which_register.sv
++++ b/exercises/sv/risc_v_hazard_which_register.sv
 @@ -21,7 +21,26 @@ class instr_item;
    rand bit [4:0] src_reg_0;
    rand bit [4:0] src_reg_1;

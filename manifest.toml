@@ -62,128 +62,128 @@ tags  = ["lifecycle-hook"]
 
 [[exercise]]
 slug  = "offset_narrowed_to_one_value"
-path  = "exercises/offset_narrowed_to_one_value.sv"
+path  = "exercises/sv/offset_narrowed_to_one_value.sv"
 order = 1
-track = "exercises"
+track = "sv"
 tags  = ["multi-constraint"]
 
 [[exercise]]
 slug  = "constraint_mode_leftover"
-path  = "exercises/constraint_mode_leftover.sv"
+path  = "exercises/sv/constraint_mode_leftover.sv"
 order = 2
-track = "exercises"
+track = "sv"
 tags  = ["single-constraint", "lifecycle-hook"]
 
 [[exercise]]
 slug  = "and_instead_of_implies"
-path  = "exercises/and_instead_of_implies.sv"
+path  = "exercises/sv/and_instead_of_implies.sv"
 order = 3
-track = "exercises"
+track = "sv"
 tags  = ["single-constraint"]
 
 [[exercise]]
 slug  = "off_by_one_excludes_boundary"
-path  = "exercises/off_by_one_excludes_boundary.sv"
+path  = "exercises/sv/off_by_one_excludes_boundary.sv"
 order = 4
-track = "exercises"
+track = "sv"
 tags  = ["single-constraint", "boundary-value"]
 
 [[exercise]]
 slug  = "soft_constraint_overridden"
-path  = "exercises/soft_constraint_overridden.sv"
+path  = "exercises/sv/soft_constraint_overridden.sv"
 order = 5
-track = "exercises"
+track = "sv"
 tags  = ["multi-constraint"]
 
 [[exercise]]
 slug  = "pre_randomize_local_state"
-path  = "exercises/pre_randomize_local_state.sv"
+path  = "exercises/sv/pre_randomize_local_state.sv"
 order = 6
-track = "exercises"
+track = "sv"
 tags  = ["lifecycle-hook", "cross-call-state"]
 
 [[exercise]]
 slug  = "inherited_constraints_stack"
-path  = "exercises/inherited_constraints_stack.sv"
+path  = "exercises/sv/inherited_constraints_stack.sv"
 order = 7
-track = "exercises"
+track = "sv"
 tags  = ["inheritance", "multi-constraint"]
 
 [[exercise]]
 slug  = "post_randomize_clamp"
-path  = "exercises/post_randomize_clamp.sv"
+path  = "exercises/sv/post_randomize_clamp.sv"
 order = 8
-track = "exercises"
+track = "sv"
 tags  = ["lifecycle-hook"]
 
 [[exercise]]
 slug  = "dist_weight_operator"
-path  = "exercises/dist_weight_operator.sv"
+path  = "exercises/sv/dist_weight_operator.sv"
 order = 9
-track = "exercises"
+track = "sv"
 tags  = ["statistical", "single-constraint"]
 
 [[exercise]]
 slug  = "inline_randomize_with_scoping"
-path  = "exercises/inline_randomize_with_scoping.sv"
+path  = "exercises/sv/inline_randomize_with_scoping.sv"
 order = 10
-track = "exercises"
+track = "sv"
 tags  = ["scoping", "single-constraint"]
 
 [[exercise]]
 slug  = "empty_inside_queue"
-path  = "exercises/empty_inside_queue.sv"
+path  = "exercises/sv/empty_inside_queue.sv"
 order = 11
-track = "exercises"
+track = "sv"
 tags  = ["single-constraint"]
 
 [[exercise]]
 slug  = "nonoverlapping_address_ranges"
-path  = "exercises/nonoverlapping_address_ranges.sv"
+path  = "exercises/sv/nonoverlapping_address_ranges.sv"
 order = 12
-track = "exercises"
+track = "sv"
 tags  = ["multi-constraint", "array"]
 
 [[exercise]]
 slug  = "n_bit_hamming_delta"
-path  = "exercises/n_bit_hamming_delta.sv"
+path  = "exercises/sv/n_bit_hamming_delta.sv"
 order = 13
-track = "exercises"
+track = "sv"
 tags  = ["single-constraint", "cross-call-state"]
 
 [[exercise]]
 slug  = "cyclic_rand_constraint"
-path  = "exercises/cyclic_rand_constraint.sv"
+path  = "exercises/sv/cyclic_rand_constraint.sv"
 order = 14
-track = "exercises"
+track = "sv"
 tags  = ["multi-constraint", "unsatisfiable"]
 
 [[exercise]]
 slug  = "unique_oversized_array"
-path  = "exercises/unique_oversized_array.sv"
+path  = "exercises/sv/unique_oversized_array.sv"
 order = 15
-track = "exercises"
+track = "sv"
 tags  = ["tool-limitation", "array"]
 
 [[exercise]]
 slug  = "unique_without_unique_keyword"
-path  = "exercises/unique_without_unique_keyword.sv"
+path  = "exercises/sv/unique_without_unique_keyword.sv"
 order = 16
-track = "exercises"
+track = "sv"
 tags  = ["tool-limitation", "array"]
 
 [[exercise]]
 slug  = "matrix_row_col_sum"
-path  = "exercises/matrix_row_col_sum.sv"
+path  = "exercises/sv/matrix_row_col_sum.sv"
 order = 17
-track = "exercises"
+track = "sv"
 tags  = ["multi-constraint", "array", "tool-limitation"]
 
 [[exercise]]
 slug  = "unique_scalar_vs_slice"
-path  = "exercises/unique_scalar_vs_slice.sv"
+path  = "exercises/sv/unique_scalar_vs_slice.sv"
 order = 18
-track = "exercises"
+track = "sv"
 tags  = ["tool-limitation", "write-from-scratch", "requires-patched-verilator", "array"]
 # The only place this exercise's toolchain requirement is recorded -- CI and
 # scripts must read this field, not hardcode the slug. Confirmed broken (real
@@ -197,49 +197,49 @@ verilator_broken_as_of     = "5.050"
 
 [[exercise]]
 slug  = "length_field_bounded_dependent_constraint"
-path  = "exercises/length_field_bounded_dependent_constraint.sv"
+path  = "exercises/sv/length_field_bounded_dependent_constraint.sv"
 order = 19
-track = "exercises"
+track = "sv"
 tags  = ["single-constraint", "boundary-value"]
 
 [[exercise]]
 slug  = "array_size_before_reduction"
-path  = "exercises/array_size_before_reduction.sv"
+path  = "exercises/sv/array_size_before_reduction.sv"
 order = 20
-track = "exercises"
+track = "sv"
 tags  = ["tool-limitation", "array"]
 
 [[exercise]]
 slug  = "page_alignment"
-path  = "exercises/page_alignment.sv"
+path  = "exercises/sv/page_alignment.sv"
 order = 21
-track = "exercises"
+track = "sv"
 tags  = ["write-from-scratch"]
 
 [[exercise]]
 slug  = "frame_pixel_diff"
-path  = "exercises/frame_pixel_diff.sv"
+path  = "exercises/sv/frame_pixel_diff.sv"
 order = 22
-track = "exercises"
+track = "sv"
 tags  = ["write-from-scratch", "lifecycle-hook", "cross-call-state", "array"]
 
 [[exercise]]
 slug  = "unique_ids_across_calls"
-path  = "exercises/unique_ids_across_calls.sv"
+path  = "exercises/sv/unique_ids_across_calls.sv"
 order = 23
-track = "exercises"
+track = "sv"
 tags  = ["write-from-scratch", "cross-call-state", "lifecycle-hook"]
 
 [[exercise]]
 slug  = "risc_v_data_hazard"
-path  = "exercises/risc_v_data_hazard.sv"
+path  = "exercises/sv/risc_v_data_hazard.sv"
 order = 24
-track = "exercises"
+track = "sv"
 tags  = ["write-from-scratch", "statistical", "cross-call-state"]
 
 [[exercise]]
 slug  = "risc_v_hazard_which_register"
-path  = "exercises/risc_v_hazard_which_register.sv"
+path  = "exercises/sv/risc_v_hazard_which_register.sv"
 order = 25
-track = "exercises"
+track = "sv"
 tags  = ["write-from-scratch", "statistical", "cross-call-state", "multi-constraint"]

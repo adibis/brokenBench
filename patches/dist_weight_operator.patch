@@ -1,7 +1,7 @@
-diff --git a/exercises/dist_weight_operator.sv b/exercises/dist_weight_operator.sv
+diff --git a/exercises/sv/dist_weight_operator.sv b/exercises/sv/dist_weight_operator.sv
 index f05283d..ea596f4 100644
---- a/exercises/dist_weight_operator.sv
-+++ b/exercises/dist_weight_operator.sv
+--- a/exercises/sv/dist_weight_operator.sv
++++ b/exercises/sv/dist_weight_operator.sv
 @@ -17,7 +17,7 @@ class priority_item;
    rand bit [1:0] prio;
    // intent: priority 0 should come up about as often as 1, 2, and 3

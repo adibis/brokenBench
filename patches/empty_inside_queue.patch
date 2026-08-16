@@ -1,7 +1,7 @@
-diff --git a/exercises/empty_inside_queue.sv b/exercises/empty_inside_queue.sv
+diff --git a/exercises/sv/empty_inside_queue.sv b/exercises/sv/empty_inside_queue.sv
 index b5716cf..97c58dd 100644
---- a/exercises/empty_inside_queue.sv
-+++ b/exercises/empty_inside_queue.sv
+--- a/exercises/sv/empty_inside_queue.sv
++++ b/exercises/sv/empty_inside_queue.sv
 @@ -21,6 +21,9 @@ class legal_item;
    rand int val;
    int legal_vals[$];
