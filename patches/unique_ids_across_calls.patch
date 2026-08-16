@@ -1,0 +1,24 @@
+diff --git a/exercises/unique_ids_across_calls.sv b/exercises/unique_ids_across_calls.sv
+index 126cdc8..f9a8f51 100644
+--- a/exercises/unique_ids_across_calls.sv
++++ b/exercises/unique_ids_across_calls.sv
+@@ -21,15 +21,13 @@
+ // out exactly once, in any order, before a randomize() call is ever allowed to fail or repeat one.
+ // -------------------------------------------------------------------------------------------------
+ class id_item;
+-  randc bit [3:0] id;
+-  bit [3:0] last_id;
+-  bit       has_last;
++  rand bit [3:0] id;
++  bit [3:0] used_q[$];
+ 
+-  constraint c_no_immediate_repeat { has_last -> id != last_id; }
++  constraint c_unused { !(id inside {used_q}); }
+ 
+   function void post_randomize();
+-    last_id  = id;
+-    has_last = 1;
++    used_q.push_back(id);
+   endfunction
+ endclass
+ 

@@ -101,6 +101,45 @@ If you hit something that looks like this list rather than the intended
 lesson, it's probably exactly that -- open an issue rather than assume you
 did something wrong.
 
+## CI and the patch system
+
+Solutions never live in this repo as full solved files -- only `patches/`,
+one unified diff per exercise, applying cleanly on top of the shipped
+(broken) `.sv` file to produce a working one. Same approach
+[ziglings uses](https://codeberg.org/ziglings/exercises/src/branch/main/patches):
+answers generated with `diff -u`, never committed in solved form, so
+browsing the repo doesn't spoil an exercise the way a `solutions/` folder
+full of finished code would.
+
+`scripts/patch_one.py <slug>` applies one exercise's patch; `scripts/patch_all.py`
+applies every one. Both refuse to touch anything at or below the checker
+marker (`scripts/check_patch_safety.py` enforces this as a hard gate -- a
+"solution" that edits the checker to force a pass would be worse than no
+patch at all) and refuse to apply if the patch doesn't cleanly apply in the
+first place.
+
+CI (`.github/workflows/ci.yml`) runs on every push and pull request:
+
+- **lint** -- patches applied into a scratch copy, then checked against this
+  repo's 100-column line-length standard with `verible-verilog-lint`.
+- **manifest-sync** -- `manifest.toml` and the actual `.sv` files on disk
+  must agree, both directions.
+- **unpatched-must-fail** -- every exercise, shipped as-is, must genuinely
+  fail. Catches an exercise accidentally committed pre-fixed, or a checker
+  that doesn't actually test anything.
+- **patches-solve** -- every patch is applied into a scratch copy and must
+  make its own exercise's checker pass. This is how a patch is proven to be
+  a real, complete solution, not just a plausible-looking diff.
+
+One exercise, `unique_scalar_vs_slice`, needs a Verilator built from an
+unreleased upstream patch to even compile (see `manifest.toml`'s
+`requires_patched_verilator` / `verilator_broken_as_of` fields on that
+entry -- that's the only place this exclusion is recorded, not hardcoded
+into any script). It's excluded from the `patches-solve` gate with a
+documented reason rather than silently skipped, and has its own manual-only
+CI job as a placeholder for testing it against a patched build once one
+exists.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

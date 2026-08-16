@@ -1,0 +1,21 @@
+diff --git a/learn/sv_mechanics_chain.sv b/learn/sv_mechanics_chain.sv
+index 7653afc..2cf71f7 100644
+--- a/learn/sv_mechanics_chain.sv
++++ b/learn/sv_mechanics_chain.sv
+@@ -15,13 +15,14 @@ class addr_item;
+   rand bit [15:0] addr;
+   rand bit [3:0]  size;
+   constraint c_addr {
+-    addr[1:0] == 2'b00
+-    sz inside {[1:8]};
++    addr[1:0] == 2'b00;
++    size inside {[1:8]};
+   }
+ endclass
+ 
+ function addr_item make_item();
+   addr_item item;
++  item = new();
+   return item;
+ endfunction
+ 

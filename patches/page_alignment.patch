@@ -1,0 +1,14 @@
+diff --git a/exercises/page_alignment.sv b/exercises/page_alignment.sv
+index b60704b..c00bbbc 100644
+--- a/exercises/page_alignment.sv
++++ b/exercises/page_alignment.sv
+@@ -20,7 +20,8 @@
+ // -------------------------------------------------------------------------------------------------
+ class page_item;
+   rand bit [31:0] addr;
+-  // write constraints here
++  constraint c_range { addr inside {[32'h0000_0000:32'h000F_FFFF]}; }
++  constraint c_align { addr[11:0] == 12'b0; }
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

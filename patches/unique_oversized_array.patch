@@ -1,0 +1,13 @@
+diff --git a/exercises/unique_oversized_array.sv b/exercises/unique_oversized_array.sv
+index 2e27efd..a8765a7 100644
+--- a/exercises/unique_oversized_array.sv
++++ b/exercises/unique_oversized_array.sv
+@@ -19,7 +19,7 @@
+ // Don't edit anything at or below the "checker" marker.
+ 
+ class tag_item;
+-  rand bit [3:0] tags[20];   // only 16 distinct 4-bit values exist
++  rand bit [3:0] tags[4];
+   constraint c_unique { unique {tags}; }
+ endclass
+ 

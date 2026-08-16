@@ -1,0 +1,13 @@
+diff --git a/exercises/and_instead_of_implies.sv b/exercises/and_instead_of_implies.sv
+index c999dd6..106bd94 100644
+--- a/exercises/and_instead_of_implies.sv
++++ b/exercises/and_instead_of_implies.sv
+@@ -16,7 +16,7 @@ class txn_item;
+   rand bit [7:0] wdata;
+ 
+   // intent: writes need data, reads don't care what wdata holds
+-  constraint c_write_data { is_write && (wdata inside {[1:255]}); }
++  constraint c_write_data { is_write -> (wdata inside {[1:255]}); }
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

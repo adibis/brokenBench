@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint (100-column standard)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download verible
+        # Verible's release asset filenames embed the version tag (e.g.
+        # verible-v0.0-4145-g7bd8603b-linux-static-x86_64.tar.gz), so there's
+        # no stable /latest/download/<name> URL to hardcode -- resolve the
+        # actual asset URL from the API instead.
+        run: |
+          url=$(curl -fsSL https://api.github.com/repos/chipsalliance/verible/releases/latest \
+            | grep -o '"browser_download_url": *"[^"]*linux-static-x86_64[^"]*"' \
+            | head -1 | sed -E 's/.*"(https[^"]+)"/\1/')
+          curl -fsSL -o verible.tar.gz "$url"
+          mkdir -p verible && tar xzf verible.tar.gz -C verible --strip-components=1
+          echo "$PWD/verible/bin" >> "$GITHUB_PATH"
+      - name: Apply patches into a scratch copy
+        # Lint the *patched* (syntactically complete) files, not the shipped
+        # ones: several exercises' bug is a deliberate parse error, which a
+        # linter's parser can't get past to even check line length. The
+        # patched form is what's actually being style-checked here.
+        run: |
+          mkdir -p /tmp/lint-scratch
+          cp -r learn exercises /tmp/lint-scratch/
+          python3 scripts/patch_all.py --target-dir /tmp/lint-scratch
+      - name: Lint patched learn/ and exercises/
+        # --ruleset=none: verible's default ruleset enables many style rules
+        # (module name must match filename, constraint naming conventions,
+        # forbidding void-cast randomize(), etc.) that conflict with this
+        # repo's deliberate conventions (every exercise uses `module top;`
+        # so the Makefile can invoke any of them uniformly). Only line-length
+        # is an actual house rule here.
+        run: verible-verilog-lint --ruleset=none --rules=+line-length /tmp/lint-scratch/learn/*.sv /tmp/lint-scratch/exercises/*.sv
+
+  manifest-sync:
+    name: manifest.toml matches disk
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/check_manifest_sync.py
+
+  unpatched-must-fail:
+    name: Every exercise fails as shipped
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Verilator
+        run: sudo apt-get update && sudo apt-get install -y verilator
+      - run: python3 scripts/check_unpatched_fails.py
+
+  patches-solve:
+    name: Every patch applies safely and passes its checker
+    needs: [manifest-sync]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Verilator
+        run: sudo apt-get update && sudo apt-get install -y verilator
+      - run: python3 scripts/check_patches_pass.py
+
+  # Advisory only: unique_scalar_vs_slice needs a Verilator built from an
+  # unmerged upstream patch (see manifest.toml's verilator_broken_as_of on
+  # that entry). Not wired into the default triggers above -- run manually
+  # via workflow_dispatch once there's a scripted way to build that patched
+  # binary; until then this is a documented gap, not a silent one.
+  patched-verilator-optional:
+    name: unique_scalar_vs_slice against a patched Verilator (manual only)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          echo "Not yet implemented: build Verilator from the upstream patch referenced"
+          echo "in unique_scalar_vs_slice.sv's header, then run:"
+          echo "  python3 scripts/patch_one.py unique_scalar_vs_slice --allow-unverifiable"
+          echo "and verify it compiles and passes against that binary specifically."
+          exit 1

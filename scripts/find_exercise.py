@@ -4,10 +4,12 @@
 Deliberately doesn't depend on tomllib (Python 3.11+) or a third-party toml
 package -- this repo's only stated requirement is Verilator, and this parser
 only needs to handle manifest.toml's own narrow shape: a flat sequence of
-[[exercise]] tables, each with string/int/list-of-string values, no nesting.
+[[exercise]] tables, each with string/int/bool/list-of-string values, no
+nesting.
 """
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -37,6 +39,8 @@ def parse_manifest(path):
                 current[key] = items
             elif raw_value.startswith('"'):
                 current[key] = raw_value.strip('"')
+            elif raw_value in ("true", "false"):
+                current[key] = raw_value == "true"
             else:
                 current[key] = int(raw_value)
     if current is not None:
@@ -52,6 +56,8 @@ def main():
                          help="filter to exercises with this tag (repeatable, AND semantics)")
     parser.add_argument("--list", action="store_true",
                          help="print slug, track, and tags for every match")
+    parser.add_argument("--json", action="store_true",
+                         help="print full matching entries as a JSON array (for scripts/CI)")
     args = parser.parse_args()
 
     exercises = parse_manifest(MANIFEST_PATH)
@@ -61,7 +67,10 @@ def main():
         if not matches:
             print(f"no exercise with slug '{args.slug}' in manifest.toml", file=sys.stderr)
             sys.exit(1)
-        print(matches[0]["path"])
+        if args.json:
+            print(json.dumps(matches[0]))
+        else:
+            print(matches[0]["path"])
         return
 
     results = exercises
@@ -74,6 +83,10 @@ def main():
     if not results:
         print("no exercises match that filter", file=sys.stderr)
         sys.exit(1)
+
+    if args.json:
+        print(json.dumps(results))
+        return
 
     for e in results:
         if args.list:

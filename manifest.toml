@@ -185,6 +185,15 @@ path  = "exercises/unique_scalar_vs_slice.sv"
 order = 18
 track = "exercises"
 tags  = ["tool-limitation", "write-from-scratch", "requires-patched-verilator", "array"]
+# The only place this exercise's toolchain requirement is recorded -- CI and
+# scripts must read this field, not hardcode the slug. Confirmed broken (real
+# internal fault, not a graceful error) on the latest Verilator actually
+# available and tested against at the time this was set. Flip this to false
+# (and drop verilator_broken_as_of) once a release newer than that version is
+# tested and confirmed to no longer hit the crash -- don't guess from a PR
+# merging upstream, re-verify directly first.
+requires_patched_verilator = true
+verilator_broken_as_of     = "5.050"
 
 [[exercise]]
 slug  = "length_field_bounded_dependent_constraint"

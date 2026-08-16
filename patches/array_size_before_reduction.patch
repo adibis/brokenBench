@@ -1,0 +1,16 @@
+diff --git a/exercises/array_size_before_reduction.sv b/exercises/array_size_before_reduction.sv
+index bf7c546..c2c79f2 100644
+--- a/exercises/array_size_before_reduction.sv
++++ b/exercises/array_size_before_reduction.sv
+@@ -18,10 +18,7 @@
+ // Don't edit anything at or below the "checker" marker.
+ 
+ class buf_item;
+-  rand int unsigned n;
+-  rand int data[];
+-  constraint c_n     { n inside {[2:4]}; }
+-  constraint c_size  { data.size() == n; }
++  rand int data[3];
+   constraint c_elem  { foreach (data[i]) data[i] inside {[0:50]}; }
+   constraint c_sum   { data.sum() == 100; }
+ endclass

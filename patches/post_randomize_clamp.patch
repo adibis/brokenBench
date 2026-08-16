@@ -1,0 +1,17 @@
+diff --git a/exercises/post_randomize_clamp.sv b/exercises/post_randomize_clamp.sv
+index a5f4d9c..efc5e4d 100644
+--- a/exercises/post_randomize_clamp.sv
++++ b/exercises/post_randomize_clamp.sv
+@@ -17,12 +17,6 @@ class gain_item;
+   rand bit [7:0] gain;
+   constraint c_range { gain inside {[10:200]}; }
+ 
+-  function void post_randomize();
+-    // meant to guard against an out-of-range value; the solver already
+-    // guarantees this range, so this always fires and always to the
+-    // same value
+-    if (gain < 250) gain = 100;
+-  endfunction
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

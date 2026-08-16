@@ -1,0 +1,15 @@
+diff --git a/exercises/inherited_constraints_stack.sv b/exercises/inherited_constraints_stack.sv
+index ed7f3d8..25657c4 100644
+--- a/exercises/inherited_constraints_stack.sv
++++ b/exercises/inherited_constraints_stack.sv
+@@ -19,6 +19,10 @@ endclass
+ 
+ class wide_item extends base_item;
+   constraint c_wide_range { value inside {[40:255]}; }
++  function new();
++    super.new();
++    c_range.constraint_mode(0);
++  endfunction
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

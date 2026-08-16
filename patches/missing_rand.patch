@@ -1,0 +1,13 @@
+diff --git a/learn/missing_rand.sv b/learn/missing_rand.sv
+index 4cb805f..c452400 100644
+--- a/learn/missing_rand.sv
++++ b/learn/missing_rand.sv
+@@ -12,7 +12,7 @@
+ // Don't edit anything at or below the "checker" marker.
+ 
+ class delay_item;
+-  bit [7:0] delay;
++  rand bit [7:0] delay;
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

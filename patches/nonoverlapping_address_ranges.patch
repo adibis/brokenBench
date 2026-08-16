@@ -1,0 +1,13 @@
+diff --git a/exercises/nonoverlapping_address_ranges.sv b/exercises/nonoverlapping_address_ranges.sv
+index 21c6615..0ce5502 100644
+--- a/exercises/nonoverlapping_address_ranges.sv
++++ b/exercises/nonoverlapping_address_ranges.sv
+@@ -16,7 +16,7 @@ class region_set;
+   rand bit [15:0] size[3];
+   constraint c_size   { foreach (size[i]) size[i] inside {[1:20]}; }
+   constraint c_bounds { foreach (base[i]) base[i] inside {[0:1000]}; }
+-  constraint c_order  { base[0] < base[1]; base[1] < base[2]; }
++  constraint c_order  { base[0] + size[0] <= base[1]; base[1] + size[1] <= base[2]; }
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

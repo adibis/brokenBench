@@ -1,0 +1,13 @@
+diff --git a/exercises/inline_randomize_with_scoping.sv b/exercises/inline_randomize_with_scoping.sv
+index acf97ad..f023d81 100644
+--- a/exercises/inline_randomize_with_scoping.sv
++++ b/exercises/inline_randomize_with_scoping.sv
+@@ -17,7 +17,7 @@ class pkt_item;
+ endclass
+ 
+ function void randomize_with_target(pkt_item item, int len);
+-  void'(item.randomize() with { len == len; });
++  void'(item.randomize() with { len == local::len; });
+ endfunction
+ 
+ // ---8<--- checker below: don't edit ---

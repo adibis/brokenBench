@@ -1,0 +1,33 @@
+diff --git a/exercises/frame_pixel_diff.sv b/exercises/frame_pixel_diff.sv
+index 676ff76..09857b8 100644
+--- a/exercises/frame_pixel_diff.sv
++++ b/exercises/frame_pixel_diff.sv
+@@ -25,7 +25,27 @@
+ // -------------------------------------------------------------------------------------------------
+ class frame_item;
+   rand bit [7:0] frame[4][4];
+-  // write constraints here
++  bit   [7:0] prev_frame[4][4];
++  bit         has_prev;
++
++  rand int unsigned diff_i;
++  rand int unsigned diff_j;
++
++  constraint c_diff_idx { diff_i inside {[0:3]}; diff_j inside {[0:3]}; }
++
++  constraint c_one_pixel_diff {
++    if (has_prev) {
++      foreach (frame[i, j]) {
++        if (i == diff_i && j == diff_j) frame[i][j] != prev_frame[i][j];
++        else frame[i][j] == prev_frame[i][j];
++      }
++    }
++  }
++
++  function void post_randomize();
++    prev_frame = frame;
++    has_prev   = 1;
++  endfunction
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---
