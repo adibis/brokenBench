@@ -116,6 +116,45 @@ tooling quirk rather than the intended lesson:
   Not built into an exercise (there's no reliable way to demonstrate a "fix"
   for behavior that's simply not implemented as documented), but worth
   knowing if you're relying on that semantic.
+- **`randc`'s cyclic no-repeat guarantee holds under a static constraint but
+  breaks under a dynamic one** -- excluding a literal value works as
+  documented, but excluding the *previous call's* result (e.g. via
+  `post_randomize` state) doesn't: repeats of an already-seen value start
+  almost immediately (confirmed: call 2 of 40, 16-value domain) instead of
+  only after the full domain is exhausted. Use a plain `rand` field plus a
+  used-value queue (`inside {}`) for "don't repeat a used ID" instead --
+  see `unique_ids_across_calls`.
+- **Indexing a non-`rand` array by a `rand` variable inside a constraint
+  crashes the SMT solver outright**, not a graceful solve failure --
+  `bit used[16]; constraint c { !used[id]; }` (`id` is `rand`) produces
+  `select requires 1 arguments, but was provided with 2 arguments` from the
+  solver itself. The queue + `inside {}` idiom above avoids this entirely
+  and is the pattern to reuse for any "exclude a set of already-used
+  values" constraint.
+- **Comparing two whole unpacked arrays with `!=` inside a constraint fails
+  outright, regardless of any guard around it** -- `constraint c { has_prev
+  -> frame != prev_frame; }` produces a solver error (`Sorts (Array ...)
+  and (_ BitVec N) are incompatible`) even when `has_prev` is `0`, so the
+  guard never gets a chance to short-circuit it; the solver can't translate
+  whole-array `!=` to SMT at all, unconditionally. `frame_pixel_diff`
+  avoids whole-array comparison entirely.
+- **`dist` on an enum-typed `rand` field doesn't distribute correctly**,
+  even though identical weights on a plain sized `bit` field of the same
+  width work exactly as specified -- confirmed over 2000 trials: an enum
+  field with `dist {A:=20, B:=50, C:=30}` lands nowhere near those weights
+  (25/28/47 observed), while the same weights on `rand bit [1:0]` land
+  within about a point of target (19/51/30). Don't use an enum type for a
+  weighted-`dist` field in Verilator -- use a plain sized `bit` field with
+  documented numeric meanings instead.
+
+One more thing worth knowing, though it's standard SystemVerilog semantics
+(IEEE 1800-2023 6.21), not a Verilator-specific limitation: **a variable
+declared inside a loop's `begin...end` block, without the `automatic`
+keyword, defaults to *static* lifetime** -- its initializer runs once, not
+on every iteration, so it silently accumulates instead of resetting. Looks
+exactly like a randomization bug until traced with real debug output.
+Declare loop-body-local accumulator variables `automatic`, or declare once
+outside the loop and assign (not re-declare) inside it.
 
 If you hit something that looks like this list rather than the intended
 lesson, it's probably exactly that -- open an issue rather than assume you
