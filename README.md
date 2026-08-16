@@ -44,13 +44,20 @@ brew install verilator     # macOS
 
 ## Running
 
+Exercises are referred to by a stable slug (the filename, minus `.sv`), not
+a number -- `manifest.toml` is the one place that tracks each exercise's
+track, order, and tags, so exercises can be reordered or retagged without
+ever renaming a file or breaking a command you've already got memorized.
+
 ```bash
-make list                   # see every exercise in both tracks
-make run EX=LEARN_01         # compile and run one exercise
-make run EX=EX_05
-make check TRACK=learn       # run a whole track in order, stop at the first failure
+make list                              # see every exercise in both tracks, with tags
+make run EX=missing_rand               # compile and run one exercise
+make run EX=and_instead_of_implies
+make check TRACK=learn                 # run a whole track in order, stop at the first failure
 make check TRACK=exercises
-make check TRACK=exercises EX=EX_10   # start partway through a track
+make check TRACK=exercises EX=cyclic_rand_constraint   # start partway through a track
+make find TAG=multi-constraint         # list exercises with a given tag
+make find TAG=tool-limitation TRACK=exercises
 ```
 
 Fix the class or function at the top of whichever exercise file you're stuck
@@ -68,20 +75,19 @@ tooling quirk rather than the intended lesson:
 - **`unique{}` on an array is reliable up to about 4 elements and silently
   wrong past that** -- it returns success with actual duplicates present,
   independent of how much headroom exists in the value space. See
-  `EX_12_unique_oversized_array` and its companion,
-  `EX_13_unique_without_unique_keyword`, which shows the pairwise-inequality
-  workaround.
+  `unique_oversized_array` and its companion, `unique_without_unique_keyword`,
+  which shows the pairwise-inequality workaround.
 - **`unique{}` on a row-slice of a 2D array crashes the compiler outright**
   (an internal fault, not a graceful error) on every released Verilator as
-  of this writing. `EX_16_matrix_row_col_sum` avoids it entirely and uses
+  of this writing. `matrix_row_col_sum` avoids it entirely and uses
   pairwise inequality instead. A real fix is up for review upstream
   ([verilator/verilator#8100](https://github.com/verilator/verilator/pull/8100));
-  `EX_21_unique_scalar_vs_slice` is written for a Verilator built from
+  `unique_scalar_vs_slice` is written for a Verilator built from
   that patch -- see the note at the top of that file for how to point
   `make run` at a patched binary.
 - **A `rand`-sized dynamic array combined with a `.sum()`/`.product()`
   reduction constraint over its own contents never solves**, even with
-  explicit `solve ... before` ordering hints. `EX_14_array_size_before_reduction`
+  explicit `solve ... before` ordering hints. `array_size_before_reduction`
   is built around this directly; the real fix is pinning the array's size,
   not a smarter ordering hint.
 - **`randomize(field)` does not hold other `rand` fields as state**, contrary

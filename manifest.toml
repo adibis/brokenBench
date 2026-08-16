@@ -1,0 +1,236 @@
+# Single source of truth for exercise order, track, and tags. Filenames
+# carry no numbering on purpose -- see README.md for why. `order` is the
+# intended progression within its track; `make check` walks entries in
+# this order, not filesystem order. Renumbering/reordering exercises means
+# editing this file only, never renaming a .sv file.
+
+[[exercise]]
+slug  = "missing_rand"
+path  = "learn/missing_rand.sv"
+order = 1
+track = "learn"
+tags  = ["syntax"]
+
+[[exercise]]
+slug  = "double_equals_in_constraint"
+path  = "learn/double_equals_in_constraint.sv"
+order = 2
+track = "learn"
+tags  = ["syntax"]
+
+[[exercise]]
+slug  = "unsatisfiable_constraint"
+path  = "learn/unsatisfiable_constraint.sv"
+order = 3
+track = "learn"
+tags  = ["runtime-check"]
+
+[[exercise]]
+slug  = "sv_mechanics_chain"
+path  = "learn/sv_mechanics_chain.sv"
+order = 4
+track = "learn"
+tags  = ["syntax", "runtime-check", "chained-bugs"]
+
+[[exercise]]
+slug  = "duplicate_constraint_name"
+path  = "learn/duplicate_constraint_name.sv"
+order = 5
+track = "learn"
+tags  = ["syntax"]
+
+[[exercise]]
+slug  = "missing_seed_reproducibility"
+path  = "learn/missing_seed_reproducibility.sv"
+order = 6
+track = "learn"
+tags  = ["best-practice"]
+
+[[exercise]]
+slug  = "uninitialized_dynamic_array"
+path  = "learn/uninitialized_dynamic_array.sv"
+order = 7
+track = "learn"
+tags  = ["dynamic-array"]
+
+[[exercise]]
+slug  = "rand_mode_leftover"
+path  = "learn/rand_mode_leftover.sv"
+order = 8
+track = "learn"
+tags  = ["lifecycle-hook"]
+
+[[exercise]]
+slug  = "offset_narrowed_to_one_value"
+path  = "exercises/offset_narrowed_to_one_value.sv"
+order = 1
+track = "exercises"
+tags  = ["multi-constraint"]
+
+[[exercise]]
+slug  = "constraint_mode_leftover"
+path  = "exercises/constraint_mode_leftover.sv"
+order = 2
+track = "exercises"
+tags  = ["single-constraint", "lifecycle-hook"]
+
+[[exercise]]
+slug  = "and_instead_of_implies"
+path  = "exercises/and_instead_of_implies.sv"
+order = 3
+track = "exercises"
+tags  = ["single-constraint"]
+
+[[exercise]]
+slug  = "off_by_one_excludes_boundary"
+path  = "exercises/off_by_one_excludes_boundary.sv"
+order = 4
+track = "exercises"
+tags  = ["single-constraint", "boundary-value"]
+
+[[exercise]]
+slug  = "soft_constraint_overridden"
+path  = "exercises/soft_constraint_overridden.sv"
+order = 5
+track = "exercises"
+tags  = ["multi-constraint"]
+
+[[exercise]]
+slug  = "pre_randomize_local_state"
+path  = "exercises/pre_randomize_local_state.sv"
+order = 6
+track = "exercises"
+tags  = ["lifecycle-hook", "cross-call-state"]
+
+[[exercise]]
+slug  = "inherited_constraints_stack"
+path  = "exercises/inherited_constraints_stack.sv"
+order = 7
+track = "exercises"
+tags  = ["inheritance", "multi-constraint"]
+
+[[exercise]]
+slug  = "post_randomize_clamp"
+path  = "exercises/post_randomize_clamp.sv"
+order = 8
+track = "exercises"
+tags  = ["lifecycle-hook"]
+
+[[exercise]]
+slug  = "dist_weight_operator"
+path  = "exercises/dist_weight_operator.sv"
+order = 9
+track = "exercises"
+tags  = ["statistical", "single-constraint"]
+
+[[exercise]]
+slug  = "inline_randomize_with_scoping"
+path  = "exercises/inline_randomize_with_scoping.sv"
+order = 10
+track = "exercises"
+tags  = ["scoping", "single-constraint"]
+
+[[exercise]]
+slug  = "empty_inside_queue"
+path  = "exercises/empty_inside_queue.sv"
+order = 11
+track = "exercises"
+tags  = ["single-constraint"]
+
+[[exercise]]
+slug  = "nonoverlapping_address_ranges"
+path  = "exercises/nonoverlapping_address_ranges.sv"
+order = 12
+track = "exercises"
+tags  = ["multi-constraint", "array"]
+
+[[exercise]]
+slug  = "n_bit_hamming_delta"
+path  = "exercises/n_bit_hamming_delta.sv"
+order = 13
+track = "exercises"
+tags  = ["single-constraint", "cross-call-state"]
+
+[[exercise]]
+slug  = "cyclic_rand_constraint"
+path  = "exercises/cyclic_rand_constraint.sv"
+order = 14
+track = "exercises"
+tags  = ["multi-constraint", "unsatisfiable"]
+
+[[exercise]]
+slug  = "unique_oversized_array"
+path  = "exercises/unique_oversized_array.sv"
+order = 15
+track = "exercises"
+tags  = ["tool-limitation", "array"]
+
+[[exercise]]
+slug  = "unique_without_unique_keyword"
+path  = "exercises/unique_without_unique_keyword.sv"
+order = 16
+track = "exercises"
+tags  = ["tool-limitation", "array"]
+
+[[exercise]]
+slug  = "matrix_row_col_sum"
+path  = "exercises/matrix_row_col_sum.sv"
+order = 17
+track = "exercises"
+tags  = ["multi-constraint", "array", "tool-limitation"]
+
+[[exercise]]
+slug  = "unique_scalar_vs_slice"
+path  = "exercises/unique_scalar_vs_slice.sv"
+order = 18
+track = "exercises"
+tags  = ["tool-limitation", "write-from-scratch", "requires-patched-verilator", "array"]
+
+[[exercise]]
+slug  = "length_field_bounded_dependent_constraint"
+path  = "exercises/length_field_bounded_dependent_constraint.sv"
+order = 19
+track = "exercises"
+tags  = ["single-constraint", "boundary-value"]
+
+[[exercise]]
+slug  = "array_size_before_reduction"
+path  = "exercises/array_size_before_reduction.sv"
+order = 20
+track = "exercises"
+tags  = ["tool-limitation", "array"]
+
+[[exercise]]
+slug  = "page_alignment"
+path  = "exercises/page_alignment.sv"
+order = 21
+track = "exercises"
+tags  = ["write-from-scratch"]
+
+[[exercise]]
+slug  = "frame_pixel_diff"
+path  = "exercises/frame_pixel_diff.sv"
+order = 22
+track = "exercises"
+tags  = ["write-from-scratch", "lifecycle-hook", "cross-call-state", "array"]
+
+[[exercise]]
+slug  = "unique_ids_across_calls"
+path  = "exercises/unique_ids_across_calls.sv"
+order = 23
+track = "exercises"
+tags  = ["write-from-scratch", "cross-call-state", "lifecycle-hook"]
+
+[[exercise]]
+slug  = "risc_v_data_hazard"
+path  = "exercises/risc_v_data_hazard.sv"
+order = 24
+track = "exercises"
+tags  = ["write-from-scratch", "statistical", "cross-call-state"]
+
+[[exercise]]
+slug  = "risc_v_hazard_which_register"
+path  = "exercises/risc_v_hazard_which_register.sv"
+order = 25
+track = "exercises"
+tags  = ["write-from-scratch", "statistical", "cross-call-state", "multi-constraint"]
