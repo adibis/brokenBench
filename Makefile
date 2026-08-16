@@ -3,6 +3,13 @@ SCRIPTS    := scripts
 PYTHON     := python3
 VERILATOR  := verilator
 VFLAGS     := --binary --timing -j 0 -Wno-fatal -Wno-IMPLICITSTATIC
+# z3's default invocation has no timeout: proving a genuinely-unsatisfiable
+# constraint set (several unpatched exercises are unsatisfiable by design)
+# can take far longer than finding a satisfying assignment does, and can
+# leave `make run`/`make check` hanging with no feedback. Bound it -- a
+# solver timeout makes randomize() return 0, the same outcome an unsolved
+# constraint set already produces.
+SOLVER_ENV := VERILATOR_SOLVER="z3 -t:10000 --in"
 
 # ANSI colors, ziglings/rustlings-style: respect NO_COLOR (https://no-color.org/)
 # and skip colorizing when stdout isn't a real terminal (piped to a file, a
@@ -52,7 +59,7 @@ run:
 		grep -A4 "%Error" $(BUILD_DIR)/$$name/build.log || tail -20 $(BUILD_DIR)/$$name/build.log; \
 		exit 1; \
 	fi; \
-	out=$$($(BUILD_DIR)/$$name/sim 2>&1); \
+	out=$$($(SOLVER_ENV) $(BUILD_DIR)/$$name/sim 2>&1); \
 	run_ok=$$?; \
 	echo "$$out" | sed -E "s/^(PASS:.*)/$${GREEN}\1$${RESET}/; s/^(FAIL:.*|%Fatal.*|%Error.*)/$${RED}\1$${RESET}/"; \
 	exit $$run_ok
@@ -80,7 +87,7 @@ check:
 			grep -A4 "%Error" $(BUILD_DIR)/$$name/build.log || tail -20 $(BUILD_DIR)/$$name/build.log; \
 			failed=1; break; \
 		fi; \
-		out=$$($(BUILD_DIR)/$$name/sim 2>&1); \
+		out=$$($(SOLVER_ENV) $(BUILD_DIR)/$$name/sim 2>&1); \
 		run_ok=$$?; \
 		if [ $$run_ok -ne 0 ]; then \
 			echo "$$name: $${RED}FAIL$${RESET}"; \

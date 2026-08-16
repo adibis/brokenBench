@@ -21,11 +21,24 @@ FIND_EXERCISE = os.path.join(os.path.dirname(__file__), "find_exercise.py")
 PATCH_ALL = os.path.join(os.path.dirname(__file__), "patch_all.py")
 VFLAGS = ["--binary", "--timing", "-j", "0", "-Wno-fatal", "-Wno-IMPLICITSTATIC"]
 
+COMPILE_TIMEOUT_S = 60
+# See check_unpatched_fails.py's SIM_TIMEOUT_S/SIM_ENV comments -- the
+# 10-20k iteration statistics-gathering exercises are genuinely slow via
+# Verilator's bit-by-bit SMT solve, patched or not (being satisfiable
+# doesn't make the per-iteration solver walk any cheaper, only the
+# iteration count does), so this needs the same generous timeout, not a
+# tighter one.
+SIM_TIMEOUT_S = 120
+SIM_ENV = dict(os.environ, VERILATOR_SOLVER="z3 -t:10000 --in")
+
 
 def all_exercises():
     result = subprocess.run([sys.executable, FIND_EXERCISE, "--json"],
                              capture_output=True, text=True)
-    return json.loads(result.stdout) if result.returncode == 0 else []
+    if result.returncode != 0:
+        print(result.stderr, file=sys.stderr)
+        sys.exit(1)
+    return json.loads(result.stdout)
 
 
 def main():
@@ -65,21 +78,31 @@ def main():
                 continue
             sv_path = os.path.join(scratch, e["path"])
             with tempfile.TemporaryDirectory() as builddir:
-                compile_result = subprocess.run(
-                    ["verilator"] + VFLAGS + [sv_path, "--top-module", "top", "-o", "sim",
-                                               "-Mdir", builddir],
-                    capture_output=True, text=True)
+                try:
+                    compile_result = subprocess.run(
+                        ["verilator"] + VFLAGS + [sv_path, "--top-module", "top", "-o", "sim",
+                                                   "-Mdir", builddir],
+                        capture_output=True, text=True, timeout=COMPILE_TIMEOUT_S)
+                except subprocess.TimeoutExpired:
+                    failures.append(f"{e['slug']}: compile timed out after {COMPILE_TIMEOUT_S}s")
+                    continue
                 if compile_result.returncode != 0:
                     failures.append(f"{e['slug']}: patched version fails to compile:\n"
                                      f"{compile_result.stdout}{compile_result.stderr}")
                     continue
-                sim_result = subprocess.run([os.path.join(builddir, "sim")],
-                                             capture_output=True, text=True)
+                try:
+                    sim_result = subprocess.run([os.path.join(builddir, "sim")],
+                                                 capture_output=True, text=True,
+                                                 env=SIM_ENV, timeout=SIM_TIMEOUT_S)
+                except subprocess.TimeoutExpired:
+                    failures.append(f"{e['slug']}: sim timed out after {SIM_TIMEOUT_S}s "
+                                     f"-- unbounded solve or infinite loop")
+                    continue
                 if sim_result.returncode != 0 or "PASS:" not in sim_result.stdout:
                     failures.append(f"{e['slug']}: patched version does not pass its checker:\n"
                                      f"{sim_result.stdout}")
                 else:
-                    print(f"{e['slug']}: patched, PASS")
+                    print(f"{e['slug']}: patched, PASS", flush=True)
 
     if failures:
         for f in failures:

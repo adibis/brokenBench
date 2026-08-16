@@ -25,7 +25,10 @@ PATCH_ONE = os.path.join(os.path.dirname(__file__), "patch_one.py")
 def all_exercises():
     result = subprocess.run([sys.executable, FIND_EXERCISE, "--json"],
                              capture_output=True, text=True)
-    return json.loads(result.stdout) if result.returncode == 0 else []
+    if result.returncode != 0:
+        print(result.stderr, file=sys.stderr)
+        sys.exit(1)
+    return json.loads(result.stdout)
 
 
 def main():

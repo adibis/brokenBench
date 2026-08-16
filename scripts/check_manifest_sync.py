@@ -22,7 +22,10 @@ FIND_EXERCISE = os.path.join(os.path.dirname(__file__), "find_exercise.py")
 def main():
     result = subprocess.run([sys.executable, FIND_EXERCISE, "--json"],
                              capture_output=True, text=True)
-    entries = json.loads(result.stdout) if result.returncode == 0 else []
+    if result.returncode != 0:
+        print(result.stderr, file=sys.stderr)
+        sys.exit(1)
+    entries = json.loads(result.stdout)
     manifest_paths = {e["path"] for e in entries}
 
     disk_paths = set()
