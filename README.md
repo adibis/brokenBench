@@ -21,13 +21,18 @@ plus an incomplete environment to finish) is deliberately *not* what this
 repo does -- that's a different, bigger kind of challenge, out of scope for
 a tool built around single-file, seconds-to-run exercises.
 
-Exercises get written solve-first: build a correct, verified-passing
-reference implementation for the pattern, then decide what to strip out to
-make a real exercise. That working reference never gets committed here,
-even temporarily -- it's authored outside the repo (a scratch directory, or
-notes kept alongside the exercise plan) and the repo only ever sees the
-broken starting state plus its `patches/` diff, same as every other
-exercise.
+## Quickstart
+
+```bash
+brew install verilator          # or see Requirements below for your platform
+git clone https://github.com/adibis/brokenBenchPrivate.git brokenbench && cd brokenbench
+make run EX=missing_rand
+```
+
+That compiles and runs one broken exercise. It'll fail -- open
+`learn/missing_rand.sv`, fix the bug above the checker marker, and run the
+same command again until it prints `PASS`. Then `make list` to see
+everything else.
 
 ## Tracks
 
@@ -57,30 +62,47 @@ Two top-level tracks, split by **audience**, not topic:
 
 ## Requirements
 
-Just [Verilator](https://verilator.org/guide/latest/install.html), free and
-open source. No simulator license, no signup, nothing else to install.
+- [Verilator](https://verilator.org/guide/latest/install.html), free and
+  open source. No simulator license, no signup.
+  ```bash
+  brew install verilator     # macOS
+  # or see the Verilator install guide for your platform
+  ```
+- Python 3 (any reasonably modern version -- `scripts/find_exercise.py`'s
+  manifest parser is hand-rolled specifically to avoid needing 3.11+ or a
+  third-party package).
+- `patch` (GNU patch), for `scripts/patch_one.py`/`patch_all.py`. Usually
+  preinstalled on macOS and Linux.
 
-```bash
-brew install verilator     # macOS
-# or see the Verilator install guide for your platform
-```
-
-## Running
+## Running exercises
 
 Exercises are referred to by a stable slug (the filename, minus `.sv`), not
 a number -- `manifest.toml` is the one place that tracks each exercise's
 track, order, and tags, so exercises can be reordered or retagged without
 ever renaming a file or breaking a command you've already got memorized.
 
+**Browse what's available:**
+
 ```bash
-make list                              # see every exercise in every track, with tags
-make run EX=missing_rand               # compile and run one exercise
+make list                              # every exercise in every track, with tags
+make find TAG=multi-constraint         # exercises tagged with a specific gotcha
+make find TAG=tool-limitation TRACK=sv # narrow a tag search to one track
+```
+
+**Work one exercise at a time:**
+
+```bash
+make run EX=missing_rand
 make run EX=and_instead_of_implies
-make check TRACK=learn                 # run a whole track in order, stop at the first failure
+```
+
+**Work through a whole track in order**, stopping at the first failure --
+the rustlings-style "keep running the same command" loop:
+
+```bash
+make check TRACK=learn
 make check TRACK=sv
-make check TRACK=sv EX=cyclic_rand_constraint   # start partway through a track
-make find TAG=multi-constraint         # list exercises with a given tag
-make find TAG=tool-limitation TRACK=sv
+make check TRACK=sv EX=cyclic_rand_constraint   # resume partway through
 ```
 
 `TRACK` is one of `learn`, `sv`, `uvm`, `csr` -- matching `manifest.toml`'s
@@ -88,17 +110,86 @@ make find TAG=tool-limitation TRACK=sv
 `uvm`, and `csr` all nest under `exercises/` on disk purely for browsing;
 the manifest is what `make check`/`make find` actually key off).
 
+**Clean up build artifacts** (compiled sim binaries under `.build/`):
+
+```bash
+make clean
+```
+
 Fix the class or function at the top of whichever exercise file you're stuck
 on -- never touch anything at or below the `// ---8<--- checker below: don't
 edit ---` marker, that part is correct as given and is what's judging you.
 Re-run `make run EX=...` after every change until it prints `PASS`.
 
+Output is colorized (red for failures, green for pass) and respects
+[`NO_COLOR`](https://no-color.org/) if your terminal or pipe doesn't want
+escape codes.
+
+## Contributing
+
+A contribution is a new broken exercise: the bug itself, a checker that
+fails unambiguously as shipped and passes unambiguously once fixed, and a
+`patches/<slug>.patch` diff that proves the fix works -- never a solved
+`.sv` file committed directly. See [CONTRIBUTING.md](CONTRIBUTING.md) for
+the full file structure, the authoring method (solve it first, outside the
+repo, then decide what to strip out), and the checklist to run before
+opening a PR.
+
+## Filing bugs
+
+Most bug reports here are one of three things: a checker that doesn't
+actually test what it claims to, an exercise that behaves differently on
+your Verilator version than the one this repo is pinned to, or something
+broken in the patch/CI mechanics themselves. See
+[CONTRIBUTING.md](CONTRIBUTING.md#filing-a-bug) for what to include in
+each case.
+
+## CI and the patch system
+
+Solutions never live in this repo as full solved files -- only `patches/`,
+one unified diff per exercise, applying cleanly on top of the shipped
+(broken) `.sv` file to produce a working one. Same approach
+[ziglings uses](https://codeberg.org/ziglings/exercises/src/branch/main/patches):
+answers generated with `diff -u`, never committed in solved form, so
+browsing the repo doesn't spoil an exercise the way a `solutions/` folder
+full of finished code would.
+
+`scripts/patch_one.py <slug>` applies one exercise's patch; `scripts/patch_all.py`
+applies every one. Both refuse to touch anything at or below the checker
+marker (`scripts/check_patch_safety.py` enforces this as a hard gate -- a
+"solution" that edits the checker to force a pass would be worse than no
+patch at all) and refuse to apply if the patch doesn't cleanly apply in the
+first place.
+
+CI (`.github/workflows/ci.yml`) runs on every push and pull request:
+
+- **lint** -- patches applied into a scratch copy, then checked against this
+  repo's 100-column line-length standard with `verible-verilog-lint`.
+- **manifest-sync** -- `manifest.toml` and the actual `.sv` files on disk
+  must agree, both directions.
+- **unpatched-must-fail** -- every exercise, shipped as-is, must genuinely
+  fail. Catches an exercise accidentally committed pre-fixed, or a checker
+  that doesn't actually test anything.
+- **patches-solve** -- every patch is applied into a scratch copy and must
+  make its own exercise's checker pass. This is how a patch is proven to be
+  a real, complete solution, not just a plausible-looking diff.
+
+One exercise, `unique_scalar_vs_slice`, needs a Verilator built from an
+unreleased upstream patch to even compile (see `manifest.toml`'s
+`requires_patched_verilator` / `verilator_broken_as_of` fields on that
+entry -- that's the only place this exclusion is recorded, not hardcoded
+into any script). It's excluded from the `patches-solve` gate with a
+documented reason rather than silently skipped, and has its own manual-only
+CI job as a placeholder for testing it against a patched build once one
+exists.
+
 ## Real, current tool limitations found while building this
 
-A few things here aren't textbook gotchas, they're things this repo's own
-exercises ran into on the current Verilator toolchain while being built and
-validated -- worth knowing about if you hit something that looks like a
-tooling quirk rather than the intended lesson:
+Known Verilator gaps this repo works around or documents -- not bugs in the
+exercises. A few things here aren't textbook gotchas, they're things this
+repo's own exercises ran into on the current Verilator toolchain while
+being built and validated; worth knowing about if you hit something that
+looks like a tooling quirk rather than the intended lesson:
 
 - **`unique{}` on an array is reliable up to about 4 elements and silently
   wrong past that** -- it returns success with actual duplicates present,
@@ -165,48 +256,10 @@ Declare loop-body-local accumulator variables `automatic`, or declare once
 outside the loop and assign (not re-declare) inside it.
 
 If you hit something that looks like this list rather than the intended
-lesson, it's probably exactly that -- open an issue rather than assume you
-did something wrong.
-
-## CI and the patch system
-
-Solutions never live in this repo as full solved files -- only `patches/`,
-one unified diff per exercise, applying cleanly on top of the shipped
-(broken) `.sv` file to produce a working one. Same approach
-[ziglings uses](https://codeberg.org/ziglings/exercises/src/branch/main/patches):
-answers generated with `diff -u`, never committed in solved form, so
-browsing the repo doesn't spoil an exercise the way a `solutions/` folder
-full of finished code would.
-
-`scripts/patch_one.py <slug>` applies one exercise's patch; `scripts/patch_all.py`
-applies every one. Both refuse to touch anything at or below the checker
-marker (`scripts/check_patch_safety.py` enforces this as a hard gate -- a
-"solution" that edits the checker to force a pass would be worse than no
-patch at all) and refuse to apply if the patch doesn't cleanly apply in the
-first place.
-
-CI (`.github/workflows/ci.yml`) runs on every push and pull request:
-
-- **lint** -- patches applied into a scratch copy, then checked against this
-  repo's 100-column line-length standard with `verible-verilog-lint`.
-- **manifest-sync** -- `manifest.toml` and the actual `.sv` files on disk
-  must agree, both directions.
-- **unpatched-must-fail** -- every exercise, shipped as-is, must genuinely
-  fail. Catches an exercise accidentally committed pre-fixed, or a checker
-  that doesn't actually test anything.
-- **patches-solve** -- every patch is applied into a scratch copy and must
-  make its own exercise's checker pass. This is how a patch is proven to be
-  a real, complete solution, not just a plausible-looking diff.
-
-One exercise, `unique_scalar_vs_slice`, needs a Verilator built from an
-unreleased upstream patch to even compile (see `manifest.toml`'s
-`requires_patched_verilator` / `verilator_broken_as_of` fields on that
-entry -- that's the only place this exclusion is recorded, not hardcoded
-into any script). It's excluded from the `patches-solve` gate with a
-documented reason rather than silently skipped, and has its own manual-only
-CI job as a placeholder for testing it against a patched build once one
-exists.
+lesson, it's probably exactly that -- see [Filing bugs](#filing-bugs)
+rather than assume you did something wrong.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE). See [CONTRIBUTING.md](CONTRIBUTING.md) if
+you're thinking about sending a patch.
