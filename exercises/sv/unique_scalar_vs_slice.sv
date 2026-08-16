@@ -15,13 +15,13 @@
 //   make run EX=unique_scalar_vs_slice VERILATOR=/path/to/patched/verilator_bin
 //
 // The lesson itself, once you have a toolchain that doesn't crash on the
-// construct: `unique{}` takes a range list, and IEEE 1800-2023 18.5.4
-// defines the uniqueness group by each item's *leaf elements*, not by how
-// many items you wrote. `grid[i]` is a 3-element row -- its group has 3
-// members, and unique{} forces all 3 apart. `grid[i][0]` is a single
-// integral value -- a 1-member group, which the LRM defines as vacuously
-// unique (nothing to compare it against). Both compile. Only one of them
-// is testing anything.
+// construct: unique{} takes a range list, and what counts as "one item" in
+// that list isn't always what it looks like at a glance. Write the
+// constraint two different, both-plausible ways -- once naming the whole
+// row, once naming a single cell inside a foreach over the row -- and
+// check which one the checker below actually accepts. IEEE 1800-2023
+// 18.5.4 is the section to read if you want to know why they're not
+// equivalent.
 //
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.

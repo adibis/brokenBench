@@ -3,13 +3,14 @@
 // =================================================================================================
 //
 // Spec: packets longer than 60 bytes must carry a CRC flag; packets at
-// or under 60 don't need one. `(len >= 60) -> has_crc == 1` reads like a
-// faithful translation, and for every length except exactly 60 it
-// behaves identically to the spec. At len==60 it silently over-applies
-// the rule the spec explicitly didn't ask for at that boundary. This is
-// the kind of off-by-one that a spot check at len=0, len=64, and a
-// handful of random lengths will almost never land on by chance -- it
-// only shows up if something specifically drives the boundary value.
+// or under 60 don't need one. The constraint below is a plausible, mostly
+// correct translation of that sentence -- for every length except exactly
+// 60, it behaves exactly like the spec describes. Something about how the
+// boundary itself is written doesn't match "longer than 60" as precisely
+// as it looks. This is the kind of off-by-one that a spot check at len=0,
+// len=64, and a handful of random lengths will almost never land on by
+// chance -- it only shows up if something specifically drives the
+// boundary value.
 //
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.

@@ -1,14 +1,14 @@
 // =================================================================================================
-// && where -> was meant
+// a constraint that only ever picks one value
 // =================================================================================================
 //
-// `a -> b` inside a constraint means "when a holds, b must hold too" --
-// it says nothing about what happens when a is false. `a && b` means
-// something completely different: both a and b must hold, always,
-// unconditionally. Writing && where -> was intended doesn't just weaken
-// a constraint, it silently forces the left-hand side to a single fixed
-// value forever, because that's the only way the unconditional AND can
-// ever be satisfied.
+// c_write_data below is meant to say "writes need data, reads don't
+// care what wdata holds" -- but every one of 20 randomize() calls comes
+// back with is_write pinned to the same value every time. Something about
+// how the two halves of that constraint are being combined is stronger
+// than the intent describes. Look at what the constraint actually
+// requires to be true simultaneously, versus what "when X, then Y" would
+// require.
 //
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.

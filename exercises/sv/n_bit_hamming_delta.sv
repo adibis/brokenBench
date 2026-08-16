@@ -4,11 +4,12 @@
 //
 // "Generate a value where exactly N bits differ from the previous one"
 // is a genuinely common request -- bit-toggle coverage, glitch injection,
-// walking patterns. `$countones(cur)` counts how many bits are set in
-// the new value. It says nothing about the previous value at all. The
-// constraint that actually answers "how many bits changed" needs the
-// previous value in the expression: `$countones(prev ^ cur)`, since XOR
-// is exactly the set of bit positions that differ.
+// walking patterns. The constraint below counts something about `cur` on
+// its own, with no reference to `prev` anywhere in it. Ask yourself
+// whether "how many bits are set in this value" and "how many bits
+// changed from the last value" are actually the same question -- and if
+// they're not, what would an expression that genuinely depends on both
+// values need to look like?
 //
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.

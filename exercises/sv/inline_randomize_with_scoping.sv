@@ -3,13 +3,12 @@
 // =================================================================================================
 //
 // `randomize() with { ... }` constraints resolve unprefixed names against
-// the object's own class members first. A function argument that happens
-// to share a name with a class member -- `len`, here, both the class
-// field and the argument meant to drive it -- doesn't get referenced by
-// the inline constraint at all. `len == len` compiles cleanly, reads
-// like it's pinning the field to the argument, and is actually just
-// comparing the class member to itself: trivially true for any value,
-// which is the same as no constraint at all.
+// the object's own class members first. The function below takes an
+// argument named `len`, and the class it's randomizing also happens to
+// have a field named `len`. Both are in scope inside the inline
+// constraint at the same time -- which one does an unprefixed `len`
+// actually bind to there, and does the constraint as written still
+// reference the argument at all once you know the answer?
 //
 // Fix the function below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.

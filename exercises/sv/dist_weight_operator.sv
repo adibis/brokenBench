@@ -2,15 +2,15 @@
 // := vs :/ inside a dist clause
 // =================================================================================================
 //
-// `dist` weights aren't as simple as "bigger number, more likely." `value
-// := weight` assigns that weight to each individual value written,
-// including every value inside a range -- so `[1:3] := 1` gives 1, 2,
-// and 3 a weight of 1 each, three separate buckets. `value :/ weight`
-// divides the weight across the range instead, so `[1:3] :/ 1` treats
-// the whole range as ONE bucket worth 1, split three ways. Writing := on
-// a range when you meant "this whole range together should be as likely
-// as this single value" gives every value in the range far more combined
-// weight than intended.
+// `dist` weights aren't as simple as "bigger number, more likely," and a
+// range on the left-hand side changes what the weight even means --
+// SystemVerilog gives you two different operators for it, and they don't
+// do the same thing once the left side is a range instead of a single
+// value. Read what each one actually distributes across a range, then
+// look at what c_prio below is asking for -- priority 0 should come up
+// about as often as 1, 2, and 3 *combined*, a rough 50/50 split. Run it
+// and see how far off the observed split actually is before deciding
+// which operator is doing what you think it's doing.
 //
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.

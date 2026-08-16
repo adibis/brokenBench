@@ -1,13 +1,14 @@
 // =================================================================================================
-// constraint_mode(0) left disabled on the constraint that matters
+// a constraint quietly not being enforced
 // =================================================================================================
 //
 // constraint_mode() turns a specific constraint block on or off without
 // removing it from the class -- useful for temporarily relaxing one rule
-// while chasing something unrelated. Left disabled, the class still
-// compiles clean, .randomize() still returns 1, and every OTHER
-// constraint still holds. The one thing quietly not being enforced is
-// exactly the one someone meant to turn back on.
+// while chasing something unrelated. When one gets left in the wrong
+// state, the class still compiles clean, .randomize() still returns 1,
+// and every OTHER constraint still holds -- nothing about the class
+// itself looks broken. Look at the constructor for anything that changes
+// a constraint's state after it's declared.
 //
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.

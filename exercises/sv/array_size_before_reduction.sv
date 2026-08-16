@@ -12,9 +12,10 @@
 // gotcha (array reduction methods interacting badly with a size that
 // isn't fixed yet), not a mistake specific to this file.
 //
-// The fix that actually works here isn't a smarter ordering hint --
-// it's recognizing the array doesn't need a random size to make the
-// point. Pin the size and the reduction constraint solves cleanly.
+// A smarter ordering hint won't get you out of this one -- the actual
+// fix changes what's `rand` in the first place. Ask what this exercise
+// is actually trying to demonstrate about `.sum()` before assuming the
+// array needs to stay dynamically sized to make that point.
 //
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
