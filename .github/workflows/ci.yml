@@ -6,6 +6,17 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  # Pinned, not `latest`: apt's Verilator (Ubuntu 24.04 ships 5.020) turned
+  # out to be missing several constrained-random features most exercises
+  # depend on (randomize() with {}, local::, rand on dynamic arrays,
+  # multi-index foreach on unpacked arrays) and has real constraint-solver
+  # behavior differences from the version this repo was actually built and
+  # verified against -- caused a real CI failure the first time this ran.
+  # Bump deliberately, re-verify locally first, same discipline as
+  # verilator_broken_as_of in manifest.toml.
+  VERILATOR_IMAGE: "verilator/verilator:v5.050"
+
 jobs:
   lint:
     name: Lint (100-column standard)
@@ -24,6 +35,8 @@ jobs:
           curl -fsSL -o verible.tar.gz "$url"
           mkdir -p verible && tar xzf verible.tar.gz -C verible --strip-components=1
           echo "$PWD/verible/bin" >> "$GITHUB_PATH"
+      - name: Install patch
+        run: sudo apt-get update && sudo apt-get install -y patch
       - name: Apply patches into a scratch copy
         # Lint the *patched* (syntactically complete) files, not the shipped
         # ones: several exercises' bug is a deliberate parse error, which a
@@ -58,20 +71,22 @@ jobs:
   unpatched-must-fail:
     name: Every exercise fails as shipped
     runs-on: ubuntu-latest
+    container: ${{ env.VERILATOR_IMAGE }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install Verilator
-        run: sudo apt-get update && sudo apt-get install -y verilator
       - run: python3 scripts/check_unpatched_fails.py
 
   patches-solve:
     name: Every patch applies safely and passes its checker
     needs: [manifest-sync]
     runs-on: ubuntu-latest
+    container: ${{ env.VERILATOR_IMAGE }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install Verilator
-        run: sudo apt-get update && sudo apt-get install -y verilator
+      - name: Install patch
+        # The verilator/verilator image doesn't include GNU patch by
+        # default; scripts/patch_one.py shells out to it.
+        run: apt-get update && apt-get install -y patch
       - run: python3 scripts/check_patches_pass.py
 
   # Advisory only: unique_scalar_vs_slice needs a Verilator built from an
