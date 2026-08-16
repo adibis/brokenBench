@@ -1,4 +1,6 @@
+// =================================================================================================
 // three bugs, one at a time
+// =================================================================================================
 //
 // This one has three separate problems stacked in the same small scenario,
 // on purpose. Fix the first one the compiler reports, recompile, and the
@@ -11,6 +13,10 @@
 // Fix the code below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix all three problems so make_item() returns a valid handle and addr/size satisfy the
+// constraint.
+// -------------------------------------------------------------------------------------------------
 class addr_item;
   rand bit [15:0] addr;
   rand bit [3:0]  size;

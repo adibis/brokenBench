@@ -1,4 +1,6 @@
+// =================================================================================================
 // post_randomize() quietly overwriting what the solver produced
+// =================================================================================================
 //
 // post_randomize() runs immediately after every successful .randomize()
 // call, which makes it tempting to use for "just in case" cleanup --
@@ -13,6 +15,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the class so gain actually varies across repeated randomize() calls.
+// -------------------------------------------------------------------------------------------------
 class gain_item;
   rand bit [7:0] gain;
   constraint c_range { gain inside {[10:200]}; }

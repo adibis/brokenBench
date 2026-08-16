@@ -1,4 +1,6 @@
+// =================================================================================================
 // an off-by-one that mathematically excludes the boundary
+// =================================================================================================
 //
 // A regression that runs this constraint ten thousand times and never
 // fails looks thorough. It isn't, if the constraint itself makes the one
@@ -10,6 +12,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix c_range so credits can reach 8'hFF (255), its actual maximum value.
+// -------------------------------------------------------------------------------------------------
 class credit_item;
   rand bit [7:0] credits;
   constraint c_range { credits inside {[0:254]}; }

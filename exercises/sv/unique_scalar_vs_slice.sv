@@ -1,4 +1,6 @@
+// =================================================================================================
 // unique{} on a whole row, not one cell of it
+// =================================================================================================
 //
 // REQUIRES A PATCHED VERILATOR -- see the note in README.md before you
 // spend time on this one. On every released Verilator as of this writing,
@@ -24,10 +26,10 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
-// --------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 // Write constraint so that each element of the grid is between 1 and 9 and
 // each row has unique elements.
-// --------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 class grid_item;
   rand bit [4:0] grid[3][3];
   // write constraints here

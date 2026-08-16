@@ -1,4 +1,6 @@
+// =================================================================================================
 // how many bits changed, versus how many bits are set
+// =================================================================================================
 //
 // "Generate a value where exactly N bits differ from the previous one"
 // is a genuinely common request -- bit-toggle coverage, glitch injection,
@@ -11,6 +13,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix c_delta so every step changes exactly 2 bits from the previous value.
+// -------------------------------------------------------------------------------------------------
 class walk_item;
   rand bit [31:0] cur;
   bit [31:0] prev;

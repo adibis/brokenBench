@@ -1,4 +1,6 @@
+// =================================================================================================
 // = inside a constraint block
+// =================================================================================================
 //
 // Inside a constraint block, `==` means equality and `=` is not a valid
 // constraint operator at all -- it's not silently reinterpreted as
@@ -10,6 +12,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the constraint so it compiles and mode ends up 2'b01.
+// -------------------------------------------------------------------------------------------------
 class mode_item;
   rand bit [1:0] mode;
   constraint c_mode { mode = 2'b01; }

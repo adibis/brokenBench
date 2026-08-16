@@ -1,4 +1,6 @@
+// =================================================================================================
 // unique{} asked to do something impossible, and nobody checked
+// =================================================================================================
 //
 // unique{} on an array is a real, correctly-enforced constraint -- ask
 // for more unique values than the field's own bit width can represent,
@@ -18,6 +20,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the class so randomize() succeeds and every element of tags is genuinely unique.
+// -------------------------------------------------------------------------------------------------
 class tag_item;
   rand bit [3:0] tags[20];   // only 16 distinct 4-bit values exist
   constraint c_unique { unique {tags}; }

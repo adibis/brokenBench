@@ -1,4 +1,6 @@
+// =================================================================================================
 // two constraint blocks with the same name
+// =================================================================================================
 //
 // Every constraint block in a class needs its own name, the same as any
 // other class member. Two blocks named identically -- easy to end up with
@@ -9,6 +11,10 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the class so both constraint blocks have distinct names, priority_lo stays in [0:3], and
+// priority_hi stays in [4:7].
+// -------------------------------------------------------------------------------------------------
 class priority_item;
   rand bit [2:0] priority_lo;
   rand bit [2:0] priority_hi;

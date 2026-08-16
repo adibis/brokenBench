@@ -1,4 +1,6 @@
+// =================================================================================================
 // pre_randomize() trying to remember state in a local variable
+// =================================================================================================
 //
 // pre_randomize() runs immediately before every .randomize() call, which
 // makes it a natural place to compute context a constraint depends on.
@@ -11,6 +13,10 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the class so is_jumbo genuinely alternates, and both normal and jumbo packets show up
+// across repeated randomize() calls.
+// -------------------------------------------------------------------------------------------------
 class packet_item;
   rand bit [7:0] len;
   bit is_jumbo;

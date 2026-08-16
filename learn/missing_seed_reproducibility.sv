@@ -1,4 +1,6 @@
+// =================================================================================================
 // reproducibility needs an explicit seed
+// =================================================================================================
 //
 // A randomized test that can't be reproduced is much harder to debug than
 // a deterministic one: a failure shows up once, and the next run rolls
@@ -13,6 +15,10 @@
 // Fix the function below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix make_seeded_item() so the same seed always reproduces the same result, and different seeds
+// diverge.
+// -------------------------------------------------------------------------------------------------
 class data_item;
   rand bit [31:0] data;
 endclass

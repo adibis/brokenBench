@@ -1,4 +1,6 @@
+// =================================================================================================
 // := vs :/ inside a dist clause
+// =================================================================================================
 //
 // `dist` weights aren't as simple as "bigger number, more likely." `value
 // := weight` assigns that weight to each individual value written,
@@ -13,6 +15,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix c_prio so priority==0 comes up roughly 50% of the time across many calls.
+// -------------------------------------------------------------------------------------------------
 class priority_item;
   rand bit [1:0] prio;
   // intent: priority 0 should come up about as often as 1, 2, and 3

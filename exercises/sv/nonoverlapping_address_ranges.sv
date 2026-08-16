@@ -1,4 +1,6 @@
+// =================================================================================================
 // sorted isn't the same as non-overlapping
+// =================================================================================================
 //
 // A classic memory-allocator constraint: hand out N address ranges that
 // don't overlap. `base[0] < base[1] < base[2]` looks like it accomplishes
@@ -11,6 +13,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix c_order so no two of the three regions ever overlap, across 50 trials.
+// -------------------------------------------------------------------------------------------------
 class region_set;
   rand bit [15:0] base[3];
   rand bit [15:0] size[3];

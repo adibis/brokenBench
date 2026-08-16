@@ -1,4 +1,6 @@
+// =================================================================================================
 // a constraint that can never be satisfied
+// =================================================================================================
 //
 // .randomize() returns 0 when the constraint solver can't find any value
 // satisfying every active constraint at once. That return value matters:
@@ -12,6 +14,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the constraint so delay has at least one satisfiable value greater than 10.
+// -------------------------------------------------------------------------------------------------
 class delay_item;
   rand int delay;
   constraint c_range { delay > 10; delay < 5; }

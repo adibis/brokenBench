@@ -1,4 +1,6 @@
+// =================================================================================================
 // constraint_mode(0) left disabled on the constraint that matters
+// =================================================================================================
 //
 // constraint_mode() turns a specific constraint block on or off without
 // removing it from the class -- useful for temporarily relaxing one rule
@@ -10,6 +12,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the class so addr is 4-byte aligned on every call, the same way it already stays in range.
+// -------------------------------------------------------------------------------------------------
 class addr_item;
   rand bit [15:0] addr;
 

@@ -1,4 +1,6 @@
+// =================================================================================================
 // an inline constraint that resolves to the wrong "len"
+// =================================================================================================
 //
 // `randomize() with { ... }` constraints resolve unprefixed names against
 // the object's own class members first. A function argument that happens
@@ -12,6 +14,9 @@
 // Fix the function below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix randomize_with_target() so item.len always matches the target argument it's given.
+// -------------------------------------------------------------------------------------------------
 class pkt_item;
   rand int len;
 endclass

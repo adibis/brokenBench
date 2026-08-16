@@ -1,4 +1,6 @@
+// =================================================================================================
 // a soft constraint that never actually wins
+// =================================================================================================
 //
 // `soft` constraints are a stated preference, not a requirement -- the
 // solver only honors a soft constraint when nothing else conflicts with
@@ -11,6 +13,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the class so delay reaches the preferred [100:110] range at least once across 20 calls.
+// -------------------------------------------------------------------------------------------------
 class delay_item;
   rand bit [7:0] delay;
   // intent: prefer a longer delay when nothing else constrains it

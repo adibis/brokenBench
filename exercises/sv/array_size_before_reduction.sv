@@ -1,4 +1,6 @@
+// =================================================================================================
 // a reduction constraint on an array whose size is itself random
+// =================================================================================================
 //
 // `data.sum() == 100` is a completely ordinary constraint on its own.
 // So is sizing a dynamic array with `data.size() == n` where `n` is
@@ -17,6 +19,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the class so randomize() reliably produces a data array that sums to 100, every call.
+// -------------------------------------------------------------------------------------------------
 class buf_item;
   rand int unsigned n;
   rand int data[];

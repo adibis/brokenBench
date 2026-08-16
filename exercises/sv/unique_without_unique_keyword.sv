@@ -1,4 +1,6 @@
+// =================================================================================================
 // pairwise inequality that only checks neighbors
+// =================================================================================================
 //
 // This is a direct companion to unique_oversized_array: on the current
 // toolchain, `unique{}` on an array degrades past about 4-5 elements,
@@ -14,6 +16,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix c_unique so all 8 tags are mutually unique, not just adjacent-pair unique.
+// -------------------------------------------------------------------------------------------------
 class tag_item;
   rand bit [3:0] tags[8];
   constraint c_unique {

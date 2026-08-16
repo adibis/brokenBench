@@ -1,4 +1,6 @@
+// =================================================================================================
 // a subclass's new constraint doesn't replace the base class's
+// =================================================================================================
 //
 // Constraint blocks aren't like virtual methods -- a differently-named
 // constraint added in a subclass doesn't override anything in the base
@@ -12,6 +14,9 @@
 // Fix the classes below so the check after them passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the classes so wide_item's values genuinely reach above 50, not just the base range.
+// -------------------------------------------------------------------------------------------------
 class base_item;
   rand bit [7:0] value;
   constraint c_range { value inside {[0:50]}; }

@@ -1,4 +1,6 @@
+// =================================================================================================
 // missing rand
+// =================================================================================================
 //
 // A field that's supposed to be randomized every call needs the `rand`
 // keyword. Without it, the field is just a plain class member: calling
@@ -11,6 +13,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the class so delay actually varies across repeated randomize() calls.
+// -------------------------------------------------------------------------------------------------
 class delay_item;
   bit [7:0] delay;
 endclass

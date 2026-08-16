@@ -1,4 +1,6 @@
+// =================================================================================================
 // an off-by-one at the exact boundary a spec cares about
+// =================================================================================================
 //
 // Spec: packets longer than 60 bytes must carry a CRC flag; packets at
 // or under 60 don't need one. `(len >= 60) -> has_crc == 1` reads like a
@@ -12,6 +14,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix c_crc so len==60 leaves has_crc free but len==61 correctly forces it to 1.
+// -------------------------------------------------------------------------------------------------
 class pkt_item;
   rand bit [6:0] len;
   rand bit       has_crc;

@@ -1,4 +1,6 @@
+// =================================================================================================
 // two constraints that can't both be true
+// =================================================================================================
 //
 // `a == b + 1` and `b == a + 1` each look like an ordinary relational
 // constraint on their own. Together, substituting one into the other
@@ -12,6 +14,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the class so randomize() succeeds and a == b + 1 holds.
+// -------------------------------------------------------------------------------------------------
 class pair_item;
   rand int a;
   rand int b;

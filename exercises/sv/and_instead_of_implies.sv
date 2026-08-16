@@ -1,4 +1,6 @@
+// =================================================================================================
 // && where -> was meant
+// =================================================================================================
 //
 // `a -> b` inside a constraint means "when a holds, b must hold too" --
 // it says nothing about what happens when a is false. `a && b` means
@@ -11,6 +13,10 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix c_write_data so writes get a nonzero wdata and reads still vary freely -- both is_write
+// values need to show up across repeated randomize() calls.
+// -------------------------------------------------------------------------------------------------
 class txn_item;
   rand bit       is_write;
   rand bit [7:0] wdata;

@@ -1,4 +1,6 @@
+// =================================================================================================
 // uniqueness scoped to the wrong dimension
+// =================================================================================================
 //
 // A `foreach (grid[i])` loop iterating rows and constraining each row's
 // three cells to be mutually different does exactly what it says --
@@ -18,6 +20,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the class so every value in the whole 3x3 grid is unique, not just within each row.
+// -------------------------------------------------------------------------------------------------
 class grid_item;
   rand bit [4:0] grid[3][3];
   constraint c_range  { foreach (grid[i,j]) grid[i][j] inside {[1:9]}; }

@@ -1,4 +1,6 @@
+// =================================================================================================
 // a dynamic array that was never given a size
+// =================================================================================================
 //
 // A dynamic array starts out with zero elements until something sizes
 // it -- either an explicit `arr = new[N]`, or a constraint that
@@ -11,6 +13,9 @@
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
+// -------------------------------------------------------------------------------------------------
+// Fix the class so data ends up with a nonzero size after randomize().
+// -------------------------------------------------------------------------------------------------
 class buf_item;
   rand int data[];
 endclass
