@@ -21,6 +21,14 @@ plus an incomplete environment to finish) is deliberately *not* what this
 repo does -- that's a different, bigger kind of challenge, out of scope for
 a tool built around single-file, seconds-to-run exercises.
 
+Exercises get written solve-first: build a correct, verified-passing
+reference implementation for the pattern, then decide what to strip out to
+make a real exercise. That working reference never gets committed here,
+even temporarily -- it's authored outside the repo (a scratch directory, or
+notes kept alongside the exercise plan) and the repo only ever sees the
+broken starting state plus its `patches/` diff, same as every other
+exercise.
+
 ## Tracks
 
 Two top-level tracks, split by **audience**, not topic:
