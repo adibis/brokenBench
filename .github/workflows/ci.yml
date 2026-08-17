@@ -24,6 +24,13 @@ jobs:
           curl -fsSL -o verible.tar.gz "$url"
           mkdir -p verible && tar xzf verible.tar.gz -C verible --strip-components=1
           echo "$PWD/verible/bin" >> "$GITHUB_PATH"
+      - name: Check formatting
+        # Runs directly against the shipped files, not a patched scratch copy
+        # (unlike the line-length lint step below) -- verible-verilog-format
+        # --verify leaves an unparseable file untouched and exits 0 rather
+        # than erroring, confirmed directly, so the exercises whose bug is a
+        # parse error don't need patching first just to check formatting.
+        run: make format-check
       - name: Install patch
         run: sudo apt-get update && sudo apt-get install -y patch
       - name: Apply patches into a scratch copy

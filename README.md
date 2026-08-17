@@ -73,6 +73,9 @@ Two top-level tracks, split by **audience**, not topic:
   third-party package).
 - `patch` (GNU patch), for `scripts/patch_one.py`/`patch_all.py`. Usually
   preinstalled on macOS and Linux.
+- [`verible-verilog-format`](https://github.com/chipsalliance/verible)
+  (part of the verible release bundle), only needed for `make format` /
+  `make format-check` -- not required just to run exercises.
 
 ## Running exercises
 
@@ -163,8 +166,10 @@ first place.
 
 CI (`.github/workflows/ci.yml`) runs on every push and pull request:
 
-- **lint** -- patches applied into a scratch copy, then checked against this
-  repo's 100-column line-length standard with `verible-verilog-lint`.
+- **lint** -- formatting checked directly against shipped files with
+  `make format-check` (`verible-verilog-format`), then patches applied
+  into a scratch copy and checked against this repo's 100-column
+  line-length standard with `verible-verilog-lint`.
 - **manifest-sync** -- `manifest.toml` and the actual `.sv` files on disk
   must agree, both directions.
 - **unpatched-must-fail** -- every exercise, shipped as-is, must genuinely

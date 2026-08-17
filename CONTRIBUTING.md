@@ -28,11 +28,20 @@ the unpatched version and passes unambiguously once it's fixed.
 Build the fix first, as a real working reference, outside the repo (a
 scratch directory is fine) -- then decide what to strip out of it to make
 the broken starting state. That working reference never gets committed
-here, even temporarily; `diff -u` against it to produce the patch, then
-discard it.
+here, even temporarily. Run `make format` on both the broken and working
+versions before diffing, so the patch is generated against already-formatted
+content and doesn't carry unrelated whitespace changes; `diff -u` against
+the working version to produce the patch, then discard it.
 
 **Before opening a PR:**
 
+- `make format-check` -- confirms `learn/` and `exercises/` are formatted
+  with `verible-verilog-format`. `make format` fixes it in place. This is
+  the *only* verible style rule enforced beyond line length -- this repo's
+  exercises deliberately don't follow verible's default naming/casting
+  conventions (every exercise uses `module top;`, for one, so the Makefile
+  can invoke any of them uniformly), so only line-length lint and format
+  are gates, not verible's full default ruleset.
 - `python3 scripts/check_patch_safety.py patches/<slug>.patch <path>.sv`
   -- confirms your patch doesn't touch anything at or below the checker
   marker. A patch that edits the checker to force a pass is worse than no
@@ -44,13 +53,8 @@ discard it.
   fix.
 - `python3 scripts/check_manifest_sync.py` -- confirms your `manifest.toml`
   entry matches the file on disk.
-- Line length: 100 columns, enforced by `verible-verilog-lint` in CI. No
-  other verible style rules apply -- this repo's exercises deliberately
-  don't follow verible's default naming/casting conventions (every exercise
-  uses `module top;`, for one, so the Makefile can invoke any of them
-  uniformly).
 
-All four of those are exactly what CI runs on every push and PR (see
+All five of those are exactly what CI runs on every push and PR (see
 [README.md's "CI and the patch system"](README.md#ci-and-the-patch-system))
 -- running them locally first just means you find out before CI does.
 

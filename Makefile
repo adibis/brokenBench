@@ -1,8 +1,9 @@
-BUILD_DIR  := .build
-SCRIPTS    := scripts
-PYTHON     := python3
-VERILATOR  := verilator
-VFLAGS     := --binary --timing -j 0 -Wno-fatal -Wno-IMPLICITSTATIC
+BUILD_DIR      := .build
+SCRIPTS        := scripts
+PYTHON         := python3
+VERILATOR      := verilator
+VERIBLE_FORMAT := verible-verilog-format
+VFLAGS         := --binary --timing -j 0 -Wno-fatal -Wno-IMPLICITSTATIC
 # z3's default invocation has no timeout: proving a genuinely-unsatisfiable
 # constraint set (several unpatched exercises are unsatisfiable by design)
 # can take far longer than finding a satisfying assignment does, and can
@@ -43,6 +44,8 @@ help:
 	@echo "  make find TAG=multi-constraint         list exercises with a tag (see manifest.toml)"
 	@echo "  make find TAG=multi-constraint TRACK=sv"
 	@echo "  make list                              list every exercise in every track, with tags"
+	@echo "  make format                            reformat learn/ and exercises/ with verible"
+	@echo "  make format-check                      check formatting without changing anything (what CI runs)"
 	@echo "  make clean                             remove build artifacts"
 
 run:
@@ -119,7 +122,21 @@ list:
 	@echo "exercises/csr/ -- uvm_reg / register-map exercises:"
 	@$(PYTHON) $(SCRIPTS)/find_exercise.py --list --track csr
 
+format:
+	@find learn exercises -name '*.sv' -exec $(VERIBLE_FORMAT) --inplace {} +
+	@echo "formatted."
+
+# --verify (unlike --inplace) only accepts one file per invocation, so this
+# loops rather than batching with `find -exec ... +`.
+format-check:
+	@failed=0; \
+	for f in $$(find learn exercises -name '*.sv'); do \
+		$(VERIBLE_FORMAT) --verify "$$f" >/dev/null 2>&1 || { echo "not formatted: $$f"; failed=1; }; \
+	done; \
+	if [ $$failed -ne 0 ]; then echo "run 'make format' to fix"; exit 1; fi; \
+	echo "already formatted."
+
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: help run check find list clean
+.PHONY: help run check find list format format-check clean
