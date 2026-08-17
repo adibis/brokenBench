@@ -1,5 +1,5 @@
 // =================================================================================================
-// a constraint that can never be satisfied
+// write a constraint, then check that randomize() actually succeeded
 // =================================================================================================
 //
 // .randomize() returns 0 when the constraint solver can't find any value
@@ -7,22 +7,20 @@
 // code that doesn't check it just keeps whatever the field held before
 // the failed call (usually 0, or a stale value from the last successful
 // randomize()) and carries on as if nothing went wrong. The checker below
-// DOES check the return value and will tell you plainly if that's what's
-// happening -- your job is to find the actual conflict in the constraint
-// and fix it so a value exists at all.
+// DOES check the return value and will tell you plainly if a constraint
+// you wrote can never be satisfied.
 //
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Fix the constraint so delay has at least one satisfiable value greater than 10.
+// Write a constraint from scratch:
+//
+//   1. delay must always be greater than 10 -- nothing else.
 // -------------------------------------------------------------------------------------------------
 class delay_item;
   rand int delay;
-  constraint c_range {
-    delay > 10;
-    delay < 5;
-  }
+  // write constraints here
 endclass
 
 // ---8<--- checker below: don't edit ---

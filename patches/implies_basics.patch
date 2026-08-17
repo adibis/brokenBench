@@ -1,0 +1,13 @@
+diff --git a/learn/implies_basics.sv b/learn/implies_basics.sv
+--- a/learn/implies_basics.sv	2026-08-16 23:04:53
++++ b/learn/implies_basics.sv	2026-08-16 23:05:03
+@@ -24,7 +24,8 @@
+ 
+   constraint c_range {temp_reading inside {[0 : 200]};}
+ 
+-  // write constraints here
++  constraint c_alarm {alarm_active -> (temp_reading > 100);}
++  constraint c_maint {maint_mode -> (alarm_active == 0);}
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

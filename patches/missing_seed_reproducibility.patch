@@ -1,10 +1,12 @@
 diff --git a/learn/missing_seed_reproducibility.sv b/learn/missing_seed_reproducibility.sv
---- a/learn/missing_seed_reproducibility.sv
-+++ b/learn/missing_seed_reproducibility.sv
-@@ -26,6 +26,7 @@
+--- a/learn/missing_seed_reproducibility.sv	2026-08-16 23:04:53
++++ b/learn/missing_seed_reproducibility.sv	2026-08-16 23:05:03
+@@ -34,7 +34,8 @@
+ 
  function data_item make_seeded_item(int seed);
    data_item item;
-   item = new();
+-  // write this function so it returns a handle seeded from `seed`
++  item = new();
 +  item.srandom(seed);
    return item;
  endfunction

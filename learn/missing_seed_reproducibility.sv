@@ -1,23 +1,32 @@
 // =================================================================================================
-// reproducibility needs an explicit seed
+// write a function that makes randomize() reproducible
 // =================================================================================================
 //
-// A randomized test that can't be reproduced is much harder to debug than
-// a deterministic one: a failure shows up once, and the next run rolls
-// completely different values, so there's nothing to re-run against a
-// fix. `srandom(seed)` makes an object's randomization sequence
-// deterministic -- the same seed always produces the same sequence of
-// results, and a different seed produces a different one. Skipping it
-// isn't a compile error or even a wrong answer today; it's a debugging
-// session waiting to happen the first time a regression needs to be
-// reproduced.
+// `handle.randomize()` and `handle.srandom(seed)` do two different jobs, and it's easy to mix
+// them up:
+//
+//   handle.randomize()   -- rolls new values into the object's `rand`/`randc` fields, using
+//                            whatever PRNG state the object currently has. You call this every
+//                            time you want a new random result.
+//   handle.srandom(seed) -- doesn't randomize anything itself. It resets the object's internal
+//                            PRNG to a state fully determined by `seed`. Call it once, and every
+//                            randomize() call on that object afterward follows a reproducible
+//                            sequence -- same seed in, same sequence of results out, every time.
+//
+// They're two separate calls on the handle, not composable -- srandom(seed) is not an argument
+// you pass into randomize(); randomize() only takes an optional list of field names to restrict
+// which fields get re-rolled.
 //
 // Fix the function below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Fix make_seeded_item() so the same seed always reproduces the same result, and different seeds
-// diverge.
+// Write make_seeded_item() from scratch:
+//
+//   1. it must return a valid (non-null) handle.
+//   2. two calls with the same seed must make every later randomize() on that object follow the
+//      same sequence of results.
+//   3. two calls with different seeds must diverge.
 // -------------------------------------------------------------------------------------------------
 class data_item;
   rand bit [31:0] data;
@@ -25,7 +34,7 @@ endclass
 
 function data_item make_seeded_item(int seed);
   data_item item;
-  item = new();
+  // write this function so it returns a handle seeded from `seed`
   return item;
 endfunction
 
@@ -38,6 +47,10 @@ module top;
     data_item b1;
 
     a1 = make_seeded_item(1);
+    if (a1 == null) begin
+      $display("FAIL: make_seeded_item() returned a null handle");
+      $fatal(1);
+    end
     void'(a1.randomize());
 
     a2 = make_seeded_item(1);

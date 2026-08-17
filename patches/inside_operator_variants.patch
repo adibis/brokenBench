@@ -1,0 +1,14 @@
+diff --git a/learn/inside_operator_variants.sv b/learn/inside_operator_variants.sv
+--- a/learn/inside_operator_variants.sv	2026-08-16 22:54:54
++++ b/learn/inside_operator_variants.sv	2026-08-16 22:54:54
+@@ -33,7 +33,9 @@
+   bit [7:0] low_bound = 5;
+   bit [7:0] high_bound = 15;
+ 
+-  // write constraints here
++  constraint mode_c {mode inside {0, 2, 4, 8};}
++  constraint addr_c {address inside {[10 : 20], 255};}
++  constraint dynamic_c {val inside {[low_bound : high_bound]};}
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

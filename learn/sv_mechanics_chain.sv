@@ -1,33 +1,31 @@
 // =================================================================================================
-// three bugs, one at a time
+// write a class, a compound constraint, and a factory function from scratch
 // =================================================================================================
 //
-// This one has three separate problems stacked in the same small scenario,
-// on purpose. Fix the first one the compiler reports, recompile, and the
-// next one shows up -- that's normal, not a sign you broke something new.
-// Each of the three is diagnosed completely differently: one is a parser
-// error, one is a name-resolution error, and the last one only shows up
-// at runtime, not at compile time at all. Reading which KIND of error
-// you're looking at is most of the skill here.
+// A class handle that's declared but never assigned with `new()` is null -- calling a method or
+// randomizing through it fails at runtime, not at compile time. A factory function that's supposed
+// to hand back a ready-to-use object has exactly one job it can't skip: actually constructing the
+// object before returning it.
 //
-// Fix the code below so the check after it passes.
+// Fix the class and function below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Fix all three problems so make_item() returns a valid handle and addr/size satisfy the
-// constraint.
+// Write the constraint and the factory function from scratch:
+//
+//   1. addr's low 2 bits must always be 0 (addr[1:0] == 2'b00).
+//   2. size must stay between 1 and 8, inclusive.
+//   3. make_item() must return a valid (non-null) handle.
 // -------------------------------------------------------------------------------------------------
 class addr_item;
   rand bit [15:0] addr;
   rand bit [3:0]  size;
-  constraint c_addr {
-    addr[1:0] == 2'b00
-    sz inside {[1:8]};
-  }
+  // write constraints here
 endclass
 
 function addr_item make_item();
   addr_item item;
+  // write this function so it returns a valid handle
   return item;
 endfunction
 

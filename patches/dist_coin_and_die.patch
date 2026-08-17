@@ -1,0 +1,14 @@
+diff --git a/learn/dist_coin_and_die.sv b/learn/dist_coin_and_die.sv
+--- a/learn/dist_coin_and_die.sv	2026-08-16 22:39:01
++++ b/learn/dist_coin_and_die.sv	2026-08-16 22:39:01
+@@ -32,7 +32,9 @@
+ class dist_practice;
+   rand bit coin;
+   rand bit [2:0] roll;
+-  // write constraints here
++
++  constraint c_coin {coin dist {0 := 1, 1 := 1};}
++  constraint c_roll {roll dist {[1 : 5] :/ 50, 6 := 50};}
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

@@ -5,58 +5,65 @@
 # editing this file only, never renaming a .sv file.
 
 [[exercise]]
-slug  = "missing_rand"
-path  = "learn/missing_rand.sv"
-order = 1
-track = "learn"
-tags  = ["syntax"]
-
-[[exercise]]
-slug  = "double_equals_in_constraint"
-path  = "learn/double_equals_in_constraint.sv"
-order = 2
-track = "learn"
-tags  = ["syntax"]
-
-[[exercise]]
 slug  = "unsatisfiable_constraint"
 path  = "learn/unsatisfiable_constraint.sv"
-order = 3
+order = 1
 track = "learn"
-tags  = ["runtime-check"]
+tags  = ["write-from-scratch"]
 
 [[exercise]]
 slug  = "sv_mechanics_chain"
 path  = "learn/sv_mechanics_chain.sv"
-order = 4
+order = 2
 track = "learn"
-tags  = ["syntax", "runtime-check", "chained-bugs"]
+tags  = ["write-from-scratch"]
 
 [[exercise]]
-slug  = "duplicate_constraint_name"
-path  = "learn/duplicate_constraint_name.sv"
+slug  = "sv_constraint_chain"
+path  = "learn/sv_constraint_chain.sv"
+order = 3
+track = "learn"
+tags  = ["write-from-scratch"]
+
+[[exercise]]
+slug  = "inside_operator_variants"
+path  = "learn/inside_operator_variants.sv"
+order = 4
+track = "learn"
+tags  = ["write-from-scratch"]
+
+[[exercise]]
+slug  = "dist_coin_and_die"
+path  = "learn/dist_coin_and_die.sv"
 order = 5
 track = "learn"
-tags  = ["syntax"]
+tags  = ["write-from-scratch", "statistical"]
+
+[[exercise]]
+slug  = "implies_basics"
+path  = "learn/implies_basics.sv"
+order = 6
+track = "learn"
+tags  = ["write-from-scratch"]
+
+[[exercise]]
+slug  = "foreach_with_basics"
+path  = "learn/foreach_with_basics.sv"
+order = 7
+track = "learn"
+tags  = ["write-from-scratch"]
 
 [[exercise]]
 slug  = "missing_seed_reproducibility"
 path  = "learn/missing_seed_reproducibility.sv"
-order = 6
+order = 8
 track = "learn"
-tags  = ["best-practice"]
-
-[[exercise]]
-slug  = "uninitialized_dynamic_array"
-path  = "learn/uninitialized_dynamic_array.sv"
-order = 7
-track = "learn"
-tags  = ["dynamic-array"]
+tags  = ["write-from-scratch", "best-practice"]
 
 [[exercise]]
 slug  = "rand_mode_leftover"
 path  = "learn/rand_mode_leftover.sv"
-order = 8
+order = 9
 track = "learn"
 tags  = ["lifecycle-hook"]
 

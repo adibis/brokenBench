@@ -1,0 +1,19 @@
+diff --git a/learn/foreach_with_basics.sv b/learn/foreach_with_basics.sv
+--- a/learn/foreach_with_basics.sv	2026-08-16 23:04:53
++++ b/learn/foreach_with_basics.sv	2026-08-16 23:05:03
+@@ -19,11 +19,13 @@
+ class pkt_item;
+   rand bit [7:0] lens[4];
+   rand bit [7:0] tag;
+-  // write constraints here
++  constraint c_lens {
++    foreach (lens[i]) lens[i] inside {[1 : 100]};
++  }
+ endclass
+ 
+ function void tag_item(pkt_item it, bit [7:0] target);
+-  // write this function so item.tag always ends up equal to target
++  void'(it.randomize() with {tag == target;});
+ endfunction
+ 
+ // ---8<--- checker below: don't edit ---

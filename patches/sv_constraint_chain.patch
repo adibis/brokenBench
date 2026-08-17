@@ -1,0 +1,14 @@
+diff --git a/learn/sv_constraint_chain.sv b/learn/sv_constraint_chain.sv
+--- a/learn/sv_constraint_chain.sv	2026-08-16 23:04:53
++++ b/learn/sv_constraint_chain.sv	2026-08-16 23:05:03
+@@ -23,7 +23,9 @@
+   rand bit [1:0] mode;
+   rand bit [7:0] delay;
+ 
+-  // write constraints here
++  constraint c_lo {priority_lo inside {[0 : 3]};}
++  constraint c_hi {priority_hi inside {[4 : 7]};}
++  constraint c_mode {mode == 2'b01;}
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---
