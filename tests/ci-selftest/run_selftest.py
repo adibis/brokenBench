@@ -23,7 +23,7 @@ FIXTURES = os.path.join(HERE, "fixtures")
 # gets skipped (a fixture goes missing, a function returns early on an exception),
 # the assertion count comes up short and that's a hard failure, not a quietly
 # smaller green run.
-EXPECTED_NO_VERILATOR_CHECKS = 3
+EXPECTED_NO_VERILATOR_CHECKS = 6
 EXPECTED_VERILATOR_CHECKS = 3
 
 
@@ -116,6 +116,39 @@ def scenario_manifest_sync():
     return 1
 
 
+def scenario_find_exercise_after():
+    # `make watch` auto-advances to the next exercise in track order on a pass
+    # (matches rustlings' own watch mode, confirmed directly against its source)
+    # by shelling out to find_exercise.py --after <slug> -- this proves that
+    # lookup's three real states: mid-track, last-in-track, and an unknown slug.
+    # No fixture .sv files needed -- --after only reads manifest.toml, it never
+    # touches disk content.
+    root = new_scratch_root([
+        {"slug": "first", "path": "learn/first.sv", "order": 1},
+        {"slug": "second", "path": "learn/second.sv", "order": 2},
+        {"slug": "third", "path": "learn/third.sv", "order": 3},
+    ])
+    find_exercise = os.path.join(root, "scripts", "find_exercise.py")
+
+    r = run([sys.executable, find_exercise, "--after", "first"])
+    assert_that(r.returncode == 0 and r.stdout.strip() == "learn/second.sv",
+                "find_exercise.py --after resolves the next exercise mid-track",
+                r.stdout + r.stderr)
+
+    r = run([sys.executable, find_exercise, "--after", "third"])
+    assert_that(r.returncode == 0 and r.stdout.strip() == "",
+                "find_exercise.py --after prints nothing for the last exercise "
+                "in a track", r.stdout + r.stderr)
+
+    r = run([sys.executable, find_exercise, "--after", "does_not_exist"])
+    assert_that(r.returncode != 0 and "no exercise with slug" in r.stderr,
+                "find_exercise.py --after errors on an unknown slug",
+                r.stdout + r.stderr)
+
+    shutil.rmtree(root)
+    return 3
+
+
 # ---------------------------------------------------------------------------
 # Verilator scenarios: check_unpatched_fails.py and check_patches_pass.py
 # actually compile and run the fixtures.
@@ -179,7 +212,8 @@ def main():
 
     ran = 0
     if args.group in ("no-verilator", "all"):
-        n = scenario_patch_safety() + scenario_manifest_sync()
+        n = (scenario_patch_safety() + scenario_manifest_sync()
+             + scenario_find_exercise_after())
         if args.group == "no-verilator":
             assert_that(n == EXPECTED_NO_VERILATOR_CHECKS,
                         f"ran the expected {EXPECTED_NO_VERILATOR_CHECKS} "

@@ -38,6 +38,7 @@ help:
 	@echo ""
 	@echo "  make run EX=missing_rand              compile and run one exercise by slug"
 	@echo "  make run EX=and_instead_of_implies"
+	@echo "  make watch EX=missing_rand            re-run automatically every time you save the file"
 	@echo "  make check TRACK=learn                run a whole track in order, stop at the first failure"
 	@echo "  make check TRACK=sv"
 	@echo "  make check TRACK=sv EX=cyclic_rand_constraint   start partway through a track"
@@ -119,6 +120,57 @@ run:
 		$(fail_run_banner); \
 	fi; \
 	exit $$run_ok
+
+# Poll-based, not inotify/fswatch -- neither is a dependency this repo wants
+# (macOS has no inotify at all, and fswatch isn't preinstalled anywhere).
+# `stat`'s mtime flag differs between GNU and BSD, and they don't fail the
+# same way: GNU's `-f` silently means something else entirely (filesystem
+# status, not file status) rather than erroring, so trying it first and
+# falling back on failure isn't safe. BSD's `-c` errors hard (confirmed
+# directly: "illegal option -- c", exit 1) so trying GNU's `-c %Y` first
+# and falling back to BSD's `-f %m` only on a genuine failure is the safe
+# order -- the reverse order risks reading a mount point as a timestamp.
+#
+# Auto-advances on pass, same as rustlings' watch mode (confirmed directly
+# against its source: on a passing test it moves to the next exercise and
+# runs it immediately, rather than sitting on the now-solved file) -- the
+# whole point of watch mode is cutting the edit/save/rerun loop, and
+# re-typing `make watch EX=<next>` by hand for every exercise defeats that.
+watch:
+	@$(setup_colors); \
+	test -n "$(EX)" || (echo "usage: make watch EX=missing_rand" && exit 1); \
+	cur="$(EX)"; \
+	f=$$($(PYTHON) $(SCRIPTS)/find_exercise.py --slug "$$cur") || exit 1; \
+	trap 'echo ""; echo "stopped watching."; exit 0' INT; \
+	last_mtime=""; \
+	while true; do \
+		mtime=$$(stat -c %Y "$$f" 2>/dev/null || stat -f %m "$$f" 2>/dev/null); \
+		if [ "$$mtime" != "$$last_mtime" ]; then \
+			last_mtime="$$mtime"; \
+			[ -t 1 ] && clear; \
+			$(MAKE) --no-print-directory run EX="$$cur"; \
+			run_ok=$$?; \
+			if [ $$run_ok -eq 0 ]; then \
+				next_path=$$($(PYTHON) $(SCRIPTS)/find_exercise.py --after "$$cur"); \
+				if [ -n "$$next_path" ]; then \
+					cur=$$(basename $$next_path .sv); \
+					f="$$next_path"; \
+					last_mtime=""; \
+					echo ""; \
+					echo "$${BOLD}$${GREEN}--> moving on to $$cur$${RESET}"; \
+					continue; \
+				fi; \
+				echo ""; \
+				echo "======================================================================"; \
+				echo "$${BOLD}$${GREEN}That was the last exercise in this track. Nice work!$${RESET}"; \
+				echo "======================================================================"; \
+				exit 0; \
+			fi; \
+			echo ""; \
+			echo "watching $$f for changes -- Ctrl-C to stop"; \
+		fi; \
+		sleep 0.5; \
+	done
 
 check:
 	@$(setup_colors); \
@@ -236,4 +288,4 @@ selftest:
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: help run check find list format format-check selftest clean
+.PHONY: help run watch check find list format format-check selftest clean
