@@ -46,6 +46,7 @@ help:
 	@echo "  make list                              list every exercise in every track, with tags"
 	@echo "  make format                            reformat learn/ and exercises/ with verible"
 	@echo "  make format-check                      check formatting without changing anything (what CI runs)"
+	@echo "  make selftest                          prove the checker scripts reject bad input (see tests/ci-selftest/)"
 	@echo "  make clean                             remove build artifacts"
 
 run:
@@ -136,7 +137,10 @@ format-check:
 	if [ $$failed -ne 0 ]; then echo "run 'make format' to fix"; exit 1; fi; \
 	echo "already formatted."
 
+selftest:
+	@$(PYTHON) tests/ci-selftest/run_selftest.py --group all
+
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: help run check find list format format-check clean
+.PHONY: help run check find list format format-check selftest clean

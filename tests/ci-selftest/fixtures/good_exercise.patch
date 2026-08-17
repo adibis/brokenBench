@@ -1,0 +1,12 @@
+diff --git a/learn/good_exercise.sv b/learn/good_exercise.sv
+--- a/learn/good_exercise.sv
++++ b/learn/good_exercise.sv
+@@ -3,7 +3,7 @@
+ // See tests/ci-selftest/README.md.
+
+ class widget_item;
+-  bit [3:0] val;
++  rand bit [3:0] val;
+ endclass
+
+ // ---8<--- checker below: don't edit ---

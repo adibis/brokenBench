@@ -58,6 +58,12 @@ All five of those are exactly what CI runs on every push and PR (see
 [README.md's "CI and the patch system"](README.md#ci-and-the-patch-system))
 -- running them locally first just means you find out before CI does.
 
+If you're changing one of the `scripts/check_*.py` scripts themselves
+(not adding an exercise), also run `make selftest` -- it proves those
+scripts still correctly reject bad exercises/patches and accept good
+ones, using fixtures built to be wrong on purpose. See
+[tests/ci-selftest/README.md](tests/ci-selftest/README.md).
+
 ## Filing a bug
 
 A good bug report here almost always has one of three shapes:

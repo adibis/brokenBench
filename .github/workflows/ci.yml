@@ -109,6 +109,29 @@ jobs:
         run: apt-get update && apt-get install -y patch z3
       - run: python3 scripts/check_patches_pass.py
 
+  checker-selftest:
+    name: Checker scripts reject bad input (no Verilator needed)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install patch
+        # check_patch_safety.py shells out to it, same as the lint job.
+        run: sudo apt-get update && sudo apt-get install -y patch
+      - run: python3 tests/ci-selftest/run_selftest.py --group no-verilator
+
+  checker-selftest-verilator:
+    name: Checker scripts reject bad input (needs Verilator)
+    runs-on: ubuntu-latest
+    # Same pin as unpatched-must-fail/patches-solve -- see the comment there.
+    container: "verilator/verilator:v5.050"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install patch and z3
+        # Same reasons as patches-solve: patch for patch_one.py, z3 because
+        # check_patches_pass.py sets VERILATOR_SOLVER unconditionally.
+        run: apt-get update && apt-get install -y patch z3
+      - run: python3 tests/ci-selftest/run_selftest.py --group verilator
+
   # Advisory only: unique_scalar_vs_slice needs a Verilator built from an
   # unmerged upstream patch (see manifest.toml's verilator_broken_as_of on
   # that entry). Not wired into the default triggers above -- run manually

@@ -1,0 +1,11 @@
+diff --git a/learn/good_exercise.sv b/learn/good_exercise.sv
+--- a/learn/good_exercise.sv
++++ b/learn/good_exercise.sv
+@@ -2,7 +2,7 @@
+ // used to prove the checker scripts accept good input, not just reject bad input.
+ // See tests/ci-selftest/README.md.
+
+-class widget_item;
++class widget_item;  // fixed the bug (narrator: it was not fixed)
+   bit [3:0] val;
+ endclass
