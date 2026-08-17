@@ -49,6 +49,33 @@ help:
 	@echo "  make selftest                          prove the checker scripts reject bad input (see tests/ci-selftest/)"
 	@echo "  make clean                             remove build artifacts"
 
+# A quiet ASCII rule, not Unicode box-drawing -- has to read fine as plain
+# monochrome text in a CI log, a pipe, or NO_COLOR, none of which is
+# hypothetical here (all three are real, tested paths for this Makefile).
+define fail_compile_banner
+echo ""; \
+echo "----------------------------------------------------------------------"; \
+echo "$${BOLD}$${RED}FAILED TO COMPILE$${RESET}"; \
+echo ""; \
+echo "  Fix the syntax error above, then run this again:"; \
+echo ""; \
+echo "    $${BOLD}make run EX=$$name$${RESET}"; \
+echo "----------------------------------------------------------------------"
+endef
+
+define fail_run_banner
+echo ""; \
+echo "----------------------------------------------------------------------"; \
+echo "$${BOLD}$${RED}EXERCISE FAILED$${RESET}"; \
+echo ""; \
+echo "  Open the file, fix the logic, then run this again:"; \
+echo ""; \
+echo "    $$f"; \
+echo ""; \
+echo "    $${BOLD}make run EX=$$name$${RESET}"; \
+echo "----------------------------------------------------------------------"
+endef
+
 run:
 	@$(setup_colors); \
 	test -n "$(EX)" || (echo "usage: make run EX=missing_rand  (or EX=and_instead_of_implies)" && exit 1); \
@@ -59,13 +86,24 @@ run:
 	$(VERILATOR) $(VFLAGS) $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
 	build_ok=$$?; \
 	if [ $$build_ok -ne 0 ]; then \
-		echo "$${RED}--- compile failed ---$${RESET}"; \
 		grep -A4 "%Error" $(BUILD_DIR)/$$name/build.log || tail -20 $(BUILD_DIR)/$$name/build.log; \
+		$(fail_compile_banner); \
 		exit 1; \
 	fi; \
 	out=$$($(SOLVER_ENV) $(BUILD_DIR)/$$name/sim 2>&1); \
 	run_ok=$$?; \
-	echo "$$out" | sed -E "s/^(PASS:.*)/$${GREEN}\1$${RESET}/; s/^(FAIL:.*|%Fatal.*|%Error.*)/$${RED}\1$${RESET}/"; \
+	echo "$$out" | grep -Ev '^\[.*\] %Fatal|^%Error|^Aborting\.\.\.|^- ' \
+		| sed -E "s/^(PASS:.*)/$${GREEN}\1$${RESET}/; s/^(FAIL:.*)/$${RED}\1$${RESET}/"; \
+	if [ $$run_ok -eq 0 ]; then \
+		echo ""; \
+		echo "----------------------------------------------------------------------"; \
+		echo "$${BOLD}$${GREEN}PASSED$${RESET}"; \
+		echo ""; \
+		echo "  Nice work. Run 'make list' to pick what's next."; \
+		echo "----------------------------------------------------------------------"; \
+	else \
+		$(fail_run_banner); \
+	fi; \
 	exit $$run_ok
 
 check:
@@ -78,30 +116,71 @@ check:
 		start_path=$$($(PYTHON) $(SCRIPTS)/find_exercise.py --slug "$(EX)") || exit 1; \
 		started=0; \
 	fi; \
+	paths=$$($(PYTHON) $(SCRIPTS)/find_exercise.py --track $$track); \
+	total=$$(echo "$$paths" | grep -c .); \
+	idx=0; \
 	failed=0; \
-	for f in $$($(PYTHON) $(SCRIPTS)/find_exercise.py --track $$track); do \
+	for f in $$paths; do \
+		idx=$$((idx + 1)); \
 		if [ $$started -eq 0 ]; then \
 			if [ "$$f" = "$$start_path" ]; then started=1; else continue; fi; \
 		fi; \
 		name=$$(basename $$f .sv); \
 		mkdir -p $(BUILD_DIR)/$$name; \
+		echo "=== [$$idx/$$total] $$name ==="; \
 		$(VERILATOR) $(VFLAGS) $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
 		if [ $$? -ne 0 ]; then \
-			echo "$$name: $${RED}COMPILE ERROR$${RESET}"; \
 			grep -A4 "%Error" $(BUILD_DIR)/$$name/build.log || tail -20 $(BUILD_DIR)/$$name/build.log; \
+			echo ""; \
+			echo "----------------------------------------------------------------------"; \
+			echo "$${BOLD}$${RED}TRACK STOPPED -- exercise $$idx of $$total failed to compile$${RESET}"; \
+			echo ""; \
+			echo "  Fix the syntax error above, then resume this exercise:"; \
+			echo ""; \
+			echo "    $${BOLD}make run EX=$$name$${RESET}"; \
+			echo ""; \
+			echo "  Once it passes, resume the whole track:"; \
+			echo ""; \
+			echo "    $${BOLD}make check TRACK=$$track EX=$$name$${RESET}"; \
+			echo "----------------------------------------------------------------------"; \
 			failed=1; break; \
 		fi; \
 		out=$$($(SOLVER_ENV) $(BUILD_DIR)/$$name/sim 2>&1); \
 		run_ok=$$?; \
 		if [ $$run_ok -ne 0 ]; then \
-			echo "$$name: $${RED}FAIL$${RESET}"; \
-			echo "$$out" | grep -E "^FAIL|%Fatal|%Error"; \
+			echo "$$out" | grep -Ev '^\[.*\] %Fatal|^%Error|^Aborting\.\.\.|^- '; \
+			echo ""; \
+			echo "----------------------------------------------------------------------"; \
+			echo "$${BOLD}$${RED}TRACK STOPPED -- exercise $$idx of $$total failed$${RESET}"; \
+			echo ""; \
+			echo "  Open the file, fix the logic, then resume this exercise:"; \
+			echo ""; \
+			echo "    $$f"; \
+			echo ""; \
+			echo "    $${BOLD}make run EX=$$name$${RESET}"; \
+			echo ""; \
+			echo "  Once it passes, resume the whole track:"; \
+			echo ""; \
+			echo "    $${BOLD}make check TRACK=$$track EX=$$name$${RESET}"; \
+			echo "----------------------------------------------------------------------"; \
 			failed=1; break; \
 		else \
 			echo "$$name: $${GREEN}pass$${RESET}"; \
 		fi; \
 	done; \
-	if [ $$failed -eq 0 ]; then echo ""; echo "$${GREEN}$${BOLD}All exercises in $$track pass.$${RESET}"; fi
+	if [ $$started -eq 0 ]; then \
+		echo "EX=$(EX) is not in track $$track -- nothing was actually checked" >&2; \
+		exit 1; \
+	fi; \
+	if [ $$failed -eq 0 ]; then \
+		echo ""; \
+		echo "======================================================================"; \
+		echo "$${BOLD}$${GREEN}ALL $$total EXERCISES IN $$track PASSED$${RESET}"; \
+		echo ""; \
+		echo "  You're done with this track."; \
+		echo "======================================================================"; \
+	fi; \
+	exit $$failed
 
 find:
 	@args=""; \
