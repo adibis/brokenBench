@@ -95,11 +95,25 @@ run:
 	echo "$$out" | grep -Ev '^\[.*\] %Fatal|^%Error|^Aborting\.\.\.|^- ' \
 		| sed -E "s/^(PASS:.*)/$${GREEN}\1$${RESET}/; s/^(FAIL:.*)/$${RED}\1$${RESET}/"; \
 	if [ $$run_ok -eq 0 ]; then \
+		next_path=$$($(PYTHON) $(SCRIPTS)/find_exercise.py --after "$(EX)"); \
 		echo ""; \
 		echo "----------------------------------------------------------------------"; \
 		echo "$${BOLD}$${GREEN}PASSED$${RESET}"; \
 		echo ""; \
-		echo "  Nice work. Run 'make list' to pick what's next."; \
+		if [ -n "$$next_path" ]; then \
+			next_name=$$(basename $$next_path .sv); \
+			echo "  Nice work. Next up:"; \
+			echo ""; \
+			echo "    $${BOLD}make run EX=$$next_name$${RESET}"; \
+			echo ""; \
+			echo "  OR to get a list of all available exercises:"; \
+			echo ""; \
+			echo "    $${BOLD}make list$${RESET}"; \
+		else \
+			echo "  Nice work -- that's the last one in this track. To pick another:"; \
+			echo ""; \
+			echo "    $${BOLD}make list$${RESET}"; \
+		fi; \
 		echo "----------------------------------------------------------------------"; \
 	else \
 		$(fail_run_banner); \

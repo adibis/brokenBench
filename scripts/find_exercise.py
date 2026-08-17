@@ -51,6 +51,10 @@ def parse_manifest(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--slug", help="resolve a single exercise's path by its slug")
+    parser.add_argument("--after", help="resolve the path of the exercise immediately "
+                         "after this slug, within the same track (prints nothing, exits "
+                         "0, if this slug is the last one in its track -- that's a normal "
+                         "state, not an error)")
     parser.add_argument("--track", choices=["learn", "sv", "uvm", "csr"],
                          help="filter to one track")
     parser.add_argument("--tag", action="append", default=[],
@@ -62,6 +66,19 @@ def main():
     args = parser.parse_args()
 
     exercises = parse_manifest(MANIFEST_PATH)
+
+    if args.after:
+        matches = [e for e in exercises if e["slug"] == args.after]
+        if not matches:
+            print(f"no exercise with slug '{args.after}' in manifest.toml", file=sys.stderr)
+            sys.exit(1)
+        track_entries = sorted([e for e in exercises if e["track"] == matches[0]["track"]],
+                                key=lambda e: e["order"])
+        idx = next(i for i, e in enumerate(track_entries) if e["slug"] == args.after)
+        if idx + 1 < len(track_entries):
+            nxt = track_entries[idx + 1]
+            print(json.dumps(nxt) if args.json else nxt["path"])
+        return
 
     if args.slug:
         matches = [e for e in exercises if e["slug"] == args.slug]
