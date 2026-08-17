@@ -211,9 +211,8 @@ looks like a tooling quirk rather than the intended lesson:
   `make run` at a patched binary.
 - **A `rand`-sized dynamic array combined with a `.sum()`/`.product()`
   reduction constraint over its own contents never solves**, even with
-  explicit `solve ... before` ordering hints. `array_size_before_reduction`
-  is built around this directly; the real fix is pinning the array's size,
-  not a smarter ordering hint.
+  explicit `solve ... before` ordering hints. The real fix is pinning the
+  array's size, not a smarter ordering hint. Not built into an exercise.
 - **`randomize(field)` does not hold other `rand` fields as state**, contrary
   to documented LRM behavior for single-variable randomization -- calling
   it re-randomizes the whole object regardless of which field was named.

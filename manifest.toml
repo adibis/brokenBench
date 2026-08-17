@@ -5,67 +5,74 @@
 # editing this file only, never renaming a .sv file.
 
 [[exercise]]
-slug  = "unsatisfiable_constraint"
-path  = "learn/unsatisfiable_constraint.sv"
-order = 1
-track = "learn"
-tags  = ["write-from-scratch"]
-
-[[exercise]]
 slug  = "sv_mechanics_chain"
 path  = "learn/sv_mechanics_chain.sv"
-order = 2
+order = 1
 track = "learn"
 tags  = ["write-from-scratch"]
 
 [[exercise]]
 slug  = "sv_constraint_chain"
 path  = "learn/sv_constraint_chain.sv"
-order = 3
+order = 2
 track = "learn"
 tags  = ["write-from-scratch"]
 
 [[exercise]]
 slug  = "inside_operator_variants"
 path  = "learn/inside_operator_variants.sv"
-order = 4
+order = 3
 track = "learn"
 tags  = ["write-from-scratch"]
 
 [[exercise]]
 slug  = "dist_coin_and_die"
 path  = "learn/dist_coin_and_die.sv"
-order = 5
+order = 4
 track = "learn"
 tags  = ["write-from-scratch", "statistical"]
 
 [[exercise]]
 slug  = "implies_basics"
 path  = "learn/implies_basics.sv"
-order = 6
+order = 5
 track = "learn"
 tags  = ["write-from-scratch"]
 
 [[exercise]]
 slug  = "foreach_with_basics"
 path  = "learn/foreach_with_basics.sv"
-order = 7
+order = 6
 track = "learn"
 tags  = ["write-from-scratch"]
 
 [[exercise]]
 slug  = "missing_seed_reproducibility"
 path  = "learn/missing_seed_reproducibility.sv"
-order = 8
+order = 7
 track = "learn"
 tags  = ["write-from-scratch", "best-practice"]
 
 [[exercise]]
 slug  = "rand_mode_leftover"
 path  = "learn/rand_mode_leftover.sv"
-order = 9
+order = 8
 track = "learn"
 tags  = ["lifecycle-hook"]
+
+[[exercise]]
+slug  = "rand_queue_of_objects"
+path  = "learn/rand_queue_of_objects.sv"
+order = 9
+track = "learn"
+tags  = ["write-from-scratch", "lifecycle-hook", "array"]
+
+[[exercise]]
+slug  = "array_reduction_with"
+path  = "learn/array_reduction_with.sv"
+order = 10
+track = "learn"
+tags  = ["write-from-scratch", "array"]
 
 [[exercise]]
 slug  = "offset_narrowed_to_one_value"
@@ -210,43 +217,36 @@ track = "sv"
 tags  = ["single-constraint", "boundary-value"]
 
 [[exercise]]
-slug  = "array_size_before_reduction"
-path  = "exercises/sv/array_size_before_reduction.sv"
-order = 20
-track = "sv"
-tags  = ["tool-limitation", "array"]
-
-[[exercise]]
 slug  = "page_alignment"
 path  = "exercises/sv/page_alignment.sv"
-order = 21
+order = 20
 track = "sv"
 tags  = ["write-from-scratch"]
 
 [[exercise]]
 slug  = "frame_pixel_diff"
 path  = "exercises/sv/frame_pixel_diff.sv"
-order = 22
+order = 21
 track = "sv"
 tags  = ["write-from-scratch", "lifecycle-hook", "cross-call-state", "array"]
 
 [[exercise]]
 slug  = "unique_ids_across_calls"
 path  = "exercises/sv/unique_ids_across_calls.sv"
-order = 23
+order = 22
 track = "sv"
 tags  = ["write-from-scratch", "cross-call-state", "lifecycle-hook"]
 
 [[exercise]]
 slug  = "risc_v_data_hazard"
 path  = "exercises/sv/risc_v_data_hazard.sv"
-order = 24
+order = 23
 track = "sv"
 tags  = ["write-from-scratch", "statistical", "cross-call-state"]
 
 [[exercise]]
 slug  = "risc_v_hazard_which_register"
 path  = "exercises/sv/risc_v_hazard_which_register.sv"
-order = 25
+order = 24
 track = "sv"
 tags  = ["write-from-scratch", "statistical", "cross-call-state", "multi-constraint"]

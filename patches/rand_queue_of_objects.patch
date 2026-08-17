@@ -1,0 +1,17 @@
+diff --git a/learn/rand_queue_of_objects.sv b/learn/rand_queue_of_objects.sv
+--- a/learn/rand_queue_of_objects.sv	2026-08-16 23:19:27
++++ b/learn/rand_queue_of_objects.sv	2026-08-16 23:19:27
+@@ -31,7 +31,12 @@
+ 
+   constraint c_size {queue_of_pkts.size() == 5;}
+ 
+-  // write post_randomize() here
++  function void post_randomize();
++    foreach (queue_of_pkts[i]) begin
++      if (queue_of_pkts[i] == null) queue_of_pkts[i] = new();
++      void'(queue_of_pkts[i].randomize());
++    end
++  endfunction
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---
