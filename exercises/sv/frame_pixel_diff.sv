@@ -47,12 +47,11 @@ module top;
       if (t > 0) begin
         automatic int diff_count = 0;
         for (int i = 0; i < 4; i++)
-          for (int j = 0; j < 4; j++)
-            if (f.frame[i][j] != last_frame[i][j]) diff_count++;
+        for (int j = 0; j < 4; j++) if (f.frame[i][j] != last_frame[i][j]) diff_count++;
 
         if (diff_count != 1) begin
-          $display("FAIL: frame %0d differs from frame %0d in %0d pixels, expected exactly 1",
-              t, t - 1, diff_count);
+          $display("FAIL: frame %0d differs from frame %0d in %0d pixels, expected exactly 1", t,
+                   t - 1, diff_count);
           bad_found = 1;
         end
       end

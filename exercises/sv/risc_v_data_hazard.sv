@@ -43,8 +43,8 @@ module top;
         hazard_count++;
         if (item.src_reg_0 != prev_dst_reg && item.src_reg_1 != prev_dst_reg) begin
           $display($sformatf({"FAIL: instr %0d claims hazard=1 but neither src_reg_0=%0d nor ",
-              "src_reg_1=%0d matches prev_dst_reg=%0d"},
-              t, item.src_reg_0, item.src_reg_1, prev_dst_reg));
+                              "src_reg_1=%0d matches prev_dst_reg=%0d"}, t, item.src_reg_0,
+                               item.src_reg_1, prev_dst_reg));
           bad_link_found = 1;
         end
       end
@@ -56,13 +56,13 @@ module top;
     if (bad_link_found) $fatal(1);
 
     if (hazard_count < (total * 60 / 100) || hazard_count > (total * 80 / 100)) begin
-      $display("FAIL: hazard rate %0d/%0d (%0d%%), expected roughly 70%%",
-          hazard_count, total, (hazard_count * 100) / total);
+      $display("FAIL: hazard rate %0d/%0d (%0d%%), expected roughly 70%%", hazard_count, total,
+               (hazard_count * 100) / total);
       $fatal(1);
     end
 
     $display("PASS: %0d/%0d instructions hazarded (%0d%%), every hazard correctly linked",
-        hazard_count, total, (hazard_count * 100) / total);
+             hazard_count, total, (hazard_count * 100) / total);
     $finish;
   end
 endmodule

@@ -1,5 +1,4 @@
 diff --git a/exercises/sv/page_alignment.sv b/exercises/sv/page_alignment.sv
-index b60704b..c00bbbc 100644
 --- a/exercises/sv/page_alignment.sv
 +++ b/exercises/sv/page_alignment.sv
 @@ -20,7 +20,8 @@
@@ -7,8 +6,8 @@ index b60704b..c00bbbc 100644
  class page_item;
    rand bit [31:0] addr;
 -  // write constraints here
-+  constraint c_range { addr inside {[32'h0000_0000:32'h000F_FFFF]}; }
-+  constraint c_align { addr[11:0] == 12'b0; }
++  constraint c_range {addr inside {[32'h0000_0000 : 32'h000F_FFFF]};}
++  constraint c_align {addr[11:0] == 12'b0;}
  endclass
  
  // ---8<--- checker below: don't edit ---

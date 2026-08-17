@@ -20,7 +20,7 @@
 // -------------------------------------------------------------------------------------------------
 class gain_item;
   rand bit [7:0] gain;
-  constraint c_range { gain inside {[10:200]}; }
+  constraint c_range {gain inside {[10 : 200]};}
 
   function void post_randomize();
     // meant to guard against an out-of-range value; the solver already
@@ -43,12 +43,11 @@ module top;
       seen[i] = item.gain;
     end
 
-    for (int i = 1; i < 10; i++)
-      if (seen[i] != seen[0]) all_same = 0;
+    for (int i = 1; i < 10; i++) if (seen[i] != seen[0]) all_same = 0;
 
     if (all_same) begin
       $display($sformatf({"FAIL: gain was %0d every time across 10 calls -- ",
-          "check what post_randomize() is doing to it"}, seen[0]));
+                          "check what post_randomize() is doing to it"}, seen[0]));
       $fatal(1);
     end else begin
       $display("PASS: gain varied across calls: %p", seen);

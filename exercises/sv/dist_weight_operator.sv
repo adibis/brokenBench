@@ -22,7 +22,12 @@ class priority_item;
   rand bit [1:0] prio;
   // intent: priority 0 should come up about as often as 1, 2, and 3
   // *combined* -- a rough 50/50 split between "urgent" and "everything else"
-  constraint c_prio { prio dist {0 := 1, [1:3] := 1}; }
+  constraint c_prio {
+    prio dist {
+      0 := 1,
+      [1 : 3] := 1
+    };
+  }
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -41,11 +46,11 @@ module top;
     // expect roughly 50% -- allow a wide band since this is statistical
     if (zero_count < (total * 40 / 100) || zero_count > (total * 60 / 100)) begin
       $display("FAIL: priority==0 came up %0d/%0d times (%0d%%), expected roughly 50%%",
-          zero_count, total, (zero_count*100)/total);
+               zero_count, total, (zero_count * 100) / total);
       $fatal(1);
     end else begin
       $display("PASS: priority==0 came up %0d%% of the time, roughly the intended 50/50 split",
-          (zero_count*100)/total);
+               (zero_count * 100) / total);
       $finish;
     end
   end

@@ -1,16 +1,12 @@
 diff --git a/exercises/sv/unique_without_unique_keyword.sv b/exercises/sv/unique_without_unique_keyword.sv
-index 097d92b..2afe433 100644
 --- a/exercises/sv/unique_without_unique_keyword.sv
 +++ b/exercises/sv/unique_without_unique_keyword.sv
-@@ -18,8 +18,9 @@ class tag_item;
+@@ -21,7 +21,7 @@
+ // -------------------------------------------------------------------------------------------------
+ class tag_item;
    rand bit [3:0] tags[8];
-   constraint c_unique {
-     foreach (tags[i])
--      if (i < 7)
--        tags[i] != tags[i+1];
-+      foreach (tags[j])
-+        if (i < j)
-+          tags[i] != tags[j];
-   }
+-  constraint c_unique {foreach (tags[i]) if (i < 7) tags[i] != tags[i+1];}
++  constraint c_unique {foreach (tags[i]) foreach (tags[j]) if (i < j) tags[i] != tags[j];}
  endclass
  
+ // ---8<--- checker below: don't edit ---

@@ -1,13 +1,12 @@
 diff --git a/exercises/sv/offset_narrowed_to_one_value.sv b/exercises/sv/offset_narrowed_to_one_value.sv
-index c8b7e56..1db4de2 100644
 --- a/exercises/sv/offset_narrowed_to_one_value.sv
 +++ b/exercises/sv/offset_narrowed_to_one_value.sv
-@@ -22,7 +22,7 @@ class offset_item;
+@@ -22,7 +22,7 @@
    rand bit [7:0] offset;
-   constraint c_range  { offset inside {[100:110]}; }
-   constraint c_align  { offset[1:0] == 2'b00; }
--  constraint c_narrow { offset inside {[104:114]}; }
-+  constraint c_narrow { offset inside {[100:114]}; }
+   constraint c_range {offset inside {[100 : 110]};}
+   constraint c_align {offset[1:0] == 2'b00;}
+-  constraint c_narrow {offset inside {[104 : 114]};}
++  constraint c_narrow {offset inside {[100 : 114]};}
  endclass
  
  // ---8<--- checker below: don't edit ---

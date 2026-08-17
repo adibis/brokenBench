@@ -1,17 +1,21 @@
 diff --git a/exercises/sv/risc_v_data_hazard.sv b/exercises/sv/risc_v_data_hazard.sv
-index 6e30e54..2f1de9f 100644
 --- a/exercises/sv/risc_v_data_hazard.sv
 +++ b/exercises/sv/risc_v_data_hazard.sv
-@@ -18,6 +18,17 @@ class instr_item;
+@@ -18,6 +18,22 @@
    rand bit [4:0] src_reg_0;
    rand bit [4:0] src_reg_1;
    rand bit       hazard;
 +
-+  bit [4:0] prev_dst_reg;
-+  bit       has_prev;
++  bit      [4:0] prev_dst_reg;
++  bit            has_prev;
 +
-+  constraint c_hazard_dist { hazard dist {1 := 70, 0 := 30}; }
-+  constraint c_hazard_link { (has_prev && hazard) -> src_reg_0 == prev_dst_reg; }
++  constraint c_hazard_dist {
++    hazard dist {
++      1 := 70,
++      0 := 30
++    };
++  }
++  constraint c_hazard_link {(has_prev && hazard) -> src_reg_0 == prev_dst_reg;}
 +
 +  function void post_randomize();
 +    prev_dst_reg = dst_reg;

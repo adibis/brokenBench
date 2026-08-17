@@ -1,12 +1,11 @@
 diff --git a/exercises/sv/soft_constraint_overridden.sv b/exercises/sv/soft_constraint_overridden.sv
-index 0d0caf5..9f2e87f 100644
 --- a/exercises/sv/soft_constraint_overridden.sv
 +++ b/exercises/sv/soft_constraint_overridden.sv
-@@ -15,7 +15,6 @@ class delay_item;
+@@ -20,7 +20,6 @@
    rand bit [7:0] delay;
    // intent: prefer a longer delay when nothing else constrains it
-   constraint c_prefer_long { soft delay inside {[100:110]}; }
--  constraint c_narrow      { delay inside {[0:10]}; }
+   constraint c_prefer_long {soft delay inside {[100 : 110]};}
+-  constraint c_narrow {delay inside {[0 : 10]};}
  endclass
  
  // ---8<--- checker below: don't edit ---

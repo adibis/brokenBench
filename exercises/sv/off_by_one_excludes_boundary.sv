@@ -17,7 +17,7 @@
 // -------------------------------------------------------------------------------------------------
 class credit_item;
   rand bit [7:0] credits;
-  constraint c_range { credits inside {[0:254]}; }
+  constraint c_range {credits inside {[0 : 254]};}
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -34,7 +34,7 @@ module top;
 
     if (!saw_max) begin
       $display($sformatf({"FAIL: credits never once hit 8'hFF (max value) across 10000 calls ",
-          "-- the constraint's range excludes it entirely"}));
+                          "-- the constraint's range excludes it entirely"}));
       $fatal(1);
     end else begin
       $display("PASS: credits reached 8'hFF at least once across 10000 calls");

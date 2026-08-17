@@ -1,13 +1,12 @@
 diff --git a/learn/double_equals_in_constraint.sv b/learn/double_equals_in_constraint.sv
-index 5370f34..24c9351 100644
 --- a/learn/double_equals_in_constraint.sv
 +++ b/learn/double_equals_in_constraint.sv
-@@ -12,7 +12,7 @@
- 
+@@ -17,7 +17,7 @@
+ // -------------------------------------------------------------------------------------------------
  class mode_item;
    rand bit [1:0] mode;
 -  constraint c_mode { mode = 2'b01; }
-+  constraint c_mode { mode == 2'b01; }
++  constraint c_mode {mode == 2'b01;}
  endclass
  
  // ---8<--- checker below: don't edit ---

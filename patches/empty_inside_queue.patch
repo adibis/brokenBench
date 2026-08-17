@@ -1,11 +1,10 @@
 diff --git a/exercises/sv/empty_inside_queue.sv b/exercises/sv/empty_inside_queue.sv
-index b5716cf..97c58dd 100644
 --- a/exercises/sv/empty_inside_queue.sv
 +++ b/exercises/sv/empty_inside_queue.sv
-@@ -21,6 +21,9 @@ class legal_item;
+@@ -21,6 +21,9 @@
    rand int val;
    int legal_vals[$];
-   constraint c_legal { val inside {legal_vals}; }
+   constraint c_legal {val inside {legal_vals};}
 +  function new();
 +    legal_vals = '{1, 3, 5, 7, 9, 11};
 +  endfunction

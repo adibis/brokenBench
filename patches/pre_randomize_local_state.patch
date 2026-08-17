@@ -1,8 +1,7 @@
 diff --git a/exercises/sv/pre_randomize_local_state.sv b/exercises/sv/pre_randomize_local_state.sv
-index d7e79bc..e6cd558 100644
 --- a/exercises/sv/pre_randomize_local_state.sv
 +++ b/exercises/sv/pre_randomize_local_state.sv
-@@ -14,9 +14,9 @@
+@@ -20,9 +20,9 @@
  class packet_item;
    rand bit [7:0] len;
    bit is_jumbo;
@@ -10,6 +9,6 @@ index d7e79bc..e6cd558 100644
  
    function void pre_randomize();
 -    bit toggle = 0;
-     toggle = !toggle;
+     toggle   = !toggle;
      is_jumbo = toggle;
    endfunction

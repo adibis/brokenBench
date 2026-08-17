@@ -25,8 +25,11 @@
 // -------------------------------------------------------------------------------------------------
 class grid_item;
   rand bit [4:0] grid[3][3];
-  constraint c_range  { foreach (grid[i,j]) grid[i][j] inside {[1:9]}; }
-  constraint c_rowsum { foreach (grid[i]) grid[i][0] + grid[i][1] + grid[i][2] == 15; }
+  constraint c_range {
+    foreach (grid[i, j])
+    grid[i][j] inside {[1 : 9]};
+  }
+  constraint c_rowsum {foreach (grid[i]) grid[i][0] + grid[i][1] + grid[i][2] == 15;}
   constraint c_unique_row {
     foreach (grid[i]) {
       grid[i][0] != grid[i][1];
@@ -52,20 +55,20 @@ module top;
       end
 
       for (int i = 0; i < 3; i++)
-        if (g.grid[i][0] + g.grid[i][1] + g.grid[i][2] != 15) begin
-          $display("FAIL: row %0d does not sum to 15: %p", i, g.grid[i]);
-          bad_found = 1;
-        end
+      if (g.grid[i][0] + g.grid[i][1] + g.grid[i][2] != 15) begin
+        $display("FAIL: row %0d does not sum to 15: %p", i, g.grid[i]);
+        bad_found = 1;
+      end
 
       for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-          for (int i2 = 0; i2 < 3; i2++)
-            for (int j2 = 0; j2 < 3; j2++)
-              if (!(i==i2 && j==j2) && g.grid[i][j] == g.grid[i2][j2]) begin
-                $display($sformatf({"FAIL: grid[%0d][%0d]=grid[%0d][%0d]=%0d -- duplicate ",
-                    "across the whole grid"}, i, j, i2, j2, g.grid[i][j]));
-                bad_found = 1;
-              end
+      for (int j = 0; j < 3; j++)
+      for (int i2 = 0; i2 < 3; i2++)
+      for (int j2 = 0; j2 < 3; j2++)
+      if (!(i == i2 && j == j2) && g.grid[i][j] == g.grid[i2][j2]) begin
+        $display($sformatf({"FAIL: grid[%0d][%0d]=grid[%0d][%0d]=%0d -- duplicate ",
+                            "across the whole grid"}, i, j, i2, j2, g.grid[i][j]));
+        bad_found = 1;
+      end
     end
 
     if (bad_found) $fatal(1);

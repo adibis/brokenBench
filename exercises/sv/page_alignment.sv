@@ -42,8 +42,8 @@ module top;
         bad_found = 1;
       end
       if (item.addr % 4096 != 0) begin
-        $display("FAIL: addr=0x%08h is not 4K-aligned (addr %% 4096 = %0d)",
-            item.addr, item.addr % 4096);
+        $display("FAIL: addr=0x%08h is not 4K-aligned (addr %% 4096 = %0d)", item.addr,
+                 item.addr % 4096);
         bad_found = 1;
       end
     end

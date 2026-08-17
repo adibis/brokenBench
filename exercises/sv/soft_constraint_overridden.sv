@@ -19,8 +19,8 @@
 class delay_item;
   rand bit [7:0] delay;
   // intent: prefer a longer delay when nothing else constrains it
-  constraint c_prefer_long { soft delay inside {[100:110]}; }
-  constraint c_narrow      { delay inside {[0:10]}; }
+  constraint c_prefer_long {soft delay inside {[100 : 110]};}
+  constraint c_narrow {delay inside {[0 : 10]};}
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -32,12 +32,12 @@ module top;
 
     for (int i = 0; i < 20; i++) begin
       void'(item.randomize());
-      if (item.delay inside {[100:110]}) saw_preferred = 1;
+      if (item.delay inside {[100 : 110]}) saw_preferred = 1;
     end
 
     if (!saw_preferred) begin
       $display($sformatf({"FAIL: delay never once landed in the preferred [100:110] range across ",
-          "20 calls -- check what's conflicting with the soft constraint"}));
+                          "20 calls -- check what's conflicting with the soft constraint"}));
       $fatal(1);
     end else begin
       $display("PASS: delay reached the preferred range at least once across 20 calls");

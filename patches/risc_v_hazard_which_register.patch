@@ -1,25 +1,43 @@
 diff --git a/exercises/sv/risc_v_hazard_which_register.sv b/exercises/sv/risc_v_hazard_which_register.sv
-index 8dddd0f..4269024 100644
 --- a/exercises/sv/risc_v_hazard_which_register.sv
 +++ b/exercises/sv/risc_v_hazard_which_register.sv
-@@ -21,7 +21,26 @@ class instr_item;
+@@ -21,7 +21,45 @@
    rand bit [4:0] src_reg_0;
    rand bit [4:0] src_reg_1;
    rand bit       gen_hazard;
 -  // write constraints here
 +  rand bit [1:0] hkind;  // 0 = src_reg_0 only, 1 = src_reg_1 only, 2 = both
 +
-+  bit [4:0] prev_dst_reg;
-+  bit       has_prev;
++  bit      [4:0] prev_dst_reg;
++  bit            has_prev;
 +
-+  constraint c_hazard_dist { gen_hazard dist {1 := 70, 0 := 30}; }
-+  constraint c_kind_dist   { hkind dist {0 := 20, 1 := 50, 2 := 30}; }
++  constraint c_hazard_dist {
++    gen_hazard dist {
++      1 := 70,
++      0 := 30
++    };
++  }
++  constraint c_kind_dist {
++    hkind dist {
++      0 := 20,
++      1 := 50,
++      2 := 30
++    };
++  }
 +
 +  constraint c_link {
 +    if (has_prev && gen_hazard) {
-+      if (hkind == 0) { src_reg_0 == prev_dst_reg; src_reg_1 != prev_dst_reg; }
-+      else if (hkind == 1) { src_reg_1 == prev_dst_reg; src_reg_0 != prev_dst_reg; }
-+      else { src_reg_0 == prev_dst_reg; src_reg_1 == prev_dst_reg; }
++      if (hkind == 0) {
++        src_reg_0 == prev_dst_reg;
++        src_reg_1 != prev_dst_reg;
++      } else
++      if (hkind == 1) {
++        src_reg_1 == prev_dst_reg;
++        src_reg_0 != prev_dst_reg;
++      } else {
++        src_reg_0 == prev_dst_reg;
++        src_reg_1 == prev_dst_reg;
++      }
 +    }
 +  }
 +

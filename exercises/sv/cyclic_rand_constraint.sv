@@ -20,9 +20,9 @@
 class pair_item;
   rand int a;
   rand int b;
-  constraint c_bounds { a inside {[0:100]}; }
-  constraint c1 { a == b + 1; }
-  constraint c2 { b == a + 1; }
+  constraint c_bounds {a inside {[0 : 100]};}
+  constraint c1 {a == b + 1;}
+  constraint c2 {b == a + 1;}
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -34,7 +34,7 @@ module top;
 
     if (!ok) begin
       $display($sformatf({"FAIL: randomize() returned 0 -- the two constraints on a and b ",
-          "contradict each other"}));
+                          "contradict each other"}));
       $fatal(1);
     end
 

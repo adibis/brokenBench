@@ -19,11 +19,11 @@
 // -------------------------------------------------------------------------------------------------
 class base_item;
   rand bit [7:0] value;
-  constraint c_range { value inside {[0:50]}; }
+  constraint c_range {value inside {[0 : 50]};}
 endclass
 
 class wide_item extends base_item;
-  constraint c_wide_range { value inside {[40:255]}; }
+  constraint c_wide_range {value inside {[40 : 255]};}
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -40,7 +40,7 @@ module top;
 
     if (!saw_above_50) begin
       $display($sformatf({"FAIL: value never exceeded 50 across 30 calls -- wide_item's ",
-          "constraint is being intersected with base_item's, not replacing it"}));
+                          "constraint is being intersected with base_item's, not replacing it"}));
       $fatal(1);
     end else begin
       $display("PASS: value reached above 50 across 30 calls");

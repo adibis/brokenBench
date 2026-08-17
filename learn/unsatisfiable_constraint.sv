@@ -19,7 +19,10 @@
 // -------------------------------------------------------------------------------------------------
 class delay_item;
   rand int delay;
-  constraint c_range { delay > 10; delay < 5; }
+  constraint c_range {
+    delay > 10;
+    delay < 5;
+  }
 endclass
 
 // ---8<--- checker below: don't edit ---

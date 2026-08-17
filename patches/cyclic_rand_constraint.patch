@@ -1,12 +1,11 @@
 diff --git a/exercises/sv/cyclic_rand_constraint.sv b/exercises/sv/cyclic_rand_constraint.sv
-index 1a41518..90b8466 100644
 --- a/exercises/sv/cyclic_rand_constraint.sv
 +++ b/exercises/sv/cyclic_rand_constraint.sv
-@@ -17,7 +17,6 @@ class pair_item;
+@@ -22,7 +22,6 @@
    rand int b;
-   constraint c_bounds { a inside {[0:100]}; }
-   constraint c1 { a == b + 1; }
--  constraint c2 { b == a + 1; }
+   constraint c_bounds {a inside {[0 : 100]};}
+   constraint c1 {a == b + 1;}
+-  constraint c2 {b == a + 1;}
  endclass
  
  // ---8<--- checker below: don't edit ---

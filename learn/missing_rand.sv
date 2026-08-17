@@ -33,12 +33,11 @@ module top;
       seen[i] = item.delay;
     end
 
-    for (int i = 1; i < 5; i++)
-      if (seen[i] != seen[0]) all_same = 0;
+    for (int i = 1; i < 5; i++) if (seen[i] != seen[0]) all_same = 0;
 
     if (all_same) begin
       $display($sformatf({"FAIL: delay never changed across 5 randomize() calls (got %0d every ",
-          "time) -- is it actually declared `rand`?"}, seen[0]));
+                          "time) -- is it actually declared `rand`?"}, seen[0]));
       $fatal(1);
     end else begin
       $display("PASS: delay varied across calls: %p", seen);

@@ -1,13 +1,12 @@
 diff --git a/learn/duplicate_constraint_name.sv b/learn/duplicate_constraint_name.sv
-index eb90864..59c431d 100644
 --- a/learn/duplicate_constraint_name.sv
 +++ b/learn/duplicate_constraint_name.sv
-@@ -13,7 +13,7 @@ class priority_item;
+@@ -19,7 +19,7 @@
    rand bit [2:0] priority_lo;
    rand bit [2:0] priority_hi;
-   constraint c_range { priority_lo inside {[0:3]}; }
--  constraint c_range { priority_hi inside {[4:7]}; }
-+  constraint c_range_hi { priority_hi inside {[4:7]}; }
+   constraint c_range {priority_lo inside {[0 : 3]};}
+-  constraint c_range {priority_hi inside {[4 : 7]};}
++  constraint c_range_hi {priority_hi inside {[4 : 7]};}
  endclass
  
  // ---8<--- checker below: don't edit ---

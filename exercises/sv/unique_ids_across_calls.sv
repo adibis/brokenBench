@@ -22,10 +22,10 @@
 // -------------------------------------------------------------------------------------------------
 class id_item;
   randc bit [3:0] id;
-  bit [3:0] last_id;
-  bit       has_last;
+  bit       [3:0] last_id;
+  bit             has_last;
 
-  constraint c_no_immediate_repeat { has_last -> id != last_id; }
+  constraint c_no_immediate_repeat {has_last -> id != last_id;}
 
   function void post_randomize();
     last_id  = id;
@@ -60,7 +60,7 @@ module top;
     ok = item.randomize();
     if (ok) begin
       $display("FAIL: 17th randomize() succeeded (id=%0d) but all 16 values were already used",
-          item.id);
+               item.id);
       $fatal(1);
     end
 

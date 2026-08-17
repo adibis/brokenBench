@@ -26,10 +26,13 @@
 class buf_item;
   rand int unsigned n;
   rand int data[];
-  constraint c_n     { n inside {[2:4]}; }
-  constraint c_size  { data.size() == n; }
-  constraint c_elem  { foreach (data[i]) data[i] inside {[0:50]}; }
-  constraint c_sum   { data.sum() == 100; }
+  constraint c_n {n inside {[2 : 4]};}
+  constraint c_size {data.size() == n;}
+  constraint c_elem {
+    foreach (data[i])
+    data[i] inside {[0 : 50]};
+  }
+  constraint c_sum {data.sum() == 100;}
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -50,10 +53,10 @@ module top;
     end
 
     foreach (item.data[i])
-      if (item.data[i] < 0 || item.data[i] > 50) begin
-        $display("FAIL: data[%0d]=%0d out of [0:50]", i, item.data[i]);
-        $fatal(1);
-      end
+    if (item.data[i] < 0 || item.data[i] > 50) begin
+      $display("FAIL: data[%0d]=%0d out of [0:50]", i, item.data[i]);
+      $fatal(1);
+    end
 
     $display("PASS: data=%p sums to %0d", item.data, item.data.sum());
     $finish;

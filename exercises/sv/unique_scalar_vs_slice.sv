@@ -51,19 +51,19 @@ module top;
       end
 
       for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-          if (g.grid[i][j] < 1 || g.grid[i][j] > 9) begin
-            $display("FAIL: grid[%0d][%0d]=%0d is outside [1:9]", i, j, g.grid[i][j]);
-            bad_found = 1;
-          end
+      for (int j = 0; j < 3; j++)
+      if (g.grid[i][j] < 1 || g.grid[i][j] > 9) begin
+        $display("FAIL: grid[%0d][%0d]=%0d is outside [1:9]", i, j, g.grid[i][j]);
+        bad_found = 1;
+      end
 
       for (int i = 0; i < 3; i++)
-        for (int x = 0; x < 3; x++)
-          for (int y = x + 1; y < 3; y++)
-            if (g.grid[i][x] == g.grid[i][y]) begin
-              $display("FAIL: row %0d has a repeated value: %p", i, g.grid[i]);
-              bad_found = 1;
-            end
+      for (int x = 0; x < 3; x++)
+      for (int y = x + 1; y < 3; y++)
+      if (g.grid[i][x] == g.grid[i][y]) begin
+        $display("FAIL: row %0d has a repeated value: %p", i, g.grid[i]);
+        bad_found = 1;
+      end
     end
 
     if (bad_found) $fatal(1);

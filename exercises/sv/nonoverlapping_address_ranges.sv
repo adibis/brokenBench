@@ -19,9 +19,18 @@
 class region_set;
   rand bit [15:0] base[3];
   rand bit [15:0] size[3];
-  constraint c_size   { foreach (size[i]) size[i] inside {[1:20]}; }
-  constraint c_bounds { foreach (base[i]) base[i] inside {[0:1000]}; }
-  constraint c_order  { base[0] < base[1]; base[1] < base[2]; }
+  constraint c_size {
+    foreach (size[i])
+    size[i] inside {[1 : 20]};
+  }
+  constraint c_bounds {
+    foreach (base[i])
+    base[i] inside {[0 : 1000]};
+  }
+  constraint c_order {
+    base[0] < base[1];
+    base[1] < base[2];
+  }
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -39,12 +48,12 @@ module top;
         $fatal(1);
       end
       for (int i = 0; i < 3; i++)
-        for (int j = i+1; j < 3; j++)
-          if (rs.base[i] < rs.base[j] + rs.size[j] && rs.base[j] < rs.base[i] + rs.size[i]) begin
-            $display("FAIL: region %0d [%0d:%0d) overlaps region %0d [%0d:%0d)",
-              i, rs.base[i], rs.base[i]+rs.size[i], j, rs.base[j], rs.base[j]+rs.size[j]);
-            overlap_found = 1;
-          end
+      for (int j = i + 1; j < 3; j++)
+      if (rs.base[i] < rs.base[j] + rs.size[j] && rs.base[j] < rs.base[i] + rs.size[i]) begin
+        $display("FAIL: region %0d [%0d:%0d) overlaps region %0d [%0d:%0d)", i, rs.base[i],
+                 rs.base[i] + rs.size[i], j, rs.base[j], rs.base[j] + rs.size[j]);
+        overlap_found = 1;
+      end
     end
 
     if (overlap_found) $fatal(1);

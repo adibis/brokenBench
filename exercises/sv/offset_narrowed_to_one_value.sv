@@ -20,9 +20,9 @@
 // -------------------------------------------------------------------------------------------------
 class offset_item;
   rand bit [7:0] offset;
-  constraint c_range  { offset inside {[100:110]}; }
-  constraint c_align  { offset[1:0] == 2'b00; }
-  constraint c_narrow { offset inside {[104:114]}; }
+  constraint c_range {offset inside {[100 : 110]};}
+  constraint c_align {offset[1:0] == 2'b00;}
+  constraint c_narrow {offset inside {[104 : 114]};}
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -30,7 +30,7 @@ endclass
 module top;
   initial begin
     offset_item item = new();
-    bit [10:0] seen_mask = 11'b0; // bit i => offset == 100+i observed
+    bit [10:0] seen_mask = 11'b0;  // bit i => offset == 100+i observed
     bit bad_value_found = 0;
 
     for (int i = 0; i < 200; i++) begin
@@ -39,7 +39,7 @@ module top;
         $display("FAIL: offset=%0d violates the range/alignment intent", item.offset);
         bad_value_found = 1;
       end else begin
-        seen_mask[item.offset - 100] = 1'b1;
+        seen_mask[item.offset-100] = 1'b1;
       end
     end
 
@@ -48,7 +48,7 @@ module top;
     // legal aligned offsets in [100:110] are exactly 100, 104, 108
     if (seen_mask !== (11'b1 << 0 | 11'b1 << 4 | 11'b1 << 8)) begin
       $display($sformatf({"FAIL: offset should reach exactly {100, 104, 108} across 200 calls, ",
-          "no more, no less."}));
+                          "no more, no less."}));
       if (!seen_mask[0]) $display("      100 was never reached.");
       if (!seen_mask[4]) $display("      104 was never reached.");
       if (!seen_mask[8]) $display("      108 was never reached.");

@@ -1,8 +1,7 @@
 diff --git a/learn/rand_mode_leftover.sv b/learn/rand_mode_leftover.sv
-index 441e2d7..2ee4bdc 100644
 --- a/learn/rand_mode_leftover.sv
 +++ b/learn/rand_mode_leftover.sv
-@@ -27,6 +27,7 @@ class frame_item;
+@@ -27,6 +27,7 @@
      // left over from debugging a channel-0-only issue
      this.rand_mode(0);
      this.channel.rand_mode(1);

@@ -20,7 +20,7 @@
 class legal_item;
   rand int val;
   int legal_vals[$];
-  constraint c_legal { val inside {legal_vals}; }
+  constraint c_legal {val inside {legal_vals};}
 endclass
 
 // ---8<--- checker below: don't edit ---

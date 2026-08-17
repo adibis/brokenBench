@@ -1,12 +1,11 @@
 diff --git a/learn/uninitialized_dynamic_array.sv b/learn/uninitialized_dynamic_array.sv
-index 0ebb59c..a923330 100644
 --- a/learn/uninitialized_dynamic_array.sv
 +++ b/learn/uninitialized_dynamic_array.sv
-@@ -13,6 +13,7 @@
- 
+@@ -18,6 +18,7 @@
+ // -------------------------------------------------------------------------------------------------
  class buf_item;
    rand int data[];
-+  constraint c_size { data.size() inside {[1:8]}; }
++  constraint c_size {data.size() inside {[1 : 8]};}
  endclass
  
  // ---8<--- checker below: don't edit ---

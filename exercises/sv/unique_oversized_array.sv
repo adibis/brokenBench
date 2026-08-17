@@ -24,8 +24,8 @@
 // Fix the class so randomize() succeeds and every element of tags is genuinely unique.
 // -------------------------------------------------------------------------------------------------
 class tag_item;
-  rand bit [3:0] tags[20];   // only 16 distinct 4-bit values exist
-  constraint c_unique { unique {tags}; }
+  rand bit [3:0] tags[20];  // only 16 distinct 4-bit values exist
+  constraint c_unique {unique {tags};}
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -38,13 +38,12 @@ module top;
 
     if (!ok) begin
       $display($sformatf({"FAIL: randomize() returned 0 -- %0d elements can never all be unique ",
-          "4-bit values (only 16 exist)"}, $size(item.tags)));
+                          "4-bit values (only 16 exist)"}, $size(item.tags)));
       $fatal(1);
     end
 
     for (int i = 0; i < $size(item.tags); i++)
-      for (int j = i+1; j < $size(item.tags); j++)
-        if (item.tags[i] == item.tags[j]) dup_found = 1;
+    for (int j = i + 1; j < $size(item.tags); j++) if (item.tags[i] == item.tags[j]) dup_found = 1;
 
     if (dup_found) begin
       $display("FAIL: randomize() ok=1 but tags contains duplicates: %p", item.tags);

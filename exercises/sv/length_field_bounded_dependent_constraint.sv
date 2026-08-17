@@ -21,8 +21,8 @@
 class pkt_item;
   rand bit [6:0] len;
   rand bit       has_crc;
-  constraint c_len { len inside {[0:64]}; }
-  constraint c_crc { (len >= 60) -> has_crc == 1; }
+  constraint c_len {len inside {[0 : 64]};}
+  constraint c_crc {(len >= 60) -> has_crc == 1;}
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -35,7 +35,7 @@ module top;
     bit crc_missing_above_60 = 0;
 
     for (int t = 0; t < 30; t++) begin
-      ok = item.randomize() with { len == 60; };
+      ok = item.randomize() with {len == 60;};
       if (!ok) begin
         $display("FAIL: randomize() with len==60 returned 0");
         $fatal(1);
@@ -44,13 +44,13 @@ module top;
     end
 
     for (int t = 0; t < 30; t++) begin
-      ok = item.randomize() with { len == 61; };
+      ok = item.randomize() with {len == 61;};
       if (!ok || item.has_crc != 1) crc_missing_above_60 = 1;
     end
 
     if (!saw_no_crc_at_60) begin
       $display($sformatf({"FAIL: at len==60, has_crc was forced to 1 every time -- ",
-          "the spec only requires it above 60"}));
+                          "the spec only requires it above 60"}));
       $fatal(1);
     end
 

@@ -20,7 +20,7 @@
 class walk_item;
   rand bit [31:0] cur;
   bit [31:0] prev;
-  constraint c_delta { $countones(cur) == 2; }
+  constraint c_delta {$countones(cur) == 2;}
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -38,8 +38,8 @@ module top;
         $fatal(1);
       end
       if ($countones(item.prev ^ item.cur) != 2) begin
-        $display("FAIL: step %0d, prev=%0h cur=%0h, Hamming distance=%0d, expected 2",
-          i, item.prev, item.cur, $countones(item.prev ^ item.cur));
+        $display("FAIL: step %0d, prev=%0h cur=%0h, Hamming distance=%0d, expected 2", i,
+                 item.prev, item.cur, $countones(item.prev ^ item.cur));
         bad_found = 1;
       end
       prev = item.cur;

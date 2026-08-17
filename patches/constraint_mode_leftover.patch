@@ -1,11 +1,10 @@
 diff --git a/exercises/sv/constraint_mode_leftover.sv b/exercises/sv/constraint_mode_leftover.sv
-index fa8e03e..1fc45d9 100644
 --- a/exercises/sv/constraint_mode_leftover.sv
 +++ b/exercises/sv/constraint_mode_leftover.sv
-@@ -15,11 +15,6 @@ class addr_item;
+@@ -21,11 +21,6 @@
  
-   constraint c_range { addr inside {[16'h1000:16'hFFFF]}; }
-   constraint c_align  { addr[1:0] == 2'b00; }
+   constraint c_range {addr inside {[16'h1000 : 16'hFFFF]};}
+   constraint c_align {addr[1:0] == 2'b00;}
 -
 -  function new();
 -    // turned off to isolate an alignment-unrelated bug last week

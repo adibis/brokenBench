@@ -23,13 +23,13 @@ class packet_item;
 
   function void pre_randomize();
     bit toggle = 0;
-    toggle = !toggle;
+    toggle   = !toggle;
     is_jumbo = toggle;
   endfunction
 
   constraint c_len {
-    is_jumbo  -> len inside {[200:255]};
-    !is_jumbo -> len inside {[1:64]};
+    is_jumbo -> len inside {[200 : 255]};
+    !is_jumbo -> len inside {[1 : 64]};
   }
 endclass
 
@@ -49,7 +49,7 @@ module top;
 
     if (!saw_normal || !saw_jumbo) begin
       $display($sformatf({"FAIL: is_jumbo never actually alternated across 20 calls ",
-          "(saw_normal=%0d saw_jumbo=%0d)"}, saw_normal, saw_jumbo));
+                          "(saw_normal=%0d saw_jumbo=%0d)"}, saw_normal, saw_jumbo));
       $fatal(1);
     end else begin
       $display("PASS: saw both normal and jumbo packets across 20 calls");

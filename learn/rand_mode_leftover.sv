@@ -43,12 +43,11 @@ module top;
       seen[i] = item.seq_num;
     end
 
-    for (int i = 1; i < 8; i++)
-      if (seen[i] != seen[0]) all_same = 0;
+    for (int i = 1; i < 8; i++) if (seen[i] != seen[0]) all_same = 0;
 
     if (all_same) begin
       $display("FAIL: seq_num was %0d every time across 8 calls -- check rand_mode() on seq_num",
-          seen[0]);
+               seen[0]);
       $fatal(1);
     end else begin
       $display("PASS: seq_num varied across calls: %p", seen);

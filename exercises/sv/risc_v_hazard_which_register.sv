@@ -54,7 +54,7 @@ module top;
 
         if (!m0 && !m1) begin
           $display("FAIL: instr %0d has gen_hazard=1 but neither src_reg_0 nor src_reg_1 matches",
-              t);
+                   t);
           bad_found = 1;
         end else if (m0 && m1) both_count++;
         else if (m0) src0_only++;
@@ -68,32 +68,32 @@ module top;
     if (bad_found) $fatal(1);
 
     if (hazard_count < (total * 60 / 100) || hazard_count > (total * 80 / 100)) begin
-      $display("FAIL: gen_hazard rate %0d/%0d (%0d%%), expected roughly 70%%",
-          hazard_count, total, (hazard_count * 100) / total);
+      $display("FAIL: gen_hazard rate %0d/%0d (%0d%%), expected roughly 70%%", hazard_count, total,
+               (hazard_count * 100) / total);
       $fatal(1);
     end
 
     if (src0_only < (hazard_count * 10 / 100) || src0_only > (hazard_count * 30 / 100)) begin
-      $display("FAIL: src0-only %0d/%0d hazards (%0d%%), expected roughly 20%%",
-          src0_only, hazard_count, (src0_only * 100) / hazard_count);
+      $display("FAIL: src0-only %0d/%0d hazards (%0d%%), expected roughly 20%%", src0_only,
+               hazard_count, (src0_only * 100) / hazard_count);
       $fatal(1);
     end
 
     if (src1_only < (hazard_count * 40 / 100) || src1_only > (hazard_count * 60 / 100)) begin
-      $display("FAIL: src1-only %0d/%0d hazards (%0d%%), expected roughly 50%%",
-          src1_only, hazard_count, (src1_only * 100) / hazard_count);
+      $display("FAIL: src1-only %0d/%0d hazards (%0d%%), expected roughly 50%%", src1_only,
+               hazard_count, (src1_only * 100) / hazard_count);
       $fatal(1);
     end
 
     if (both_count < (hazard_count * 20 / 100) || both_count > (hazard_count * 40 / 100)) begin
-      $display("FAIL: both-registers %0d/%0d hazards (%0d%%), expected roughly 30%%",
-          both_count, hazard_count, (both_count * 100) / hazard_count);
+      $display("FAIL: both-registers %0d/%0d hazards (%0d%%), expected roughly 30%%", both_count,
+               hazard_count, (both_count * 100) / hazard_count);
       $fatal(1);
     end
 
-    $display("PASS: %0d hazards -- src0-only=%0d%% src1-only=%0d%% both=%0d%%",
-        hazard_count, (src0_only * 100) / hazard_count, (src1_only * 100) / hazard_count,
-        (both_count * 100) / hazard_count);
+    $display("PASS: %0d hazards -- src0-only=%0d%% src1-only=%0d%% both=%0d%%", hazard_count,
+             (src0_only * 100) / hazard_count, (src1_only * 100) / hazard_count,
+             (both_count * 100) / hazard_count);
     $finish;
   end
 endmodule

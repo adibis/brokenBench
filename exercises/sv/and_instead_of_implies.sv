@@ -22,7 +22,7 @@ class txn_item;
   rand bit [7:0] wdata;
 
   // intent: writes need data, reads don't care what wdata holds
-  constraint c_write_data { is_write && (wdata inside {[1:255]}); }
+  constraint c_write_data {is_write && (wdata inside {[1 : 255]});}
 endclass
 
 // ---8<--- checker below: don't edit ---

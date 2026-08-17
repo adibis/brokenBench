@@ -1,14 +1,19 @@
 diff --git a/exercises/sv/unique_scalar_vs_slice.sv b/exercises/sv/unique_scalar_vs_slice.sv
-index 9d14bc8..78477e4 100644
 --- a/exercises/sv/unique_scalar_vs_slice.sv
 +++ b/exercises/sv/unique_scalar_vs_slice.sv
-@@ -30,7 +30,8 @@
- // --------------------------------------------------------------------------------
+@@ -32,7 +32,14 @@
+ // -------------------------------------------------------------------------------------------------
  class grid_item;
    rand bit [4:0] grid[3][3];
 -  // write constraints here
-+  constraint c_range { foreach (grid[i, j]) grid[i][j] inside {[1:9]}; }
-+  constraint c_unique_row { foreach (grid[i]) unique {grid[i]}; }
++  constraint c_range {
++    foreach (grid[i, j])
++    grid[i][j] inside {[1 : 9]};
++  }
++  constraint c_unique_row {
++    foreach (grid[i])
++    unique {grid[i]};
++  }
  endclass
  
  // ---8<--- checker below: don't edit ---

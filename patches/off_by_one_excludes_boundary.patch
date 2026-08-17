@@ -1,13 +1,12 @@
 diff --git a/exercises/sv/off_by_one_excludes_boundary.sv b/exercises/sv/off_by_one_excludes_boundary.sv
-index eb937a8..e528a84 100644
 --- a/exercises/sv/off_by_one_excludes_boundary.sv
 +++ b/exercises/sv/off_by_one_excludes_boundary.sv
-@@ -12,7 +12,7 @@
- 
+@@ -17,7 +17,7 @@
+ // -------------------------------------------------------------------------------------------------
  class credit_item;
    rand bit [7:0] credits;
--  constraint c_range { credits inside {[0:254]}; }
-+  constraint c_range { credits inside {[0:255]}; }
+-  constraint c_range {credits inside {[0 : 254]};}
++  constraint c_range {credits inside {[0 : 255]};}
  endclass
  
  // ---8<--- checker below: don't edit ---

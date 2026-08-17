@@ -21,7 +21,7 @@ class pkt_item;
 endclass
 
 function void randomize_with_target(pkt_item item, int len);
-  void'(item.randomize() with { len == len; });
+  void'(item.randomize() with {len == len;});
 endfunction
 
 // ---8<--- checker below: don't edit ---

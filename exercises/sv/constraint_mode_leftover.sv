@@ -19,8 +19,8 @@
 class addr_item;
   rand bit [15:0] addr;
 
-  constraint c_range { addr inside {[16'h1000:16'hFFFF]}; }
-  constraint c_align  { addr[1:0] == 2'b00; }
+  constraint c_range {addr inside {[16'h1000 : 16'hFFFF]};}
+  constraint c_align {addr[1:0] == 2'b00;}
 
   function new();
     // turned off to isolate an alignment-unrelated bug last week
@@ -42,7 +42,7 @@ module top;
 
     if (unaligned_count > 0) begin
       $display("FAIL: addr was unaligned on %0d of 20 calls -- c_align isn't being enforced",
-          unaligned_count);
+               unaligned_count);
       $fatal(1);
     end else begin
       $display("PASS: addr was 4-byte aligned on every call");

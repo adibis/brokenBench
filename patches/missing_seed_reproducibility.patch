@@ -1,8 +1,7 @@
 diff --git a/learn/missing_seed_reproducibility.sv b/learn/missing_seed_reproducibility.sv
-index 184e9ff..c9d5667 100644
 --- a/learn/missing_seed_reproducibility.sv
 +++ b/learn/missing_seed_reproducibility.sv
-@@ -20,6 +20,7 @@ endclass
+@@ -26,6 +26,7 @@
  function data_item make_seeded_item(int seed);
    data_item item;
    item = new();

@@ -21,11 +21,7 @@
 // -------------------------------------------------------------------------------------------------
 class tag_item;
   rand bit [3:0] tags[8];
-  constraint c_unique {
-    foreach (tags[i])
-      if (i < 7)
-        tags[i] != tags[i+1];
-  }
+  constraint c_unique {foreach (tags[i]) if (i < 7) tags[i] != tags[i+1];}
 endclass
 
 // ---8<--- checker below: don't edit ---
@@ -43,12 +39,11 @@ module top;
         $fatal(1);
       end
       for (int i = 0; i < 8; i++)
-        for (int j = i+1; j < 8; j++)
-          if (item.tags[i] == item.tags[j]) begin
-            $display("FAIL: tags[%0d]=tags[%0d]=%0d, trial %0d: %p",
-                i, j, item.tags[i], t, item.tags);
-            dup_found = 1;
-          end
+      for (int j = i + 1; j < 8; j++)
+      if (item.tags[i] == item.tags[j]) begin
+        $display("FAIL: tags[%0d]=tags[%0d]=%0d, trial %0d: %p", i, j, item.tags[i], t, item.tags);
+        dup_found = 1;
+      end
     end
 
     if (dup_found) $fatal(1);
