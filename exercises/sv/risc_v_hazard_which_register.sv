@@ -2,10 +2,19 @@
 // when a hazard happens, decide which register(s) it hits
 // =================================================================================================
 //
-// Building on risc_v_data_hazard: gen_hazard decides whether this instruction hazards against
-// the one before it at all, at whatever rate you choose. That part's unrelated to what comes
-// next. GIVEN gen_hazard is 1, the hazard still has to land somewhere -- on src_reg_0 alone,
-// src_reg_1 alone, or both -- and real pipelines don't split that three ways evenly.
+// A pipeline hazard test needs instructions that deliberately depend on each other's registers,
+// not just random independent ones. A read-after-write hazard is exactly that: an instruction
+// reads a register that the instruction immediately before it is about to write. gen_hazard
+// decides whether this instruction hazards against the one before it at all, at whatever rate you
+// choose. That part's the easy half -- GIVEN gen_hazard is 1, the hazard still has to land
+// somewhere: on src_reg_0 alone, src_reg_1 alone, or both, and real pipelines don't split that
+// three ways evenly.
+//
+// A real sequence doesn't reuse one transaction object and re-randomize() it -- it constructs a
+// fresh instr_item for every instruction. Whatever holds "what did the previous instruction
+// write" has to survive that: an ordinary (non-static) member resets to its default on every
+// new(), so it forgets the previous instruction the moment a new object exists. It needs to be
+// shared across every instance instead.
 //
 // Fix the class below so the check after it passes.
 // Don't edit anything at or below the "checker" marker.
@@ -28,7 +37,7 @@ endclass
 
 module top;
   initial begin
-    instr_item item = new();
+    instr_item item;
     bit [4:0] prev_dst_reg;
     bit has_prev = 0;
     int ok;
@@ -41,6 +50,7 @@ module top;
 
     for (int t = 0; t < total; t++) begin
       automatic bit m0, m1;
+      item = new();  // fresh transaction every instruction, like a real sequence
       ok = item.randomize();
       if (!ok) begin
         $display("FAIL: randomize() returned 0 at instruction %0d", t);

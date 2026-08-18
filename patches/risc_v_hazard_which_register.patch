@@ -1,15 +1,15 @@
 diff --git a/exercises/sv/risc_v_hazard_which_register.sv b/exercises/sv/risc_v_hazard_which_register.sv
 --- a/exercises/sv/risc_v_hazard_which_register.sv
 +++ b/exercises/sv/risc_v_hazard_which_register.sv
-@@ -21,7 +21,45 @@
+@@ -30,7 +30,45 @@
    rand bit [4:0] src_reg_0;
    rand bit [4:0] src_reg_1;
    rand bit       gen_hazard;
 -  // write constraints here
 +  rand bit [1:0] hkind;  // 0 = src_reg_0 only, 1 = src_reg_1 only, 2 = both
 +
-+  bit      [4:0] prev_dst_reg;
-+  bit            has_prev;
++  static bit [4:0] prev_dst_reg;
++  static bit       has_prev;
 +
 +  constraint c_hazard_dist {
 +    gen_hazard dist {
@@ -46,5 +46,5 @@ diff --git a/exercises/sv/risc_v_hazard_which_register.sv b/exercises/sv/risc_v_
 +    has_prev     = 1;
 +  endfunction
  endclass
- 
+
  // ---8<--- checker below: don't edit ---

@@ -126,43 +126,36 @@ track = "sv"
 tags  = ["write-from-scratch", "multi-constraint", "lifecycle-hook", "array"]
 
 [[exercise]]
-slug  = "page_alignment"
-path  = "exercises/sv/page_alignment.sv"
-order = 6
-track = "sv"
-tags  = ["write-from-scratch"]
-
-[[exercise]]
 slug  = "unique_ids_across_calls"
 path  = "exercises/sv/unique_ids_across_calls.sv"
-order = 7
+order = 6
 track = "sv"
 tags  = ["write-from-scratch", "cross-call-state", "lifecycle-hook"]
 
 [[exercise]]
-slug  = "risc_v_data_hazard"
-path  = "exercises/sv/risc_v_data_hazard.sv"
-order = 8
-track = "sv"
-tags  = ["write-from-scratch", "statistical", "cross-call-state"]
-
-[[exercise]]
 slug  = "risc_v_hazard_which_register"
 path  = "exercises/sv/risc_v_hazard_which_register.sv"
-order = 9
+order = 7
 track = "sv"
 tags  = ["write-from-scratch", "statistical", "cross-call-state", "multi-constraint"]
 
 [[exercise]]
+slug  = "risc_v_forwarding_window"
+path  = "exercises/sv/risc_v_forwarding_window.sv"
+order = 8
+track = "sv"
+tags  = ["write-from-scratch", "statistical", "cross-call-state", "multi-constraint", "tool-limitation"]
+
+[[exercise]]
 slug  = "command_stream_bandwidth_cap"
 path  = "exercises/sv/command_stream_bandwidth_cap.sv"
-order = 10
+order = 9
 track = "sv"
 tags  = ["write-from-scratch", "tool-limitation", "multi-constraint", "array", "statistical"]
 
 [[exercise]]
 slug  = "iommu_scattered_page_table"
 path  = "exercises/sv/iommu_scattered_page_table.sv"
-order = 11
+order = 10
 track = "sv"
 tags  = ["write-from-scratch", "multi-constraint", "array"]

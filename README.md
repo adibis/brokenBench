@@ -271,7 +271,13 @@ looks like a tooling quirk rather than the intended lesson:
   (25/28/47 observed), while the same weights on `rand bit [1:0]` land
   within about a point of target (19/51/30). Don't use an enum type for a
   weighted-`dist` field in Verilator -- use a plain sized `bit` field with
-  documented numeric meanings instead.
+  documented numeric meanings instead. Confirmed again inside a larger
+  constraint set in `risc_v_forwarding_window`: an isolated `dist` directly
+  on the enum landed close to target in a quick check, but combined with
+  the rest of that exercise's implications it skewed by several points on
+  Homebrew Verilator (35.8%/44.7% against a 40%/40% target) -- reliable
+  enough to fool a spot check, not reliable enough to trust. The exercise
+  routes around it with a plain-`bit` pick mapped onto the enum afterward.
 
 One more thing worth knowing, though it's standard SystemVerilog semantics
 (IEEE 1800-2023 6.21), not a Verilator-specific limitation: **a variable

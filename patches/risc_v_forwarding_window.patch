@@ -1,0 +1,67 @@
+diff --git a/exercises/sv/risc_v_forwarding_window.sv b/exercises/sv/risc_v_forwarding_window.sv
+--- a/exercises/sv/risc_v_forwarding_window.sv
++++ b/exercises/sv/risc_v_forwarding_window.sv
+@@ -57,8 +57,62 @@
+   rand bit       gen_hazard;
+
+   typedef enum bit [1:0] {HIT_EX, HIT_MEM, HIT_WB, HIT_NONE} stage_target_e;
++  rand bit [1:0]      target_pick;
++  rand stage_target_e target;
+
+-  // write constraints and post_randomize() here
++  constraint c_sliding_bypass_logic {
++    solve target_pick before target;
++    solve target before src_reg_0, src_reg_1;
++
++    target_pick dist {
++      0 := (history[0] == 0) ? 0 : 40,
++      1 := (history[1] == 0) ? 0 : 40,
++      2 := (history[2] == 0) ? 0 : 20,
++      3 := 100
++    };
++    target == stage_target_e'(target_pick);
++
++    gen_hazard == (target != HIT_NONE);
++
++    (target == HIT_EX) -> (
++      ((src_reg_0 == history[0]) || (src_reg_1 == history[0])) &&
++      (history[0] != 0) &&
++      (src_reg_0 != history[1] || history[1] == 0 || history[1] == history[0]) &&
++      (src_reg_1 != history[1] || history[1] == 0 || history[1] == history[0]) &&
++      (src_reg_0 != history[2] || history[2] == 0 || history[2] == history[0]) &&
++      (src_reg_1 != history[2] || history[2] == 0 || history[2] == history[0])
++    );
++
++    (target == HIT_MEM) -> (
++      ((src_reg_0 == history[1]) || (src_reg_1 == history[1])) &&
++      (history[1] != 0) &&
++      (src_reg_0 != history[0] || history[0] == 0 || history[0] == history[1]) &&
++      (src_reg_1 != history[0] || history[0] == 0 || history[0] == history[1]) &&
++      (src_reg_0 != history[2] || history[2] == 0 || history[2] == history[1]) &&
++      (src_reg_1 != history[2] || history[2] == 0 || history[2] == history[1])
++    );
++
++    (target == HIT_WB) -> (
++      ((src_reg_0 == history[2]) || (src_reg_1 == history[2])) &&
++      (history[2] != 0) &&
++      (src_reg_0 != history[0] || history[0] == 0 || history[0] == history[2]) &&
++      (src_reg_1 != history[0] || history[0] == 0 || history[0] == history[2]) &&
++      (src_reg_0 != history[1] || history[1] == 0 || history[1] == history[2]) &&
++      (src_reg_1 != history[1] || history[1] == 0 || history[1] == history[2])
++    );
++
++    (target == HIT_NONE) -> (
++      (src_reg_0 != history[0] || history[0] == 0) && (src_reg_1 != history[0] || history[0] == 0) &&
++      (src_reg_0 != history[1] || history[1] == 0) && (src_reg_1 != history[1] || history[1] == 0) &&
++      (src_reg_0 != history[2] || history[2] == 0) && (src_reg_1 != history[2] || history[2] == 0)
++    );
++  }
++
++  function void post_randomize();
++    history[2] = history[1];
++    history[1] = history[0];
++    history[0] = dst_reg;
++  endfunction
+ endclass
+
+ // ---8<--- checker below: don't edit ---
