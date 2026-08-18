@@ -4,7 +4,7 @@
 Catches an exercise that was accidentally committed already-fixed, or a
 checker that doesn't actually test anything and would pass regardless of
 the bug. A compile error counts as a fail here too (several learn/
-exercises' bug *is* a compile error, by design; unique_scalar_vs_slice's
+exercises' bug *is* a compile error, by design; dma_ring_allocator's
 patched build crashes at compile, so its unpatched skeleton failing here
 just needs to not accidentally pass, same as any other exercise).
 

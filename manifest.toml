@@ -103,11 +103,53 @@ track = "sv"
 tags  = ["write-from-scratch", "multi-constraint", "array", "tool-limitation"]
 
 [[exercise]]
-slug  = "unique_scalar_vs_slice"
-path  = "exercises/sv/unique_scalar_vs_slice.sv"
+slug  = "l2_frame_fuzzer"
+path  = "exercises/sv/l2_frame_fuzzer.sv"
 order = 4
 track = "sv"
-tags  = ["tool-limitation", "write-from-scratch", "requires-patched-verilator", "array"]
+tags  = ["write-from-scratch", "multi-constraint", "lifecycle-hook", "array"]
+
+[[exercise]]
+slug  = "tagged_frame_sequence"
+path  = "exercises/sv/tagged_frame_sequence.sv"
+order = 5
+track = "sv"
+tags  = ["write-from-scratch", "cross-call-state", "lifecycle-hook", "multi-constraint"]
+
+[[exercise]]
+slug  = "risc_v_hazard_which_register"
+path  = "exercises/sv/risc_v_hazard_which_register.sv"
+order = 6
+track = "sv"
+tags  = ["write-from-scratch", "statistical", "cross-call-state", "multi-constraint"]
+
+[[exercise]]
+slug  = "risc_v_forwarding_window"
+path  = "exercises/sv/risc_v_forwarding_window.sv"
+order = 7
+track = "sv"
+tags  = ["write-from-scratch", "statistical", "cross-call-state", "multi-constraint", "tool-limitation"]
+
+[[exercise]]
+slug  = "command_stream_bandwidth_cap"
+path  = "exercises/sv/command_stream_bandwidth_cap.sv"
+order = 8
+track = "sv"
+tags  = ["write-from-scratch", "tool-limitation", "multi-constraint", "array", "statistical"]
+
+[[exercise]]
+slug  = "iommu_scattered_page_table"
+path  = "exercises/sv/iommu_scattered_page_table.sv"
+order = 9
+track = "sv"
+tags  = ["write-from-scratch", "multi-constraint", "array"]
+
+[[exercise]]
+slug  = "dma_ring_allocator"
+path  = "exercises/sv/dma_ring_allocator.sv"
+order = 10
+track = "sv"
+tags  = ["tool-limitation", "write-from-scratch", "requires-patched-verilator", "array", "multi-constraint", "statistical"]
 # The only place this exercise's toolchain requirement is recorded -- CI and
 # scripts must read this field, not hardcode the slug. Confirmed broken (real
 # internal fault, not a graceful error) on the latest Verilator actually
@@ -117,45 +159,3 @@ tags  = ["tool-limitation", "write-from-scratch", "requires-patched-verilator", 
 # merging upstream, re-verify directly first.
 requires_patched_verilator = true
 verilator_broken_as_of     = "5.050"
-
-[[exercise]]
-slug  = "l2_frame_fuzzer"
-path  = "exercises/sv/l2_frame_fuzzer.sv"
-order = 5
-track = "sv"
-tags  = ["write-from-scratch", "multi-constraint", "lifecycle-hook", "array"]
-
-[[exercise]]
-slug  = "tagged_frame_sequence"
-path  = "exercises/sv/tagged_frame_sequence.sv"
-order = 6
-track = "sv"
-tags  = ["write-from-scratch", "cross-call-state", "lifecycle-hook", "multi-constraint"]
-
-[[exercise]]
-slug  = "risc_v_hazard_which_register"
-path  = "exercises/sv/risc_v_hazard_which_register.sv"
-order = 7
-track = "sv"
-tags  = ["write-from-scratch", "statistical", "cross-call-state", "multi-constraint"]
-
-[[exercise]]
-slug  = "risc_v_forwarding_window"
-path  = "exercises/sv/risc_v_forwarding_window.sv"
-order = 8
-track = "sv"
-tags  = ["write-from-scratch", "statistical", "cross-call-state", "multi-constraint", "tool-limitation"]
-
-[[exercise]]
-slug  = "command_stream_bandwidth_cap"
-path  = "exercises/sv/command_stream_bandwidth_cap.sv"
-order = 9
-track = "sv"
-tags  = ["write-from-scratch", "tool-limitation", "multi-constraint", "array", "statistical"]
-
-[[exercise]]
-slug  = "iommu_scattered_page_table"
-path  = "exercises/sv/iommu_scattered_page_table.sv"
-order = 10
-track = "sv"
-tags  = ["write-from-scratch", "multi-constraint", "array"]

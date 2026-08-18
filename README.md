@@ -179,7 +179,7 @@ CI (`.github/workflows/ci.yml`) runs on every push and pull request:
   make its own exercise's checker pass. This is how a patch is proven to be
   a real, complete solution, not just a plausible-looking diff.
 
-One exercise, `unique_scalar_vs_slice`, needs a Verilator built from an
+One exercise, `dma_ring_allocator`, needs a Verilator built from an
 unreleased upstream patch to even compile (see `manifest.toml`'s
 `requires_patched_verilator` / `verilator_broken_as_of` fields on that
 entry -- that's the only place this exclusion is recorded, not hardcoded
@@ -206,7 +206,7 @@ looks like a tooling quirk rather than the intended lesson:
   of this writing. `thermal_power_fuzzer` avoids it entirely and uses
   pairwise inequality instead. A real fix is up for review upstream
   ([verilator/verilator#8100](https://github.com/verilator/verilator/pull/8100));
-  `unique_scalar_vs_slice` is written for a Verilator built from
+  `dma_ring_allocator` is written for a Verilator built from
   that patch -- see the note at the top of that file for how to point
   `make run` at a patched binary.
 - **A `rand`-sized dynamic array combined with a `.sum()`/`.product()`

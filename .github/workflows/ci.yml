@@ -132,13 +132,13 @@ jobs:
         run: apt-get update && apt-get install -y patch z3
       - run: python3 tests/ci-selftest/run_selftest.py --group verilator
 
-  # Advisory only: unique_scalar_vs_slice needs a Verilator built from an
+  # Advisory only: dma_ring_allocator needs a Verilator built from an
   # unmerged upstream patch (see manifest.toml's verilator_broken_as_of on
   # that entry). Not wired into the default triggers above -- run manually
   # via workflow_dispatch once there's a scripted way to build that patched
   # binary; until then this is a documented gap, not a silent one.
   patched-verilator-optional:
-    name: unique_scalar_vs_slice against a patched Verilator (manual only)
+    name: dma_ring_allocator against a patched Verilator (manual only)
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -146,7 +146,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           echo "Not yet implemented: build Verilator from the upstream patch referenced"
-          echo "in unique_scalar_vs_slice.sv's header, then run:"
-          echo "  python3 scripts/patch_one.py unique_scalar_vs_slice --allow-unverifiable"
+          echo "in dma_ring_allocator.sv's header, then run:"
+          echo "  python3 scripts/patch_one.py dma_ring_allocator --allow-unverifiable"
           echo "and verify it compiles and passes against that binary specifically."
           exit 1
