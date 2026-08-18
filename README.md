@@ -105,7 +105,7 @@ the rustlings-style "keep running the same command" loop:
 ```bash
 make check TRACK=learn
 make check TRACK=sv
-make check TRACK=sv EX=cyclic_rand_constraint   # resume partway through
+make check TRACK=sv EX=thermal_power_fuzzer      # resume partway through
 ```
 
 `TRACK` is one of `learn`, `sv`, `uvm`, `csr` -- matching `manifest.toml`'s
@@ -198,12 +198,12 @@ looks like a tooling quirk rather than the intended lesson:
 
 - **`unique{}` on an array is reliable up to about 4 elements and silently
   wrong past that** -- it returns success with actual duplicates present,
-  independent of how much headroom exists in the value space. See
-  `unique_oversized_array` and its companion, `unique_without_unique_keyword`,
-  which shows the pairwise-inequality workaround.
+  independent of how much headroom exists in the value space. Not built into
+  its own exercise; the pairwise-inequality workaround shows up in
+  `thermal_power_fuzzer` instead, alongside the row-slice crash below.
 - **`unique{}` on a row-slice of a 2D array crashes the compiler outright**
   (an internal fault, not a graceful error) on every released Verilator as
-  of this writing. `matrix_row_col_sum` avoids it entirely and uses
+  of this writing. `thermal_power_fuzzer` avoids it entirely and uses
   pairwise inequality instead. A real fix is up for review upstream
   ([verilator/verilator#8100](https://github.com/verilator/verilator/pull/8100));
   `unique_scalar_vs_slice` is written for a Verilator built from
@@ -239,8 +239,31 @@ looks like a tooling quirk rather than the intended lesson:
   -> frame != prev_frame; }` produces a solver error (`Sorts (Array ...)
   and (_ BitVec N) are incompatible`) even when `has_prev` is `0`, so the
   guard never gets a chance to short-circuit it; the solver can't translate
-  whole-array `!=` to SMT at all, unconditionally. `frame_pixel_diff`
-  avoids whole-array comparison entirely.
+  whole-array `!=` to SMT at all, unconditionally. Not built into its own
+  exercise; avoid whole-array comparison entirely (compare element by
+  element instead).
+- **Constraining a dynamic array's `.size()` inside an inline `randomize()
+  with {}` block reports success but doesn't actually resize the array** --
+  `f.randomize() with { payload.size() == 50; }` returns `ok == 1` while
+  `f.payload.size()` stays `0`. The identical constraint written at the
+  class level (`constraint c { payload.size() inside {[46:2048]}; }`) works
+  correctly. Not built into its own exercise; pin dynamic-array contents by
+  assigning elements directly after a normal `randomize()` call instead of
+  trying to pin size via an inline `with {}`.
+- **A third separate `randomize()` call site for the same class, in the
+  same process, can corrupt an *earlier* loop's `pre_randomize()`-set,
+  non-rand field value** on Verilator 5.050 -- confirmed with
+  `l2_frame_fuzzer`'s checker: two loops, each calling `randomize()` on a
+  fresh instance of the same class, work correctly; adding a third,
+  otherwise-harmless call site anywhere later in the same `initial` block
+  makes the *first* loop's `header` value (set from an external
+  `package`-scope flag in `pre_randomize()`) come back stale on every
+  iteration. Confirmed absent on a from-source build past that release.
+  Not built into its own exercise (the checker routes around it by reusing
+  an existing loop's call site instead of adding a third one); if you hit
+  a `pre_randomize()`-derived field that looks stale only sometimes, check
+  how many distinct `randomize()` call sites exist for that class before
+  assuming the constraint logic is wrong.
 - **`dist` on an enum-typed `rand` field doesn't distribute correctly**,
   even though identical weights on a plain sized `bit` field of the same
   width work exactly as specified -- confirmed over 2000 trials: an enum

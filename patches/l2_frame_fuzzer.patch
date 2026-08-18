@@ -1,0 +1,36 @@
+diff --git a/exercises/sv/l2_frame_fuzzer.sv b/exercises/sv/l2_frame_fuzzer.sv
+--- a/exercises/sv/l2_frame_fuzzer.sv
++++ b/exercises/sv/l2_frame_fuzzer.sv
+@@ -47,7 +47,31 @@
+     payload.size() inside {[46 : 2048]};
+   }
+
+-  // write pre_randomize(), the size-dependency constraint, and post_randomize() here
++  function void pre_randomize();
++    if (jumbo_mode_en) begin
++      header[3:0] = 4'b1111;
++    end else begin
++      header[3:0] = 4'b0000;
++    end
++  endfunction
++
++  constraint c_jumbo_implication {
++    (header[3:0] == 4'b1111) -> (payload.size() inside {[1501 : 2048]});
++    (header[3:0] == 4'b0000) -> (payload.size() inside {[46 : 1500]});
++  }
++
++  function void post_randomize();
++    int accumulator;
++    accumulator = header;
++    foreach (payload[i]) begin
++      accumulator += int'(payload[i]);
++    end
++    if (crc_corrupt) begin
++      crc = ~(accumulator[7:0]);
++    end else begin
++      crc = accumulator[7:0];
++    end
++  endfunction
+ endclass
+
+ // ---8<--- checker below: don't edit ---

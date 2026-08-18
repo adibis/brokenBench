@@ -1,0 +1,36 @@
+diff --git a/exercises/sv/thermal_power_fuzzer.sv b/exercises/sv/thermal_power_fuzzer.sv
+--- a/exercises/sv/thermal_power_fuzzer.sv	2026-08-17 19:08:22
++++ b/exercises/sv/thermal_power_fuzzer.sv	2026-08-17 19:08:22
+@@ -36,7 +36,31 @@
+ class ThermalPowerFuzzer;
+   rand bit [3:0] core_power[3][3];
+ 
+-  // write constraints here
++  constraint c_range {
++    foreach (core_power[i, j]) core_power[i][j] inside {[1 : 9]};
++  }
++
++  constraint c_unique_all {
++    foreach (core_power[i, j])
++      foreach (core_power[i2, j2])
++        if ((i * 3 + j) < (i2 * 3 + j2)) core_power[i][j] != core_power[i2][j2];
++  }
++
++  constraint c_rowsum {
++    foreach (core_power[i])
++      core_power[i][0] + core_power[i][1] + core_power[i][2] == 15;
++  }
++
++  constraint c_colsum {
++    core_power[0][0] + core_power[1][0] + core_power[2][0] == 15;
++    core_power[0][1] + core_power[1][1] + core_power[2][1] == 15;
++    core_power[0][2] + core_power[1][2] + core_power[2][2] == 15;
++  }
++
++  constraint c_diagsum {
++    core_power[0][0] + core_power[1][1] + core_power[2][2] == 15;
++    core_power[0][2] + core_power[1][1] + core_power[2][0] == 15;
++  }
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

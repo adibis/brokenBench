@@ -6,7 +6,7 @@
 // spend time on this one. On every released Verilator as of this writing,
 // `unique{}` on a foreach-indexed row of a 2D array (`foreach (grid[i])
 // unique {grid[i]}`) crashes the compiler outright (an internal fault, not
-// a graceful error) -- the same bug documented for matrix_row_col_sum, and
+// a graceful error) -- the same bug documented for thermal_power_fuzzer, and
 // the actual reason that exercise uses pairwise != instead of unique{}.
 // That crash has a real fix upstream now (verilator/verilator#8100,
 // unmerged as of this writing); this exercise is written for a Verilator
