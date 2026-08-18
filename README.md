@@ -1,19 +1,32 @@
 # brokenbench
 
-Fix tiny broken SystemVerilog testbenches, one at a time, until they pass.
+Tiny SystemVerilog exercises, one at a time, until a checker says you got it
+right.
 
 Inspired by [ziglings](https://codeberg.org/ziglings/exercises) and
 [rustlings](https://github.com/rust-lang/rustlings): every exercise is a
-single self-contained `.sv` file with a real bug in it and a checker at the
-bottom that tells you, unambiguously, whether you fixed it. No tutorials, no
-multiple choice -- you read real compiler output or a real runtime failure,
-figure out what's actually wrong, and fix it.
+single self-contained `.sv` file and a checker at the bottom that tells you,
+unambiguously, whether you got it right. No tutorials, no multiple choice.
+Most exercises hand you a spec in a comment and an empty class to write from
+scratch against it -- get the constraint logic right against a checker built
+to catch partial credit, not just crashes. A handful hand you working code
+with a real bug already sitting in it, the kind that compiles clean and looks
+fine until you read the actual compiler output or runtime failure and find
+what's actually wrong.
 
 This isn't generic SystemVerilog trivia. Every exercise here is built around
-a mistake that actually shows up in real constrained-random verification
-code -- the kind that either won't compile, silently does nothing, or worse,
-compiles clean and passes while not actually testing what it looks like it's
-testing. That last category is most of `exercises/`, not an afterthought.
+a mistake or a gap that actually shows up in real constrained-random
+verification code -- something that either won't compile, silently does
+nothing, or worse, compiles clean and passes while not actually testing what
+it looks like it's testing. That last category shows up constantly across
+`exercises/`, not as an afterthought.
+
+The goal is a growing set of real interview and practice problems across
+SystemVerilog, UVM, and register-map (CSR) verification. SV is what's here
+today; UVM and CSR are next (see [Tracks](#tracks) below). SV coverage keeps
+growing too -- process control (`fork`/`join` and friends) isn't covered yet,
+for instance. Starting narrow and adding real gotchas over time beats trying
+to launch complete.
 
 Companion to [chipdv.io](https://chipdv.io) -- real DV engineering, worked
 all the way through, not tutorials. A full multi-file testbench (broken RTL
@@ -25,34 +38,36 @@ a tool built around single-file, seconds-to-run exercises.
 
 ```bash
 brew install verilator          # or see Requirements below for your platform
-git clone https://github.com/adibis/brokenBenchPrivate.git brokenbench && cd brokenbench
+git clone https://github.com/adibis/brokenBench.git brokenbench && cd brokenbench
 make run EX=sv_mechanics_chain
 ```
 
 That compiles and runs one exercise. It'll fail -- open
-`learn/sv_mechanics_chain.sv`, write the constraints the comment above the
-checker marker asks for, and run the same command again until it prints
+`learn/sv_mechanics_chain.sv`, fix the class and function the comment above
+the checker marker asks for, and run the same command again until it prints
 `PASS`. Then `make list` to see everything else.
 
 ## Tracks
 
 Two top-level tracks, split by **audience**, not topic:
 
-- **`learn/`** -- never touched SystemVerilog before? Start here. Missing
-  keywords, `=` vs `==`, an unchecked return value, a null handle. Fast
-  feedback loop, one concept per exercise (or a short, deliberate chain of
-  them).
+- **`learn/`** -- never touched SystemVerilog constraints before? Start
+  here. Most exercises give you a spec and a stub to write against it --
+  constraints, `foreach`/`implies`/`inside`, `dist` weights, array
+  reduction, and more; one (`rand_mode_leftover`) hands you real code with a
+  bug already in it instead. Fast feedback loop, one concept per exercise
+  (or a short, deliberate chain of them). `make list TRACK=learn` shows the
+  current set.
 - **`exercises/`** -- interview-prep, organized by domain in subdirectories
   (splitting *this* level by audience wouldn't make sense -- domain is what
-  actually changes here, difficulty stays a tag, same as everywhere else in
-  this repo):
+  actually changes here; difficulty is implicit in each track's `order`,
+  roughly easiest-first, not a separate tag):
   - **`exercises/sv/`** -- core SystemVerilog and constrained-random gotchas.
     Every one of these is either a documented real-world gotcha or something
-    found by actually testing this repo's own exercises against Verilator: a
-    range constraint that silently narrows to one legal value, `dist` weight
-    operators that skew a distribution without erroring, non-overlapping
-    address-range generation, 2D matrix constraints, Hamming-distance
-    randomization, a genuinely unsatisfiable pair of constraints, and more.
+    found by actually testing this repo's own exercises against Verilator.
+    `make list` shows the current set with tags; it changes as exercises get
+    added, reworked, or retired, so that's the source of truth, not a list
+    here that would just go stale.
   - **`exercises/uvm/`** -- UVM component-level bugs: a broken scoreboard
     comparison, a `uvm_config_db` type/path mismatch, phasing/objection
     issues. (Not yet populated.)
@@ -92,6 +107,38 @@ make find TAG=multi-constraint         # exercises tagged with a specific gotcha
 make find TAG=tool-limitation TRACK=sv # narrow a tag search to one track
 ```
 
+Tags in play right now:
+
+- **`write-from-scratch`** -- you get a spec in a comment and an empty stub;
+  write the constraint/class logic yourself. No tag here means the opposite:
+  real code with a bug already in it, find and fix it.
+- **`multi-constraint`** -- several requirements have to hold at once,
+  correctly combined, not just one clause in isolation.
+- **`cross-call-state`** -- correctness depends on state that survives
+  across separate `randomize()` calls on fresh objects (a `static` member,
+  not an ordinary one).
+- **`lifecycle-hook`** -- the fix lives in one of the randomization
+  lifecycle controls (`rand_mode()`, `constraint_mode()`, `pre_randomize()`,
+  `post_randomize()`), not just in a `constraint` block.
+- **`statistical`** -- correctness includes landing on a target
+  distribution or weighting over many trials, not just producing one valid
+  output.
+- **`tool-limitation`** -- the "obvious" approach hits a real, current
+  Verilator gap; the exercise is about finding the technique that actually
+  works around it. See [README's tool-limitations
+  section](#real-current-tool-limitations-found-while-building-this).
+- **`requires-patched-verilator`** -- needs a Verilator built from an
+  unmerged upstream patch to even compile, not the stock release -- see the
+  note at the top of that exercise's file.
+- **`array`** -- the core challenge centers on an array-, queue-, or
+  matrix-typed field: uniqueness, indexing, slicing, sizing, constructing
+  its elements, or a reduction method (`sum()`, `product()`, and friends)
+  across it.
+- **`inheritance`** -- involves constraints inherited across a class
+  hierarchy.
+- **`best-practice`** -- a methodology habit or pitfall, not tied to one
+  specific language construct.
+
 **Work one exercise at a time:**
 
 ```bash
@@ -109,9 +156,19 @@ make check TRACK=sv EX=thermal_power_fuzzer      # resume partway through
 ```
 
 `TRACK` is one of `learn`, `sv`, `uvm`, `csr` -- matching `manifest.toml`'s
-`track` field for each exercise, not the directory layout directly (`sv`,
-`uvm`, and `csr` all nest under `exercises/` on disk purely for browsing;
-the manifest is what `make check`/`make find` actually key off).
+`track` field for each exercise, not the directory layout directly. `sv`
+nests under `exercises/sv/` on disk purely for browsing; `uvm` and `csr`
+will nest the same way once those tracks have exercises in them (see
+[Tracks](#tracks)) -- either way, the manifest is what `make check`/
+`make find` actually key off, not the directory layout.
+
+**Or skip the manual re-run loop entirely** -- `make watch` re-runs an
+exercise automatically every time you save the file, and moves on to the
+next exercise in track order the moment one passes:
+
+```bash
+make watch EX=sv_mechanics_chain
+```
 
 **Clean up build artifacts** (compiled sim binaries under `.build/`):
 
