@@ -51,7 +51,7 @@ module top;
     for (int t = 0; t < total; t++) begin
       automatic bit m0, m1;
       item = new();  // fresh transaction every instruction, like a real sequence
-      ok = item.randomize();
+      ok   = item.randomize();
       if (!ok) begin
         $display("FAIL: randomize() returned 0 at instruction %0d", t);
         $fatal(1);

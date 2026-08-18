@@ -1,10 +1,10 @@
 diff --git a/learn/sv_mechanics_chain.sv b/learn/sv_mechanics_chain.sv
---- a/learn/sv_mechanics_chain.sv	2026-08-16 23:04:53
-+++ b/learn/sv_mechanics_chain.sv	2026-08-16 23:05:03
+--- a/learn/sv_mechanics_chain.sv
++++ b/learn/sv_mechanics_chain.sv
 @@ -20,12 +20,15 @@
  class addr_item;
    rand bit [15:0] addr;
-   rand bit [3:0]  size;
+   rand bit [ 3:0] size;
 -  // write constraints here
 +  constraint c_addr {
 +    addr[1:0] == 2'b00;

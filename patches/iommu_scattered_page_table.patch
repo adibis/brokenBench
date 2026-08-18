@@ -1,12 +1,12 @@
 diff --git a/exercises/sv/iommu_scattered_page_table.sv b/exercises/sv/iommu_scattered_page_table.sv
---- a/exercises/sv/iommu_scattered_page_table.sv	2026-08-17 18:07:00
-+++ b/exercises/sv/iommu_scattered_page_table.sv	2026-08-17 18:07:00
+--- a/exercises/sv/iommu_scattered_page_table.sv
++++ b/exercises/sv/iommu_scattered_page_table.sv
 @@ -42,7 +42,40 @@
  class IommuTranslationTable;
    rand map_entry_s page_table[];
  
 -  // write constraints here
-+  constraint c_size { page_table.size() inside {[8 : 16]}; }
++  constraint c_size {page_table.size() inside {[8 : 16]};}
 +
 +  constraint c_vcontinuum {
 +    foreach (page_table[i]) {
@@ -20,12 +20,12 @@ diff --git a/exercises/sv/iommu_scattered_page_table.sv b/exercises/sv/iommu_sca
 +
 +  constraint c_page_size {
 +    foreach (page_table[i])
-+      page_table[i].page_size inside {32'h1000, 32'h10000, 32'h200000};
++    page_table[i].page_size inside {32'h1000, 32'h10000, 32'h200000};
 +  }
 +
 +  constraint c_phys_bounds {
 +    foreach (page_table[i])
-+      page_table[i].p_start_addr <= 32'hFFFF_FFFF - page_table[i].page_size + 1;
++    page_table[i].p_start_addr <= 32'hFFFF_FFFF - page_table[i].page_size + 1;
 +  }
 +
 +  // no sorting -- explicit all-pairs check via nested foreach

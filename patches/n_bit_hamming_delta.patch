@@ -1,20 +1,18 @@
 diff --git a/exercises/sv/n_bit_hamming_delta.sv b/exercises/sv/n_bit_hamming_delta.sv
---- a/exercises/sv/n_bit_hamming_delta.sv	2026-08-17 18:30:48
-+++ b/exercises/sv/n_bit_hamming_delta.sv	2026-08-17 18:30:48
-@@ -36,7 +36,19 @@
-   rand bit [5:0]  toggle_target;
-   rand bit        changed_bits[32];
+--- a/exercises/sv/n_bit_hamming_delta.sv
++++ b/exercises/sv/n_bit_hamming_delta.sv
+@@ -36,7 +36,17 @@
+   rand bit   [ 5:0] toggle_target;
+   rand bit          changed_bits  [32];
  
 -  // write constraints here
-+  constraint target_bounds_c { toggle_target inside {[1 : 32]}; }
++  constraint target_bounds_c {toggle_target inside {[1 : 32]};}
 +
 +  constraint c_changed_bits {
 +    foreach (changed_bits[k]) changed_bits[k] == (current_data[k] ^ previous_data[k]);
 +  }
 +
-+  constraint hamming_distance_c {
-+    changed_bits.sum() with (int'(item)) == int'(toggle_target);
-+  }
++  constraint hamming_distance_c {changed_bits.sum() with (int'(item)) == int'(toggle_target);}
 +
 +  function void post_randomize();
 +    previous_data = current_data;

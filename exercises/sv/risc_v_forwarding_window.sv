@@ -49,14 +49,19 @@
 //   4. When gen_hazard is 0, neither source register matches any nonzero slot in the window.
 // -------------------------------------------------------------------------------------------------
 class advanced_instr_fuzzer;
-  static bit [4:0] history[3] = '{5'd1, 5'd2, 5'd3};
+  static bit [4:0] history    [3] = '{5'd1, 5'd2, 5'd3};
 
-  rand bit [4:0] dst_reg;
-  rand bit [4:0] src_reg_0;
-  rand bit [4:0] src_reg_1;
-  rand bit       gen_hazard;
+  rand bit   [4:0] dst_reg;
+  rand bit   [4:0] src_reg_0;
+  rand bit   [4:0] src_reg_1;
+  rand bit         gen_hazard;
 
-  typedef enum bit [1:0] {HIT_EX, HIT_MEM, HIT_WB, HIT_NONE} stage_target_e;
+  typedef enum bit [1:0] {
+    HIT_EX,
+    HIT_MEM,
+    HIT_WB,
+    HIT_NONE
+  } stage_target_e;
 
   // write constraints and post_randomize() here
 endclass

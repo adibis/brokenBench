@@ -58,7 +58,7 @@ module top;
     for (int t = 0; t < 30; t++) begin
       automatic int ok;
 
-      m = new();
+      m  = new();
       ok = m.randomize();
 
       if (!ok) begin
@@ -77,10 +77,9 @@ module top;
                    m.regions[i].base_addr, m.regions[i].limit_addr, t);
           bad_found = 1;
         end
-        if (m.regions[i].base_addr > 32'h7FFF_FFFF || m.regions[i].limit_addr > 32'h7FFF_FFFF)
-        begin
-          $display("FAIL: regions[%0d] [%08h:%08h] exceeds the 32'h7FFF_FFFF bound at call %0d",
-                   i, m.regions[i].base_addr, m.regions[i].limit_addr, t);
+        if (m.regions[i].base_addr > 32'h7FFF_FFFF || m.regions[i].limit_addr > 32'h7FFF_FFFF) begin
+          $display("FAIL: regions[%0d] [%08h:%08h] exceeds the 32'h7FFF_FFFF bound at call %0d", i,
+                   m.regions[i].base_addr, m.regions[i].limit_addr, t);
           bad_found = 1;
         end
         if ((m.regions[i].limit_addr - m.regions[i].base_addr + 1) % 32'h1000 != 0) begin

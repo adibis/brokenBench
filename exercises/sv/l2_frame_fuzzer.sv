@@ -38,14 +38,12 @@ endpackage
 import test_pkg::*;
 
 class L2FrameFuzzer;
-  bit [7:0]  header;       // set procedurally in pre_randomize -- not rand
-  rand byte  payload[];    // dynamic array
-  rand bit   crc_corrupt;  // 1 = deliberately invert the computed CRC
-  bit [7:0]  crc;          // set procedurally in post_randomize -- not rand
+  bit       [7:0] header;  // set procedurally in pre_randomize -- not rand
+  rand byte       payload                                                  [];  // dynamic array
+  rand bit        crc_corrupt;  // 1 = deliberately invert the computed CRC
+  bit       [7:0] crc;  // set procedurally in post_randomize -- not rand
 
-  constraint c_payload_base_size {
-    payload.size() inside {[46 : 2048]};
-  }
+  constraint c_payload_base_size {payload.size() inside {[46 : 2048]};}
 
   // write pre_randomize(), the size-dependency constraint, and post_randomize() here
 endclass
@@ -63,7 +61,7 @@ module top;
     // non-jumbo mode: size must stay in [46:1500], and genuinely vary -- not lock to one value
     jumbo_mode_en = 0;
     for (int t = 0; t < 100; t++) begin
-      f = new();
+      f  = new();
       ok = f.randomize();
       if (!ok) begin
         $display("FAIL: randomize() returned 0 in non-jumbo mode at trial %0d", t);
@@ -75,7 +73,7 @@ module top;
       end
       if (f.payload.size() < 46 || f.payload.size() > 1500) begin
         $display("FAIL: non-jumbo payload.size()=%0d outside [46:1500] at trial %0d",
-                  f.payload.size(), t);
+                 f.payload.size(), t);
         bad_found = 1;
       end
       if (f.payload.size() < 400) saw_small = 1;
@@ -93,7 +91,7 @@ module top;
         if (f.crc !== expected) begin
           $display($sformatf({"FAIL: crc=%0h, expected %0h (header=%0h + payload bytes, ",
                               "wrapped mod 256, corrupt=%0d) at trial %0d"}, f.crc, expected,
-                              f.header, f.crc_corrupt, t));
+                               f.header, f.crc_corrupt, t));
           bad_found = 1;
         end
         if (f.crc_corrupt) saw_corrupt = 1;
@@ -113,7 +111,7 @@ module top;
     // jumbo mode: size must stay in [1501:2048]
     jumbo_mode_en = 1;
     for (int t = 0; t < 100; t++) begin
-      f = new();
+      f  = new();
       ok = f.randomize();
       if (!ok) begin
         $display("FAIL: randomize() returned 0 in jumbo mode at trial %0d", t);
@@ -125,7 +123,7 @@ module top;
       end
       if (f.payload.size() <= 1500 || f.payload.size() > 2048) begin
         $display("FAIL: jumbo payload.size()=%0d outside [1501:2048] at trial %0d",
-                  f.payload.size(), t);
+                 f.payload.size(), t);
         bad_found = 1;
       end
     end

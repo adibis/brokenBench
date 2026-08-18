@@ -50,7 +50,10 @@
 class DmaRingAllocator;
   rand bit [7:0] dma_grid[4][4];
 
-  typedef enum bit {SPARSE_MODE, BURST_MODE} qos_mode_e;
+  typedef enum bit {
+    SPARSE_MODE,
+    BURST_MODE
+  } qos_mode_e;
   rand qos_mode_e qos_mode;
 
   constraint c_base_bounds {
@@ -73,7 +76,7 @@ module top;
     bit bad_found = 0;
 
     for (int t = 0; t < total; t++) begin
-      d = new();
+      d  = new();
       ok = d.randomize();
       if (!ok) begin
         $display("FAIL: randomize() returned 0 at trial %0d", t);

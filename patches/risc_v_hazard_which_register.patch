@@ -1,12 +1,20 @@
 diff --git a/exercises/sv/risc_v_hazard_which_register.sv b/exercises/sv/risc_v_hazard_which_register.sv
 --- a/exercises/sv/risc_v_hazard_which_register.sv
 +++ b/exercises/sv/risc_v_hazard_which_register.sv
-@@ -30,7 +30,45 @@
-   rand bit [4:0] src_reg_0;
-   rand bit [4:0] src_reg_1;
-   rand bit       gen_hazard;
+@@ -26,11 +26,49 @@
+ // previous instruction's dst_reg either.
+ // -------------------------------------------------------------------------------------------------
+ class instr_item;
+-  rand bit [4:0] dst_reg;
+-  rand bit [4:0] src_reg_0;
+-  rand bit [4:0] src_reg_1;
+-  rand bit       gen_hazard;
 -  // write constraints here
-+  rand bit [1:0] hkind;  // 0 = src_reg_0 only, 1 = src_reg_1 only, 2 = both
++  rand bit   [4:0] dst_reg;
++  rand bit   [4:0] src_reg_0;
++  rand bit   [4:0] src_reg_1;
++  rand bit         gen_hazard;
++  rand bit   [1:0] hkind;  // 0 = src_reg_0 only, 1 = src_reg_1 only, 2 = both
 +
 +  static bit [4:0] prev_dst_reg;
 +  static bit       has_prev;
@@ -46,5 +54,5 @@ diff --git a/exercises/sv/risc_v_hazard_which_register.sv b/exercises/sv/risc_v_
 +    has_prev     = 1;
 +  endfunction
  endclass
-
+ 
  // ---8<--- checker below: don't edit ---

@@ -30,11 +30,11 @@
 //      what was just generated, not from whatever came before that.
 // -------------------------------------------------------------------------------------------------
 class PowerFuzzer;
-  static bit [31:0] previous_data = 32'h0000_0000;
+  static bit [31:0] previous_data       = 32'h0000_0000;
 
-  rand bit [31:0] current_data;
-  rand bit [5:0]  toggle_target;
-  rand bit        changed_bits[32];
+  rand bit   [31:0] current_data;
+  rand bit   [ 5:0] toggle_target;
+  rand bit          changed_bits  [32];
 
   // write constraints here
 endclass
@@ -71,7 +71,7 @@ module top;
       if (actual != f.toggle_target) begin
         $display($sformatf({"FAIL: call %0d, prev=%08h cur=%08h, Hamming distance=%0d, ",
                             "expected toggle_target=%0d"}, t, prev_snapshot, f.current_data,
-                            actual, f.toggle_target));
+                             actual, f.toggle_target));
         bad_found = 1;
       end
 
@@ -79,7 +79,7 @@ module top;
         $display($sformatf({"FAIL: call %0d, PowerFuzzer::previous_data=%08h after ",
                             "randomize(), expected it to already equal current_data=%08h -- ",
                             "did post_randomize() run?"}, t, PowerFuzzer::previous_data,
-                            f.current_data));
+                             f.current_data));
         bad_found = 1;
       end
 

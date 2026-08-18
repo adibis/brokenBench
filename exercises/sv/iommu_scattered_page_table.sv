@@ -55,7 +55,7 @@ module top;
     for (int trial = 0; trial < 8; trial++) begin
       automatic int ok;
 
-      t = new();
+      t  = new();
       ok = t.randomize();
 
       if (!ok) begin
@@ -95,13 +95,15 @@ module top;
 
       for (int i = 0; i < t.page_table.size(); i++) begin
         for (int j = i + 1; j < t.page_table.size(); j++) begin
-          if (t.page_table[i].p_start_addr < t.page_table[j].p_start_addr + t.page_table[j].page_size
+          if (t.page_table[i].p_start_addr
+              < t.page_table[j].p_start_addr + t.page_table[j].page_size
               && t.page_table[j].p_start_addr
                  < t.page_table[i].p_start_addr + t.page_table[i].page_size) begin
             $display("FAIL: page_table[%0d] overlaps page_table[%0d] at trial %0d", i, j, trial);
             bad_found = 1;
           end
-          if (t.page_table[i].p_start_addr == t.page_table[j].p_start_addr + t.page_table[j].page_size
+          if (t.page_table[i].p_start_addr
+              == t.page_table[j].p_start_addr + t.page_table[j].page_size
               || t.page_table[j].p_start_addr
                  == t.page_table[i].p_start_addr + t.page_table[i].page_size) begin
             $display("FAIL: page_table[%0d] is adjacent to page_table[%0d] at trial %0d", i, j,

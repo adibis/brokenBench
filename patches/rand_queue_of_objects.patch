@@ -1,6 +1,6 @@
 diff --git a/learn/rand_queue_of_objects.sv b/learn/rand_queue_of_objects.sv
---- a/learn/rand_queue_of_objects.sv	2026-08-16 23:19:27
-+++ b/learn/rand_queue_of_objects.sv	2026-08-16 23:19:27
+--- a/learn/rand_queue_of_objects.sv
++++ b/learn/rand_queue_of_objects.sv
 @@ -31,7 +31,12 @@
  
    constraint c_size {queue_of_pkts.size() == 5;}

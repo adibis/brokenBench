@@ -49,7 +49,7 @@ module top;
     for (int t = 0; t < 20; t++) begin
       automatic int ok;
 
-      f = new();
+      f  = new();
       ok = f.randomize();
 
       if (!ok) begin
@@ -72,7 +72,7 @@ module top;
               if (!(i == i2 && j == j2) && f.core_power[i][j] == f.core_power[i2][j2]) begin
                 $display($sformatf({"FAIL: core_power[%0d][%0d]=core_power[%0d][%0d]=%0d -- ",
                                     "duplicate across the whole grid at trial %0d"}, i, j, i2, j2,
-                                    f.core_power[i][j], t));
+                                     f.core_power[i][j], t));
                 bad_found = 1;
               end
             end

@@ -19,7 +19,7 @@
 // -------------------------------------------------------------------------------------------------
 class addr_item;
   rand bit [15:0] addr;
-  rand bit [3:0]  size;
+  rand bit [ 3:0] size;
   // write constraints here
 endclass
 

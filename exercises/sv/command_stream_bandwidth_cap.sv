@@ -70,9 +70,9 @@ typedef struct {
 } cmd_s;
 
 class CommandStream;
-  rand cmd_s cmd_list[];
-  rand int   hi_count[];      // prefix-sum helper for requirement 3
-  rand int   dma_running[];   // prefix-sum helper for requirement 5
+  rand cmd_s cmd_list   [];
+  rand int   hi_count   [];  // prefix-sum helper for requirement 3
+  rand int   dma_running[];  // prefix-sum helper for requirement 5
 
   // write constraints here
 endclass
@@ -100,8 +100,7 @@ module top;
       end
 
       if (cs.cmd_list.size() < 15 || cs.cmd_list.size() > 20) begin
-        $display("FAIL: cmd_list.size()=%0d is outside [15:20] at call %0d", cs.cmd_list.size(),
-                 t);
+        $display("FAIL: cmd_list.size()=%0d is outside [15:20] at call %0d", cs.cmd_list.size(), t);
         bad_found = 1;
       end
 
@@ -139,7 +138,7 @@ module top;
         || prio_dist_reads_writes > prio_dist_flushes * 9) begin
       $display($sformatf({"FAIL: PRIO_LOW reads+writes=%0d vs flushes=%0d, expected roughly a ",
                           "6:1 ratio (3:3:1 collapsed) -- check the dist weights"},
-                          prio_dist_reads_writes, prio_dist_flushes));
+                           prio_dist_reads_writes, prio_dist_flushes));
       $fatal(1);
     end
 

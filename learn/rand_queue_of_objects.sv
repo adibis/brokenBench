@@ -51,8 +51,8 @@ module top;
       end
 
       if (gen.queue_of_pkts.size() != 5) begin
-        $display("FAIL: queue_of_pkts.size()=%0d, expected 5 at call %0d", gen.queue_of_pkts.size(),
-                 t);
+        $display("FAIL: queue_of_pkts.size()=%0d, expected 5 at call %0d",
+                 gen.queue_of_pkts.size(), t);
         bad_found = 1;
       end
 

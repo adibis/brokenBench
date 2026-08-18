@@ -39,14 +39,14 @@
 class TaggedFrameSequence;
   localparam bit [7:0] XYZ = 8'hAB;
 
-  rand bit [7:0]  header;
-  rand bit [7:0]  id;
-  rand bit [15:0] payload;
-  rand bit [7:0]  size;
+  rand bit   [ 7:0] header;
+  rand bit   [ 7:0] id;
+  rand bit   [15:0] payload;
+  rand bit   [ 7:0] size;
 
-  static bit [15:0] next_xyz_payload    = 16'd100;
-  static int         frames_since_last_xyz = 0;
-  static bit [7:0]   used_ids_q[$];
+  static bit [15:0] next_xyz_payload          = 16'd100;
+  static int        frames_since_last_xyz     = 0;
+  static bit [ 7:0] used_ids_q           [$];
 
   // write constraints and post_randomize() here
 endclass
@@ -69,7 +69,7 @@ module top;
       automatic bit was_xyz;
 
       item = new();  // fresh transaction every frame, like a real sequence
-      ok = item.randomize();
+      ok   = item.randomize();
       if (!ok) begin
         $display("FAIL: randomize() returned 0 at frame %0d", t);
         $fatal(1);
@@ -102,8 +102,9 @@ module top;
       end else begin
         frames_since_last_xyz++;
         if (frames_since_last_xyz >= 10) begin
-          $display("FAIL: %0d consecutive non-XYZ frames at frame %0d (10-frame window with no XYZ)",
-                   frames_since_last_xyz, t);
+          $display(
+              "FAIL: %0d consecutive non-XYZ frames at frame %0d (10-frame window with no XYZ)",
+              frames_since_last_xyz, t);
           bad_found = 1;
         end
       end
@@ -127,18 +128,19 @@ module top;
     for (int gap = 0; gap < 5; gap++) begin
       automatic int pre_state = TaggedFrameSequence::frames_since_last_xyz;
       item = new();
-      ok = item.randomize() with {header == TaggedFrameSequence::XYZ;};
+      ok   = item.randomize() with {header == TaggedFrameSequence::XYZ;};
       if (!ok) TaggedFrameSequence::frames_since_last_xyz = pre_state;
       if (ok) begin
         $display("FAIL: XYZ allowed only %0d frames after the previous one (need >= 5)", gap);
         $fatal(1);
       end
       item = new();
-      ok = item.randomize() with {header != TaggedFrameSequence::XYZ;};
+      ok   = item.randomize() with {header != TaggedFrameSequence::XYZ;};
     end
 
-    $display("PASS: %0d frames, %0d of them XYZ, every id unique, spacing and payload sequence held",
-             total, xyz_count);
+    $display(
+        "PASS: %0d frames, %0d of them XYZ, every id unique, spacing and payload sequence held",
+        total, xyz_count);
     $finish;
   end
 endmodule
