@@ -1,14 +1,40 @@
 diff --git a/exercises/sv/nonoverlapping_address_ranges.sv b/exercises/sv/nonoverlapping_address_ranges.sv
---- a/exercises/sv/nonoverlapping_address_ranges.sv
-+++ b/exercises/sv/nonoverlapping_address_ranges.sv
-@@ -28,8 +28,8 @@
-     base[i] inside {[0 : 1000]};
-   }
-   constraint c_order {
--    base[0] < base[1];
--    base[1] < base[2];
-+    base[0] + size[0] <= base[1];
-+    base[1] + size[1] <= base[2];
-   }
+--- a/exercises/sv/nonoverlapping_address_ranges.sv	2026-08-17 18:13:04
++++ b/exercises/sv/nonoverlapping_address_ranges.sv	2026-08-17 18:13:04
+@@ -39,7 +39,35 @@
+ class MemoryMap;
+   rand region_s regions[];
+ 
+-  // write constraints here
++  constraint c_size { regions.size() inside {[4 : 8]}; }
++
++  constraint c_bounds {
++    foreach (regions[i]) {
++      regions[i].base_addr inside {[32'h0000_0000 : 32'h7FFF_FFFF]};
++      regions[i].limit_addr inside {[32'h0000_0000 : 32'h7FFF_FFFF]};
++    }
++  }
++
++  constraint c_span {
++    foreach (regions[i]) regions[i].base_addr < regions[i].limit_addr;
++  }
++
++  constraint c_align {
++    foreach (regions[i]) {
++      (regions[i].limit_addr - regions[i].base_addr + 1) % 32'h1000 == 0;
++      regions[i].base_addr % 32'h1000 == 0;
++    }
++  }
++
++  constraint c_order {
++    foreach (regions[i]) {
++      if (i == 0) {
++        regions[i].base_addr inside {[32'h0000_0000 : 32'h7FFF_FFFF]};
++      } else {
++        regions[i].base_addr > regions[i-1].limit_addr;
++      }
++    }
++  }
  endclass
  
+ // ---8<--- checker below: don't edit ---

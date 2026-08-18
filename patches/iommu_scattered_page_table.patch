@@ -1,0 +1,45 @@
+diff --git a/exercises/sv/iommu_scattered_page_table.sv b/exercises/sv/iommu_scattered_page_table.sv
+--- a/exercises/sv/iommu_scattered_page_table.sv	2026-08-17 18:07:00
++++ b/exercises/sv/iommu_scattered_page_table.sv	2026-08-17 18:07:00
+@@ -42,7 +42,40 @@
+ class IommuTranslationTable;
+   rand map_entry_s page_table[];
+ 
+-  // write constraints here
++  constraint c_size { page_table.size() inside {[8 : 16]}; }
++
++  constraint c_vcontinuum {
++    foreach (page_table[i]) {
++      if (i == 0) {
++        page_table[i].v_start_addr == 32'h1000_0000;
++      } else {
++        page_table[i].v_start_addr == page_table[i-1].v_start_addr + page_table[i-1].page_size;
++      }
++    }
++  }
++
++  constraint c_page_size {
++    foreach (page_table[i])
++      page_table[i].page_size inside {32'h1000, 32'h10000, 32'h200000};
++  }
++
++  constraint c_phys_bounds {
++    foreach (page_table[i])
++      page_table[i].p_start_addr <= 32'hFFFF_FFFF - page_table[i].page_size + 1;
++  }
++
++  // no sorting -- explicit all-pairs check via nested foreach
++  constraint c_no_overlap_no_adjacency {
++    foreach (page_table[i]) {
++      foreach (page_table[j]) {
++        if (i != j) {
++          !(page_table[i].p_start_addr < page_table[j].p_start_addr + page_table[j].page_size
++            && page_table[j].p_start_addr < page_table[i].p_start_addr + page_table[i].page_size);
++          page_table[i].p_start_addr != page_table[j].p_start_addr + page_table[j].page_size;
++        }
++      }
++    }
++  }
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

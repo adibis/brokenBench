@@ -26,13 +26,13 @@ a tool built around single-file, seconds-to-run exercises.
 ```bash
 brew install verilator          # or see Requirements below for your platform
 git clone https://github.com/adibis/brokenBenchPrivate.git brokenbench && cd brokenbench
-make run EX=missing_rand
+make run EX=sv_mechanics_chain
 ```
 
-That compiles and runs one broken exercise. It'll fail -- open
-`learn/missing_rand.sv`, fix the bug above the checker marker, and run the
-same command again until it prints `PASS`. Then `make list` to see
-everything else.
+That compiles and runs one exercise. It'll fail -- open
+`learn/sv_mechanics_chain.sv`, write the constraints the comment above the
+checker marker asks for, and run the same command again until it prints
+`PASS`. Then `make list` to see everything else.
 
 ## Tracks
 
@@ -95,8 +95,8 @@ make find TAG=tool-limitation TRACK=sv # narrow a tag search to one track
 **Work one exercise at a time:**
 
 ```bash
-make run EX=missing_rand
-make run EX=and_instead_of_implies
+make run EX=dist_coin_and_die
+make run EX=command_stream_bandwidth_cap
 ```
 
 **Work through a whole track in order**, stopping at the first failure --

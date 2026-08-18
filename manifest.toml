@@ -61,142 +61,72 @@ track = "learn"
 tags  = ["lifecycle-hook"]
 
 [[exercise]]
+slug  = "inherited_constraints_stack"
+path  = "learn/inherited_constraints_stack.sv"
+order = 9
+track = "learn"
+tags  = ["write-from-scratch", "inheritance", "lifecycle-hook"]
+
+[[exercise]]
 slug  = "rand_queue_of_objects"
 path  = "learn/rand_queue_of_objects.sv"
-order = 9
+order = 10
 track = "learn"
 tags  = ["write-from-scratch", "lifecycle-hook", "array"]
 
 [[exercise]]
 slug  = "array_reduction_with"
 path  = "learn/array_reduction_with.sv"
-order = 10
+order = 11
 track = "learn"
 tags  = ["write-from-scratch", "array"]
 
 [[exercise]]
-slug  = "offset_narrowed_to_one_value"
-path  = "exercises/sv/offset_narrowed_to_one_value.sv"
-order = 1
-track = "sv"
-tags  = ["multi-constraint"]
-
-[[exercise]]
-slug  = "constraint_mode_leftover"
-path  = "exercises/sv/constraint_mode_leftover.sv"
-order = 2
-track = "sv"
-tags  = ["single-constraint", "lifecycle-hook"]
-
-[[exercise]]
-slug  = "and_instead_of_implies"
-path  = "exercises/sv/and_instead_of_implies.sv"
-order = 3
-track = "sv"
-tags  = ["single-constraint"]
-
-[[exercise]]
-slug  = "off_by_one_excludes_boundary"
-path  = "exercises/sv/off_by_one_excludes_boundary.sv"
-order = 4
-track = "sv"
-tags  = ["single-constraint", "boundary-value"]
-
-[[exercise]]
-slug  = "soft_constraint_overridden"
-path  = "exercises/sv/soft_constraint_overridden.sv"
-order = 5
-track = "sv"
-tags  = ["multi-constraint"]
-
-[[exercise]]
-slug  = "pre_randomize_local_state"
-path  = "exercises/sv/pre_randomize_local_state.sv"
-order = 6
-track = "sv"
-tags  = ["lifecycle-hook", "cross-call-state"]
-
-[[exercise]]
-slug  = "inherited_constraints_stack"
-path  = "exercises/sv/inherited_constraints_stack.sv"
-order = 7
-track = "sv"
-tags  = ["inheritance", "multi-constraint"]
-
-[[exercise]]
-slug  = "post_randomize_clamp"
-path  = "exercises/sv/post_randomize_clamp.sv"
-order = 8
-track = "sv"
-tags  = ["lifecycle-hook"]
-
-[[exercise]]
-slug  = "dist_weight_operator"
-path  = "exercises/sv/dist_weight_operator.sv"
-order = 9
-track = "sv"
-tags  = ["statistical", "single-constraint"]
-
-[[exercise]]
-slug  = "inline_randomize_with_scoping"
-path  = "exercises/sv/inline_randomize_with_scoping.sv"
-order = 10
-track = "sv"
-tags  = ["scoping", "single-constraint"]
-
-[[exercise]]
-slug  = "empty_inside_queue"
-path  = "exercises/sv/empty_inside_queue.sv"
-order = 11
-track = "sv"
-tags  = ["single-constraint"]
-
-[[exercise]]
 slug  = "nonoverlapping_address_ranges"
 path  = "exercises/sv/nonoverlapping_address_ranges.sv"
-order = 12
+order = 1
 track = "sv"
-tags  = ["multi-constraint", "array"]
+tags  = ["write-from-scratch", "multi-constraint", "array"]
 
 [[exercise]]
 slug  = "n_bit_hamming_delta"
 path  = "exercises/sv/n_bit_hamming_delta.sv"
-order = 13
+order = 2
 track = "sv"
 tags  = ["single-constraint", "cross-call-state"]
 
 [[exercise]]
 slug  = "cyclic_rand_constraint"
 path  = "exercises/sv/cyclic_rand_constraint.sv"
-order = 14
+order = 3
 track = "sv"
 tags  = ["multi-constraint", "unsatisfiable"]
 
 [[exercise]]
 slug  = "unique_oversized_array"
 path  = "exercises/sv/unique_oversized_array.sv"
-order = 15
+order = 4
 track = "sv"
 tags  = ["tool-limitation", "array"]
 
 [[exercise]]
 slug  = "unique_without_unique_keyword"
 path  = "exercises/sv/unique_without_unique_keyword.sv"
-order = 16
+order = 5
 track = "sv"
 tags  = ["tool-limitation", "array"]
 
 [[exercise]]
 slug  = "matrix_row_col_sum"
 path  = "exercises/sv/matrix_row_col_sum.sv"
-order = 17
+order = 6
 track = "sv"
 tags  = ["multi-constraint", "array", "tool-limitation"]
 
 [[exercise]]
 slug  = "unique_scalar_vs_slice"
 path  = "exercises/sv/unique_scalar_vs_slice.sv"
-order = 18
+order = 7
 track = "sv"
 tags  = ["tool-limitation", "write-from-scratch", "requires-patched-verilator", "array"]
 # The only place this exercise's toolchain requirement is recorded -- CI and
@@ -212,48 +142,55 @@ verilator_broken_as_of     = "5.050"
 [[exercise]]
 slug  = "length_field_bounded_dependent_constraint"
 path  = "exercises/sv/length_field_bounded_dependent_constraint.sv"
-order = 19
+order = 8
 track = "sv"
 tags  = ["single-constraint", "boundary-value"]
 
 [[exercise]]
 slug  = "page_alignment"
 path  = "exercises/sv/page_alignment.sv"
-order = 20
+order = 9
 track = "sv"
 tags  = ["write-from-scratch"]
 
 [[exercise]]
 slug  = "frame_pixel_diff"
 path  = "exercises/sv/frame_pixel_diff.sv"
-order = 21
+order = 10
 track = "sv"
 tags  = ["write-from-scratch", "lifecycle-hook", "cross-call-state", "array"]
 
 [[exercise]]
 slug  = "unique_ids_across_calls"
 path  = "exercises/sv/unique_ids_across_calls.sv"
-order = 22
+order = 11
 track = "sv"
 tags  = ["write-from-scratch", "cross-call-state", "lifecycle-hook"]
 
 [[exercise]]
 slug  = "risc_v_data_hazard"
 path  = "exercises/sv/risc_v_data_hazard.sv"
-order = 23
+order = 12
 track = "sv"
 tags  = ["write-from-scratch", "statistical", "cross-call-state"]
 
 [[exercise]]
 slug  = "risc_v_hazard_which_register"
 path  = "exercises/sv/risc_v_hazard_which_register.sv"
-order = 24
+order = 13
 track = "sv"
 tags  = ["write-from-scratch", "statistical", "cross-call-state", "multi-constraint"]
 
 [[exercise]]
 slug  = "command_stream_bandwidth_cap"
 path  = "exercises/sv/command_stream_bandwidth_cap.sv"
-order = 25
+order = 14
 track = "sv"
 tags  = ["write-from-scratch", "tool-limitation", "multi-constraint", "array", "statistical"]
+
+[[exercise]]
+slug  = "iommu_scattered_page_table"
+path  = "exercises/sv/iommu_scattered_page_table.sv"
+order = 15
+track = "sv"
+tags  = ["write-from-scratch", "multi-constraint", "array"]

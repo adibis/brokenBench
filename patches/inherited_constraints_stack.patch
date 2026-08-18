@@ -1,10 +1,13 @@
-diff --git a/exercises/sv/inherited_constraints_stack.sv b/exercises/sv/inherited_constraints_stack.sv
---- a/exercises/sv/inherited_constraints_stack.sv
-+++ b/exercises/sv/inherited_constraints_stack.sv
-@@ -24,6 +24,10 @@
+diff --git a/learn/inherited_constraints_stack.sv b/learn/inherited_constraints_stack.sv
+--- a/learn/inherited_constraints_stack.sv	2026-08-17 17:48:28
++++ b/learn/inherited_constraints_stack.sv	2026-08-17 17:48:28
+@@ -35,7 +35,12 @@
+ endclass
  
  class wide_item extends base_item;
-   constraint c_wide_range {value inside {[40 : 255]};}
+-  // write constraints here
++  constraint c_wide {value inside {[0 : 200]};}
++
 +  function new();
 +    super.new();
 +    c_range.constraint_mode(0);

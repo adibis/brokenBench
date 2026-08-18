@@ -6,16 +6,28 @@
 // constraint added in a subclass doesn't override anything in the base
 // class, it just adds another block that has to hold at the same time as
 // everything the base class already declared. Every constraint block
-// across the whole inheritance chain is ANDed together. A subclass
-// author who assumes their new range constraint replaces the base
-// class's range constraint ends up with the intersection of both instead
-// -- often a much narrower space than either constraint alone.
+// across the whole inheritance chain is ANDed together. A subclass that
+// wants a wider range than its base class can't get there by just adding
+// a second, wider constraint -- the intersection of `[0:50]` and
+// `[0:200]` is still `[0:50]`.
+//
+// What actually works: `constraint_mode()`, the same idea as
+// `rand_mode()` but for constraint blocks instead of fields. Called on a
+// named constraint -- including one inherited from a base class --
+// `constraint_mode(0)` turns that specific block off without touching
+// its declaration. Turn the base class's range constraint off in the
+// subclass's own constructor, then a new constraint declared in the
+// subclass is the only one left applying.
 //
 // Fix the classes below so the check after them passes.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Fix the classes so wide_item's values genuinely reach above 50, not just the base range.
+// Write constraints so that wide_item's values reach above 50:
+//
+//   1. add a new constraint in wide_item allowing value up to 200.
+//   2. in wide_item's constructor, disable base_item's c_range constraint via
+//      constraint_mode(0) so it stops intersecting with the new one.
 // -------------------------------------------------------------------------------------------------
 class base_item;
   rand bit [7:0] value;
@@ -23,7 +35,7 @@ class base_item;
 endclass
 
 class wide_item extends base_item;
-  constraint c_wide_range {value inside {[40 : 255]};}
+  // write constraints here
 endclass
 
 // ---8<--- checker below: don't edit ---
