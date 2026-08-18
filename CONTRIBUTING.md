@@ -64,6 +64,27 @@ scripts still correctly reject bad exercises/patches and accept good
 ones, using fixtures built to be wrong on purpose. See
 [tests/ci-selftest/README.md](tests/ci-selftest/README.md).
 
+## Authoring gotchas
+
+Things that only bite while you're *building* a checker or test harness,
+not while solving an exercise as a student -- real SystemVerilog semantics
+(not Verilator bugs), easy to trip over if your checker deliberately drives
+a `randomize()` call that can fail:
+
+- **`post_randomize()` runs even when `randomize()` fails** (IEEE 1800-2023
+  18.6.5). If `post_randomize()` unconditionally mutates persistent state
+  from the object's current field values, a failed call still runs it
+  against whatever those fields held from the last *successful*
+  randomization -- silently reprocessing stale data as if it were new.
+  `tagged_frame_sequence`'s own verification hit this directly:
+  deliberately forcing a `randomize() with {}` call to fail, to pin an
+  exact boundary, still advanced the class's own persistent counter,
+  because `post_randomize()` doesn't know the call it just finished
+  failed. If your checker ever drives a deliberately-failing `randomize()`
+  call against an object with stateful `post_randomize()` logic, capture
+  the state you care about beforehand and restore it after a failed
+  attempt.
+
 ## Filing a bug
 
 A good bug report here almost always has one of three shapes:

@@ -279,14 +279,10 @@ looks like a tooling quirk rather than the intended lesson:
   enough to fool a spot check, not reliable enough to trust. The exercise
   routes around it with a plain-`bit` pick mapped onto the enum afterward.
 
-One more thing worth knowing, though it's standard SystemVerilog semantics
-(IEEE 1800-2023 6.21), not a Verilator-specific limitation: **a variable
-declared inside a loop's `begin...end` block, without the `automatic`
-keyword, defaults to *static* lifetime** -- its initializer runs once, not
-on every iteration, so it silently accumulates instead of resetting. Looks
-exactly like a randomization bug until traced with real debug output.
-Declare loop-body-local accumulator variables `automatic`, or declare once
-outside the loop and assign (not re-declare) inside it.
+This list is Verilator-specific gaps only. For general SystemVerilog
+language semantics that are just as easy to mistake for a tool bug --
+things that are surprising but are simply how the language works -- see
+[docs/reference.md](docs/reference.md).
 
 If you hit something that looks like this list rather than the intended
 lesson, it's probably exactly that -- see [Filing bugs](#filing-bugs)
