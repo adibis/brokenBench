@@ -1,12 +1,24 @@
 diff --git a/exercises/sv/n_bit_hamming_delta.sv b/exercises/sv/n_bit_hamming_delta.sv
---- a/exercises/sv/n_bit_hamming_delta.sv
-+++ b/exercises/sv/n_bit_hamming_delta.sv
-@@ -20,7 +20,7 @@
- class walk_item;
-   rand bit [31:0] cur;
-   bit [31:0] prev;
--  constraint c_delta {$countones(cur) == 2;}
-+  constraint c_delta {$countones(prev ^ cur) == 2;}
+--- a/exercises/sv/n_bit_hamming_delta.sv	2026-08-17 18:30:48
++++ b/exercises/sv/n_bit_hamming_delta.sv	2026-08-17 18:30:48
+@@ -36,7 +36,19 @@
+   rand bit [5:0]  toggle_target;
+   rand bit        changed_bits[32];
+ 
+-  // write constraints here
++  constraint target_bounds_c { toggle_target inside {[1 : 32]}; }
++
++  constraint c_changed_bits {
++    foreach (changed_bits[k]) changed_bits[k] == (current_data[k] ^ previous_data[k]);
++  }
++
++  constraint hamming_distance_c {
++    changed_bits.sum() with (int'(item)) == int'(toggle_target);
++  }
++
++  function void post_randomize();
++    previous_data = current_data;
++  endfunction
  endclass
  
  // ---8<--- checker below: don't edit ---

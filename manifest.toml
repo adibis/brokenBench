@@ -93,7 +93,7 @@ slug  = "n_bit_hamming_delta"
 path  = "exercises/sv/n_bit_hamming_delta.sv"
 order = 2
 track = "sv"
-tags  = ["single-constraint", "cross-call-state"]
+tags  = ["write-from-scratch", "multi-constraint", "cross-call-state", "array"]
 
 [[exercise]]
 slug  = "cyclic_rand_constraint"
