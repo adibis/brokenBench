@@ -250,3 +250,10 @@ path  = "exercises/sv/risc_v_hazard_which_register.sv"
 order = 24
 track = "sv"
 tags  = ["write-from-scratch", "statistical", "cross-call-state", "multi-constraint"]
+
+[[exercise]]
+slug  = "command_stream_bandwidth_cap"
+path  = "exercises/sv/command_stream_bandwidth_cap.sv"
+order = 25
+track = "sv"
+tags  = ["write-from-scratch", "tool-limitation", "multi-constraint", "array", "statistical"]
