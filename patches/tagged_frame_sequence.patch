@@ -1,0 +1,33 @@
+diff --git a/exercises/sv/tagged_frame_sequence.sv b/exercises/sv/tagged_frame_sequence.sv
+--- a/exercises/sv/tagged_frame_sequence.sv
++++ b/exercises/sv/tagged_frame_sequence.sv
+@@ -48,7 +48,28 @@
+   static int         frames_since_last_xyz = 0;
+   static bit [7:0]   used_ids_q[$];
+
+-  // write constraints and post_randomize() here
++  constraint c_id_unique {
++    !(id inside {used_ids_q});
++  }
++
++  constraint c_xyz_frequency {
++    if (frames_since_last_xyz < 5) header != XYZ;
++    if (frames_since_last_xyz >= 9) header == XYZ;
++  }
++
++  constraint c_xyz_payload_sequence {
++    (header == XYZ) -> payload == next_xyz_payload;
++  }
++
++  function void post_randomize();
++    used_ids_q.push_back(id);
++    if (header == XYZ) begin
++      next_xyz_payload       = next_xyz_payload + 1;
++      frames_since_last_xyz  = 0;
++    end else begin
++      frames_since_last_xyz  = frames_since_last_xyz + 1;
++    end
++  endfunction
+ endclass
+
+ // ---8<--- checker below: don't edit ---

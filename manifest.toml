@@ -126,11 +126,11 @@ track = "sv"
 tags  = ["write-from-scratch", "multi-constraint", "lifecycle-hook", "array"]
 
 [[exercise]]
-slug  = "unique_ids_across_calls"
-path  = "exercises/sv/unique_ids_across_calls.sv"
+slug  = "tagged_frame_sequence"
+path  = "exercises/sv/tagged_frame_sequence.sv"
 order = 6
 track = "sv"
-tags  = ["write-from-scratch", "cross-call-state", "lifecycle-hook"]
+tags  = ["write-from-scratch", "cross-call-state", "lifecycle-hook", "multi-constraint"]
 
 [[exercise]]
 slug  = "risc_v_hazard_which_register"

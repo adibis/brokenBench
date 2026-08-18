@@ -226,7 +226,7 @@ looks like a tooling quirk rather than the intended lesson:
   almost immediately (confirmed: call 2 of 40, 16-value domain) instead of
   only after the full domain is exhausted. Use a plain `rand` field plus a
   used-value queue (`inside {}`) for "don't repeat a used ID" instead --
-  see `unique_ids_across_calls`.
+  see `tagged_frame_sequence`.
 - **Indexing a non-`rand` array by a `rand` variable inside a constraint
   crashes the SMT solver outright**, not a graceful solve failure --
   `bit used[16]; constraint c { !used[id]; }` (`id` is `rand`) produces
