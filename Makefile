@@ -4,6 +4,10 @@ PYTHON         := python3
 VERILATOR      := verilator
 VERIBLE_FORMAT := verible-verilog-format
 VFLAGS         := --binary --timing -j 0 -Wno-fatal -Wno-IMPLICITSTATIC
+# uvm/ and csr/ exercises need this compiled ahead of the exercise file itself
+# (matching Verilator's own t_uvm_hello.v: "requires ... uvm_pkg.sv before
+# this filename") -- see vendor/uvm/README.md for where this file came from.
+UVM_PKG        := vendor/uvm/uvm_pkg.svh
 # z3's default invocation has no timeout: proving a genuinely-unsatisfiable
 # constraint set (several unpatched exercises are unsatisfiable by design)
 # can take far longer than finding a satisfying assignment does, and can
@@ -84,7 +88,9 @@ run:
 	name=$$(basename $$f .sv); \
 	mkdir -p $(BUILD_DIR)/$$name; \
 	echo "=== $$name ==="; \
-	$(VERILATOR) $(VFLAGS) $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
+	uvm_files=""; \
+	case "$$f" in exercises/uvm/*|exercises/csr/*) uvm_files="$(UVM_PKG)" ;; esac; \
+	$(VERILATOR) $(VFLAGS) $$uvm_files $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
 	build_ok=$$?; \
 	if [ $$build_ok -ne 0 ]; then \
 		grep -A4 "%Error" $(BUILD_DIR)/$$name/build.log || tail -20 $(BUILD_DIR)/$$name/build.log; \
@@ -194,7 +200,9 @@ check:
 		name=$$(basename $$f .sv); \
 		mkdir -p $(BUILD_DIR)/$$name; \
 		echo "=== [$$idx/$$total] $$name ==="; \
-		$(VERILATOR) $(VFLAGS) $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
+		uvm_files=""; \
+		case "$$f" in exercises/uvm/*|exercises/csr/*) uvm_files="$(UVM_PKG)" ;; esac; \
+		$(VERILATOR) $(VFLAGS) $$uvm_files $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
 		if [ $$? -ne 0 ]; then \
 			grep -A4 "%Error" $(BUILD_DIR)/$$name/build.log || tail -20 $(BUILD_DIR)/$$name/build.log; \
 			echo ""; \

@@ -20,8 +20,23 @@ ROOT = os.path.join(os.path.dirname(__file__), "..")
 FIND_EXERCISE = os.path.join(os.path.dirname(__file__), "find_exercise.py")
 PATCH_ALL = os.path.join(os.path.dirname(__file__), "patch_all.py")
 VFLAGS = ["--binary", "--timing", "-j", "0", "-Wno-fatal", "-Wno-IMPLICITSTATIC"]
+# uvm/ and csr/ exercises need this compiled ahead of the exercise file itself --
+# see the Makefile's own UVM_PKG comment and vendor/uvm/README.md.
+UVM_PKG = os.path.join(ROOT, "vendor", "uvm", "uvm_pkg.svh")
+
+
+def uvm_files_for(manifest_path):
+    if manifest_path.startswith("exercises/uvm/") or manifest_path.startswith("exercises/csr/"):
+        return [UVM_PKG]
+    return []
+
 
 COMPILE_TIMEOUT_S = 60
+# See check_unpatched_fails.py's matching comment -- uvm/csr exercises compile
+# the whole vendored UVM package from scratch every run, with no build cache
+# between invocations, so this is a genuinely bigger compile than any pure-SV
+# exercise. Observed ~20s locally; leaving real margin for a slower CI runner.
+UVM_COMPILE_TIMEOUT_S = 180
 # See check_unpatched_fails.py's SIM_TIMEOUT_S/SIM_ENV comments -- the
 # 10-20k iteration statistics-gathering exercises are genuinely slow via
 # Verilator's bit-by-bit SMT solve, patched or not (being satisfiable
@@ -77,14 +92,16 @@ def main():
             if e.get("requires_patched_verilator"):
                 continue
             sv_path = os.path.join(scratch, e["path"])
+            extra_files = uvm_files_for(e["path"])
+            compile_timeout = UVM_COMPILE_TIMEOUT_S if extra_files else COMPILE_TIMEOUT_S
             with tempfile.TemporaryDirectory() as builddir:
                 try:
                     compile_result = subprocess.run(
-                        ["verilator"] + VFLAGS + [sv_path, "--top-module", "top", "-o", "sim",
-                                                   "-Mdir", builddir],
-                        capture_output=True, text=True, timeout=COMPILE_TIMEOUT_S)
+                        ["verilator"] + VFLAGS + extra_files
+                        + [sv_path, "--top-module", "top", "-o", "sim", "-Mdir", builddir],
+                        capture_output=True, text=True, timeout=compile_timeout)
                 except subprocess.TimeoutExpired:
-                    failures.append(f"{e['slug']}: compile timed out after {COMPILE_TIMEOUT_S}s")
+                    failures.append(f"{e['slug']}: compile timed out after {compile_timeout}s")
                     continue
                 if compile_result.returncode != 0:
                     failures.append(f"{e['slug']}: patched version fails to compile:\n"

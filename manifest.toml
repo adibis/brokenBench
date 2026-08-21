@@ -159,3 +159,10 @@ tags  = ["tool-limitation", "write-from-scratch", "requires-patched-verilator", 
 # merging upstream, re-verify directly first.
 requires_patched_verilator = true
 verilator_broken_as_of     = "5.050"
+
+[[exercise]]
+slug  = "agent_ids_via_config_db"
+path  = "exercises/uvm/agent_ids_via_config_db.sv"
+order = 1
+track = "uvm"
+tags  = ["config-db", "multi-instance", "fork-join"]

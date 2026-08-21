@@ -24,8 +24,27 @@ import tempfile
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 FIND_EXERCISE = os.path.join(os.path.dirname(__file__), "find_exercise.py")
 VFLAGS = ["--binary", "--timing", "-j", "0", "-Wno-fatal", "-Wno-IMPLICITSTATIC"]
+# uvm/ and csr/ exercises need this compiled ahead of the exercise file itself --
+# see the Makefile's own UVM_PKG comment and vendor/uvm/README.md.
+UVM_PKG = os.path.join(ROOT, "vendor", "uvm", "uvm_pkg.svh")
+
+
+def uvm_files_for(sv_path):
+    # sv_path here is already joined with ROOT (an absolute-ish path), so this
+    # has to check for the substring, not assume "exercises/uvm/..." is the
+    # start of the string.
+    if "exercises/uvm/" in sv_path or "exercises/csr/" in sv_path:
+        return [UVM_PKG]
+    return []
 
 COMPILE_TIMEOUT_S = 60
+# uvm/ and csr/ exercises compile the whole ~47k-line vendored UVM package
+# from scratch every run -- there's no build cache between invocations
+# (run_one uses a fresh tempfile.TemporaryDirectory() each time), so this
+# is a genuinely much bigger compile than any pure-SV exercise, not a
+# fluke. Observed ~20s locally; leaving real margin above that for a
+# slower CI runner while still catching a genuine hang.
+UVM_COMPILE_TIMEOUT_S = 180
 # Verilator's SMT-backed constrained-random path solves bit-by-bit over a
 # single long-lived z3 session, not natively -- even a trivial range
 # constraint goes through hundreds of interactive solver queries per
@@ -57,14 +76,16 @@ def all_exercises():
 
 def run_one(sv_path):
     name = os.path.splitext(os.path.basename(sv_path))[0]
+    extra_files = uvm_files_for(sv_path)
+    compile_timeout = UVM_COMPILE_TIMEOUT_S if extra_files else COMPILE_TIMEOUT_S
     with tempfile.TemporaryDirectory() as builddir:
         try:
             compile_result = subprocess.run(
-                ["verilator"] + VFLAGS + [sv_path, "--top-module", "top", "-o", "sim",
-                                           "-Mdir", builddir],
-                capture_output=True, text=True, timeout=COMPILE_TIMEOUT_S)
+                ["verilator"] + VFLAGS + extra_files
+                + [sv_path, "--top-module", "top", "-o", "sim", "-Mdir", builddir],
+                capture_output=True, text=True, timeout=compile_timeout)
         except subprocess.TimeoutExpired:
-            return name, False, f"COMPILE TIMED OUT after {COMPILE_TIMEOUT_S}s"
+            return name, False, f"COMPILE TIMED OUT after {compile_timeout}s"
         if compile_result.returncode != 0:
             return name, True, "compile error"
         try:
