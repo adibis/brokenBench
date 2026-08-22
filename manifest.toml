@@ -187,3 +187,10 @@ path  = "exercises/uvm/scoreboard_correlate_by_id.sv"
 order = 4
 track = "uvm"
 tags  = ["write-from-scratch", "scoreboard", "analysis-port"]
+
+[[exercise]]
+slug  = "deferred_subscriber_needs_clone"
+path  = "exercises/uvm/deferred_subscriber_needs_clone.sv"
+order = 5
+track = "uvm"
+tags  = ["analysis-port", "clone", "do_copy"]
