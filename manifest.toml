@@ -166,3 +166,10 @@ path  = "exercises/uvm/agent_ids_via_config_db.sv"
 order = 1
 track = "uvm"
 tags  = ["config-db", "multi-instance", "fork-join"]
+
+[[exercise]]
+slug  = "factory_override"
+path  = "exercises/uvm/factory_override.sv"
+order = 2
+track = "uvm"
+tags  = ["factory-override", "phase-ordering"]

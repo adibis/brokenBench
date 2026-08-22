@@ -1,0 +1,31 @@
+diff --git a/exercises/uvm/factory_override.sv b/exercises/uvm/factory_override.sv
+index e422ce8..ccb5f39 100644
+--- a/exercises/uvm/factory_override.sv
++++ b/exercises/uvm/factory_override.sv
+@@ -50,9 +50,6 @@ class reg_env extends uvm_component;
+   endfunction
+ endclass
+ 
+-// ---------------------------------------------------------------------------------------------
+-// override the base_write_driver with error_inject_write_driver here.
+-// ---------------------------------------------------------------------------------------------
+ class test extends uvm_test;
+   `uvm_component_utils(test)
+ 
+@@ -63,13 +60,13 @@ class test extends uvm_test;
+   endfunction
+ 
+   function void build_phase(uvm_phase phase);
++    uvm_factory factory = uvm_factory::get();
+     super.build_phase(phase);
++    factory.set_type_override_by_type(base_write_driver::get_type(),
++                                      error_inject_write_driver::get_type());
+     env = reg_env::type_id::create("env", this);
+   endfunction
+ 
+-  virtual function void connect_phase(uvm_phase phase);
+-  endfunction
+-
+   virtual task run_phase(uvm_phase phase);
+     phase.raise_objection(this);
+     #1;
