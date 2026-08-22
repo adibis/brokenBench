@@ -1,0 +1,13 @@
+diff --git a/exercises/uvm/config_override_loses_to_legacy_default.sv b/exercises/uvm/config_override_loses_to_legacy_default.sv
+index 335b946..928cee7 100644
+--- a/exercises/uvm/config_override_loses_to_legacy_default.sv
++++ b/exercises/uvm/config_override_loses_to_legacy_default.sv
+@@ -50,7 +50,7 @@ class test extends uvm_test;
+     a = chan_agent::type_id::create("a", this);
+     // broad default for the whole agent subtree, predates this test
+     uvm_config_db#(int)::set(this, "a", "channel_id", 999);
+-    uvm_config_db#(int)::set(a, "", "channel_id", 7);
++    uvm_config_db#(int)::set(this, "a", "channel_id", 7);
+   endfunction
+ 
+   virtual task run_phase(uvm_phase phase);

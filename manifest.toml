@@ -194,3 +194,10 @@ path  = "exercises/uvm/deferred_subscriber_needs_clone.sv"
 order = 5
 track = "uvm"
 tags  = ["analysis-port", "clone", "do_copy"]
+
+[[exercise]]
+slug  = "config_override_loses_to_legacy_default"
+path  = "exercises/uvm/config_override_loses_to_legacy_default.sv"
+order = 6
+track = "uvm"
+tags  = ["config-db", "precedence"]
