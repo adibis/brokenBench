@@ -173,3 +173,10 @@ path  = "exercises/uvm/factory_override.sv"
 order = 2
 track = "uvm"
 tags  = ["factory-override", "phase-ordering"]
+
+[[exercise]]
+slug  = "coordinated_channel_write"
+path  = "exercises/uvm/coordinated_channel_write.sv"
+order = 3
+track = "uvm"
+tags  = ["write-from-scratch", "virtual-sequencer", "fork-join"]

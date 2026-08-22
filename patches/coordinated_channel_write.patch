@@ -1,0 +1,30 @@
+diff --git a/exercises/uvm/coordinated_channel_write.sv b/exercises/uvm/coordinated_channel_write.sv
+index 5dbf832..289a20e 100644
+--- a/exercises/uvm/coordinated_channel_write.sv
++++ b/exercises/uvm/coordinated_channel_write.sv
+@@ -107,7 +107,24 @@ class coord_vseq extends uvm_sequence #(item);
+   endfunction
+ 
+   virtual task body();
+-    // write your virtual sequence body here
++    item it_a, it_b;
++    event a_done;
++    fork
++      begin
++        it_a = item::type_id::create("it_a");
++        it_a.tag = $urandom;
++        start_item(it_a, -1, p_sequencer.chan_a_sqr);
++        finish_item(it_a);
++        ->a_done;
++      end
++      begin
++        @a_done;
++        it_b = item::type_id::create("it_b");
++        it_b.tag = p_sequencer.chan_a_drv.last_tag;
++        start_item(it_b, -1, p_sequencer.chan_b_sqr);
++        finish_item(it_b);
++      end
++    join
+   endtask
+ endclass
+ 
