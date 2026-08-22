@@ -1,0 +1,42 @@
+diff --git a/exercises/uvm/scoreboard_correlate_by_id.sv b/exercises/uvm/scoreboard_correlate_by_id.sv
+index 0578cac..b31e3a1 100644
+--- a/exercises/uvm/scoreboard_correlate_by_id.sv
++++ b/exercises/uvm/scoreboard_correlate_by_id.sv
+@@ -65,8 +65,35 @@ class sb extends uvm_component;
+     actual_export   = new("actual_export", this);
+   endfunction
+ 
+-  // write write_expected(), write_actual(), pending_count(), and whatever internal state you need,
+-  // below
++  xaction pending_expected[int][$];
++  xaction pending_actual[int]  [$];
++
++  virtual function void write_expected(xaction t);
++    if (pending_actual.exists(t.id) && pending_actual[t.id].size() > 0) begin
++      xaction other = pending_actual[t.id].pop_front();
++      if (other.data == t.data) match_count++;
++      else mismatch_count++;
++    end else begin
++      pending_expected[t.id].push_back(t);
++    end
++  endfunction
++
++  virtual function void write_actual(xaction t);
++    if (pending_expected.exists(t.id) && pending_expected[t.id].size() > 0) begin
++      xaction other = pending_expected[t.id].pop_front();
++      if (other.data == t.data) match_count++;
++      else mismatch_count++;
++    end else begin
++      pending_actual[t.id].push_back(t);
++    end
++  endfunction
++
++  virtual function int pending_count();
++    int total;
++    foreach (pending_expected[id]) total += pending_expected[id].size();
++    foreach (pending_actual[id]) total += pending_actual[id].size();
++    return total;
++  endfunction
+ 
+ endclass
+ 

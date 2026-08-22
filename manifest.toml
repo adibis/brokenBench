@@ -180,3 +180,10 @@ path  = "exercises/uvm/coordinated_channel_write.sv"
 order = 3
 track = "uvm"
 tags  = ["write-from-scratch", "virtual-sequencer", "fork-join"]
+
+[[exercise]]
+slug  = "scoreboard_correlate_by_id"
+path  = "exercises/uvm/scoreboard_correlate_by_id.sv"
+order = 4
+track = "uvm"
+tags  = ["write-from-scratch", "scoreboard", "analysis-port"]
