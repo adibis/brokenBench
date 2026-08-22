@@ -161,32 +161,32 @@ requires_patched_verilator = true
 verilator_broken_as_of     = "5.050"
 
 [[exercise]]
-slug  = "agent_ids_via_config_db"
-path  = "exercises/uvm/agent_ids_via_config_db.sv"
-order = 1
-track = "uvm"
-tags  = ["config-db", "multi-instance", "fork-join"]
-
-[[exercise]]
 slug  = "factory_override"
 path  = "exercises/uvm/factory_override.sv"
-order = 2
+order = 1
 track = "uvm"
 tags  = ["factory-override", "phase-ordering"]
 
 [[exercise]]
-slug  = "coordinated_channel_write"
-path  = "exercises/uvm/coordinated_channel_write.sv"
-order = 3
+slug  = "error_path_double_drops_objection"
+path  = "exercises/uvm/error_path_double_drops_objection.sv"
+order = 2
 track = "uvm"
-tags  = ["write-from-scratch", "virtual-sequencer", "fork-join"]
+tags  = ["objections", "phase-ending", "error-path"]
 
 [[exercise]]
-slug  = "scoreboard_correlate_by_id"
-path  = "exercises/uvm/scoreboard_correlate_by_id.sv"
+slug  = "agent_ids_via_config_db"
+path  = "exercises/uvm/agent_ids_via_config_db.sv"
+order = 3
+track = "uvm"
+tags  = ["config-db", "multi-instance", "fork-join"]
+
+[[exercise]]
+slug  = "config_override_loses_to_legacy_default"
+path  = "exercises/uvm/config_override_loses_to_legacy_default.sv"
 order = 4
 track = "uvm"
-tags  = ["write-from-scratch", "scoreboard", "analysis-port"]
+tags  = ["config-db", "precedence"]
 
 [[exercise]]
 slug  = "deferred_subscriber_needs_clone"
@@ -196,15 +196,15 @@ track = "uvm"
 tags  = ["analysis-port", "clone", "do_copy"]
 
 [[exercise]]
-slug  = "config_override_loses_to_legacy_default"
-path  = "exercises/uvm/config_override_loses_to_legacy_default.sv"
+slug  = "scoreboard_correlate_by_id"
+path  = "exercises/uvm/scoreboard_correlate_by_id.sv"
 order = 6
 track = "uvm"
-tags  = ["config-db", "precedence"]
+tags  = ["write-from-scratch", "scoreboard", "analysis-port"]
 
 [[exercise]]
-slug  = "error_path_double_drops_objection"
-path  = "exercises/uvm/error_path_double_drops_objection.sv"
+slug  = "coordinated_channel_write"
+path  = "exercises/uvm/coordinated_channel_write.sv"
 order = 7
 track = "uvm"
-tags  = ["objections", "phase-ending", "error-path"]
+tags  = ["write-from-scratch", "virtual-sequencer", "fork-join"]

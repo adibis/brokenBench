@@ -22,10 +22,9 @@ it looks like it's testing. That last category shows up constantly across
 `exercises/`, not as an afterthought.
 
 The goal is a growing set of real interview and practice problems across
-SystemVerilog, UVM, and register-map (CSR) verification. SV is what's here
-today; UVM and CSR are next (see [Tracks](#tracks) below). SV coverage keeps
-growing too -- process control (`fork`/`join` and friends) isn't covered yet,
-for instance. Starting narrow and adding real gotchas over time beats trying
+SystemVerilog, UVM, and register-map (CSR) verification. SV and UVM are here
+today; CSR is next (see [Tracks](#tracks) below). Coverage in both keeps
+growing too. Starting narrow and adding real gotchas over time beats trying
 to launch complete.
 
 Companion to [chipdv.io](https://chipdv.io) -- real DV engineering, worked
@@ -68,9 +67,10 @@ Two top-level tracks, split by **audience**, not topic:
     `make list` shows the current set with tags; it changes as exercises get
     added, reworked, or retired, so that's the source of truth, not a list
     here that would just go stale.
-  - **`exercises/uvm/`** -- UVM component-level bugs: a broken scoreboard
-    comparison, a `uvm_config_db` type/path mismatch, phasing/objection
-    issues. (Not yet populated.)
+  - **`exercises/uvm/`** -- UVM component-level bugs: `config_db` scoping
+    and precedence, factory-override ordering, objection lifecycle errors,
+    analysis-port aliasing, scoreboard correlation design, virtual-sequencer
+    handshake timing. `make list TRACK=uvm` shows the current set with tags.
   - **`exercises/csr/`** -- `uvm_reg` / register-map exercises: access-policy
     mistakes, `mirror()` vs `desired()` confusion, predictor gaps. (Not yet
     populated.)
@@ -139,6 +139,45 @@ Tags in play right now:
 - **`best-practice`** -- a methodology habit or pitfall, not tied to one
   specific language construct.
 
+UVM-track tags:
+
+- **`config-db`** -- correctness hinges on `uvm_config_db::set()`/`get()`
+  semantics: scope-string matching, per-instance vs. wildcard paths, or
+  precedence when multiple `set()` calls collide.
+- **`precedence`** -- multiple `config_db` writes to the same field collide,
+  and which one wins isn't decided by which line runs last.
+- **`multi-instance`** -- the bug only shows up across several instances of
+  the same component type, not a single one in isolation.
+- **`fork-join`** -- correctness depends on `fork`/`join`/`join_none`
+  semantics: loop-variable capture, completion ordering, or which branch's
+  side effects are visible when.
+- **`factory-override`** -- the fix is a UVM factory type or instance
+  override (`set_type_override_by_type`/`set_inst_override_by_type`),
+  including getting its timing right.
+- **`phase-ordering`** -- correctness depends on which UVM phase something
+  runs in, or where within a phase a call has to land.
+- **`virtual-sequencer`** -- the fix runs through a virtual sequence
+  coordinating multiple real sequencers, not a single sequence talking to
+  one.
+- **`scoreboard`** -- the exercise is a scoreboard/checker component itself:
+  correlating, comparing, or counting transactions from one or more
+  analysis ports.
+- **`analysis-port`** -- correctness depends on `uvm_analysis_port`/
+  `uvm_analysis_imp` broadcast semantics -- who gets a handle to what, and
+  when.
+- **`clone`** -- the fix requires `clone()` to snapshot a `uvm_object`
+  before it's mutated or reused out from under a broadcast.
+- **`do_copy`** -- overriding `do_copy()` correctly (deep-copying the
+  fields that matter, calling `super.do_copy()`) is part of the fix, not
+  just calling `clone()`.
+- **`objections`** -- correctness depends on `raise_objection`/
+  `drop_objection` balance or timing -- an imbalance either ends a phase
+  early or fatals on over-drop.
+- **`phase-ending`** -- the bug is specifically about a phase ending too
+  early or too late.
+- **`error-path`** -- the bug only shows up on the failure/error branch,
+  not the happy path -- the error handling itself is what's wrong.
+
 **Work one exercise at a time:**
 
 ```bash
@@ -156,10 +195,10 @@ make check TRACK=sv EX=thermal_power_fuzzer      # resume partway through
 ```
 
 `TRACK` is one of `learn`, `sv`, `uvm`, `csr` -- matching `manifest.toml`'s
-`track` field for each exercise, not the directory layout directly. `sv`
-nests under `exercises/sv/` on disk purely for browsing; `uvm` and `csr`
-will nest the same way once those tracks have exercises in them (see
-[Tracks](#tracks)) -- either way, the manifest is what `make check`/
+`track` field for each exercise, not the directory layout directly. `sv` and
+`uvm` nest under `exercises/sv/` and `exercises/uvm/` on disk purely for
+browsing; `csr` will nest the same way once that track has exercises in it
+(see [Tracks](#tracks)) -- either way, the manifest is what `make check`/
 `make find` actually key off, not the directory layout.
 
 **Or skip the manual re-run loop entirely** -- `make watch` re-runs an
