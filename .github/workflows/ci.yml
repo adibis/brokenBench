@@ -15,13 +15,15 @@ jobs:
       - name: Download verible
         # Verible's release asset filenames embed the version tag (e.g.
         # verible-v0.0-4145-g7bd8603b-linux-static-x86_64.tar.gz), so there's
-        # no stable /latest/download/<name> URL to hardcode -- resolve the
-        # actual asset URL from the API instead.
+        # no stable /latest/download/<name> URL to hardcode -- resolve it via
+        # `gh release download` instead of an unauthenticated curl hit on the
+        # GitHub API, which shares a 60 req/hr rate limit across every job on
+        # the runner's IP range and started 403ing. `gh` is preinstalled on
+        # GitHub-hosted runners and authenticates with the job's own token.
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          url=$(curl -fsSL https://api.github.com/repos/chipsalliance/verible/releases/latest \
-            | grep -o '"browser_download_url": *"[^"]*linux-static-x86_64[^"]*"' \
-            | head -1 | sed -E 's/.*"(https[^"]+)"/\1/')
-          curl -fsSL -o verible.tar.gz "$url"
+          gh release download --repo chipsalliance/verible --pattern '*linux-static-x86_64*' --output verible.tar.gz
           mkdir -p verible && tar xzf verible.tar.gz -C verible --strip-components=1
           echo "$PWD/verible/bin" >> "$GITHUB_PATH"
       - name: Check formatting
