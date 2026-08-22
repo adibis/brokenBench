@@ -1,0 +1,13 @@
+diff --git a/exercises/uvm/error_path_double_drops_objection.sv b/exercises/uvm/error_path_double_drops_objection.sv
+index be1f043..0cad9ae 100644
+--- a/exercises/uvm/error_path_double_drops_objection.sv
++++ b/exercises/uvm/error_path_double_drops_objection.sv
+@@ -35,6 +35,8 @@ class test extends uvm_test;
+       if (is_bad) begin
+         bad_count++;
+         phase.drop_objection(this);
++        processed_count++;
++        continue;
+       end
+ 
+       processed_count++;

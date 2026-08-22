@@ -201,3 +201,10 @@ path  = "exercises/uvm/config_override_loses_to_legacy_default.sv"
 order = 6
 track = "uvm"
 tags  = ["config-db", "precedence"]
+
+[[exercise]]
+slug  = "error_path_double_drops_objection"
+path  = "exercises/uvm/error_path_double_drops_objection.sv"
+order = 7
+track = "uvm"
+tags  = ["objections", "phase-ending", "error-path"]
