@@ -1,0 +1,12 @@
+diff --git a/learn/uvm_objection_never_raised.sv b/learn/uvm_objection_never_raised.sv
+index 8873cef..7e5e339 100644
+--- a/learn/uvm_objection_never_raised.sv
++++ b/learn/uvm_objection_never_raised.sv
+@@ -31,6 +31,7 @@ class test extends uvm_test;
+   endfunction
+ 
+   virtual task run_phase(uvm_phase phase);
++    phase.raise_objection(this);
+     // ---------------------------------------------------------------------------------------------
+     // fix this: drop_objection() below has no matching raise_objection()
+     // ---------------------------------------------------------------------------------------------

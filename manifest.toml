@@ -89,6 +89,13 @@ track = "learn"
 tags  = ["config-db"]
 
 [[exercise]]
+slug  = "uvm_objection_never_raised"
+path  = "learn/uvm_objection_never_raised.sv"
+order = 13
+track = "learn"
+tags  = ["objections"]
+
+[[exercise]]
 slug  = "nonoverlapping_address_ranges"
 path  = "exercises/sv/nonoverlapping_address_ranges.sv"
 order = 1
