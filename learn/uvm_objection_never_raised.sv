@@ -43,7 +43,7 @@ class test extends uvm_test;
     // ---8<--- checker below: don't edit ---
     if (uvm_report_server::get_server().get_severity_count(UVM_FATAL) != 0) begin
       $display("FAIL: %0d UVM_FATAL(s) occurred during run_phase",
-                uvm_report_server::get_server().get_severity_count(UVM_FATAL));
+               uvm_report_server::get_server().get_severity_count(UVM_FATAL));
       $fatal(1);
     end
     if (recorded != 42) begin

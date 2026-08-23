@@ -121,7 +121,7 @@ class test extends uvm_test;
     // ---8<--- checker below: don't edit ---
     if (e.drv.received_count != 1) begin
       $display("FAIL: drv.received_count=%0d, want 1 -- was the sequence ever started?",
-                e.drv.received_count);
+               e.drv.received_count);
       $fatal(1);
     end
     if (e.drv.last_value != 42) begin
