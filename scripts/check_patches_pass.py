@@ -20,14 +20,15 @@ ROOT = os.path.join(os.path.dirname(__file__), "..")
 FIND_EXERCISE = os.path.join(os.path.dirname(__file__), "find_exercise.py")
 PATCH_ALL = os.path.join(os.path.dirname(__file__), "patch_all.py")
 VFLAGS = ["--binary", "--timing", "-j", "0", "-Wno-fatal", "-Wno-IMPLICITSTATIC"]
-# uvm/ and csr/ exercises need this compiled ahead of the exercise file itself --
+# Any exercise file that imports uvm_pkg needs this compiled ahead of it --
 # see the Makefile's own UVM_PKG comment and vendor/uvm/README.md.
 UVM_PKG = os.path.join(ROOT, "vendor", "uvm", "uvm_pkg.svh")
 
 
-def uvm_files_for(manifest_path):
-    if manifest_path.startswith("exercises/uvm/") or manifest_path.startswith("exercises/csr/"):
-        return [UVM_PKG]
+def uvm_files_for(sv_path):
+    with open(sv_path) as f:
+        if "import uvm_pkg" in f.read():
+            return [UVM_PKG]
     return []
 
 
@@ -92,7 +93,7 @@ def main():
             if e.get("requires_patched_verilator"):
                 continue
             sv_path = os.path.join(scratch, e["path"])
-            extra_files = uvm_files_for(e["path"])
+            extra_files = uvm_files_for(sv_path)
             compile_timeout = UVM_COMPILE_TIMEOUT_S if extra_files else COMPILE_TIMEOUT_S
             with tempfile.TemporaryDirectory() as builddir:
                 try:

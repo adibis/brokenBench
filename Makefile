@@ -89,7 +89,7 @@ run:
 	mkdir -p $(BUILD_DIR)/$$name; \
 	echo "=== $$name ==="; \
 	uvm_files=""; \
-	case "$$f" in exercises/uvm/*|exercises/csr/*) uvm_files="$(UVM_PKG)" ;; esac; \
+	grep -q '^import uvm_pkg' "$$f" && uvm_files="$(UVM_PKG)"; \
 	$(VERILATOR) $(VFLAGS) $$uvm_files $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
 	build_ok=$$?; \
 	if [ $$build_ok -ne 0 ]; then \
@@ -201,7 +201,7 @@ check:
 		mkdir -p $(BUILD_DIR)/$$name; \
 		echo "=== [$$idx/$$total] $$name ==="; \
 		uvm_files=""; \
-		case "$$f" in exercises/uvm/*|exercises/csr/*) uvm_files="$(UVM_PKG)" ;; esac; \
+		grep -q '^import uvm_pkg' "$$f" && uvm_files="$(UVM_PKG)"; \
 		$(VERILATOR) $(VFLAGS) $$uvm_files $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
 		if [ $$? -ne 0 ]; then \
 			grep -A4 "%Error" $(BUILD_DIR)/$$name/build.log || tail -20 $(BUILD_DIR)/$$name/build.log; \

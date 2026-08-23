@@ -24,17 +24,15 @@ import tempfile
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 FIND_EXERCISE = os.path.join(os.path.dirname(__file__), "find_exercise.py")
 VFLAGS = ["--binary", "--timing", "-j", "0", "-Wno-fatal", "-Wno-IMPLICITSTATIC"]
-# uvm/ and csr/ exercises need this compiled ahead of the exercise file itself --
+# Any exercise file that imports uvm_pkg needs this compiled ahead of it --
 # see the Makefile's own UVM_PKG comment and vendor/uvm/README.md.
 UVM_PKG = os.path.join(ROOT, "vendor", "uvm", "uvm_pkg.svh")
 
 
 def uvm_files_for(sv_path):
-    # sv_path here is already joined with ROOT (an absolute-ish path), so this
-    # has to check for the substring, not assume "exercises/uvm/..." is the
-    # start of the string.
-    if "exercises/uvm/" in sv_path or "exercises/csr/" in sv_path:
-        return [UVM_PKG]
+    with open(sv_path) as f:
+        if "import uvm_pkg" in f.read():
+            return [UVM_PKG]
     return []
 
 COMPILE_TIMEOUT_S = 60
