@@ -82,6 +82,13 @@ track = "learn"
 tags  = ["write-from-scratch", "array"]
 
 [[exercise]]
+slug  = "uvm_config_db_never_set"
+path  = "learn/uvm_config_db_never_set.sv"
+order = 12
+track = "learn"
+tags  = ["config-db"]
+
+[[exercise]]
 slug  = "nonoverlapping_address_ranges"
 path  = "exercises/sv/nonoverlapping_address_ranges.sv"
 order = 1
