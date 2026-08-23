@@ -1,0 +1,12 @@
+diff --git a/learn/uvm_sequence_never_started.sv b/learn/uvm_sequence_never_started.sv
+index 03ad6d2..b64d80f 100644
+--- a/learn/uvm_sequence_never_started.sv
++++ b/learn/uvm_sequence_never_started.sv
+@@ -116,6 +116,7 @@ class test extends uvm_test;
+     // ---------------------------------------------------------------------------------------------
+     // fix this: seq is created but never started on e.sqr
+     // ---------------------------------------------------------------------------------------------
++    seq.start(e.sqr);
+     #1;
+ 
+     // ---8<--- checker below: don't edit ---

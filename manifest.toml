@@ -96,6 +96,13 @@ track = "learn"
 tags  = ["objections"]
 
 [[exercise]]
+slug  = "uvm_sequence_never_started"
+path  = "learn/uvm_sequence_never_started.sv"
+order = 14
+track = "learn"
+tags  = ["sequence-start"]
+
+[[exercise]]
 slug  = "nonoverlapping_address_ranges"
 path  = "exercises/sv/nonoverlapping_address_ranges.sv"
 order = 1
