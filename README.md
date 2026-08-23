@@ -53,10 +53,12 @@ Two top-level tracks, split by **audience**, not topic:
 - **`learn/`** -- never touched SystemVerilog constraints before? Start
   here. Most exercises give you a spec and a stub to write against it --
   constraints, `foreach`/`implies`/`inside`, `dist` weights, array
-  reduction, and more; one (`rand_mode_leftover`) hands you real code with a
-  bug already in it instead. Fast feedback loop, one concept per exercise
-  (or a short, deliberate chain of them). `make list TRACK=learn` shows the
-  current set.
+  reduction, and more; a handful (`rand_mode_leftover` and the `uvm_*`
+  exercises) hand you real code with one call missing or misused instead --
+  a `config_db` that's never `set()`, a sequence that's created but never
+  `start()`ed, an objection dropped without a matching raise. Fast feedback
+  loop, one concept per exercise (or a short, deliberate chain of them).
+  `make list TRACK=learn` shows the current set.
 - **`exercises/`** -- interview-prep, organized by domain in subdirectories
   (splitting *this* level by audience wouldn't make sense -- domain is what
   actually changes here; difficulty is implicit in each track's `order`,
@@ -177,6 +179,9 @@ UVM-track tags:
   early or too late.
 - **`error-path`** -- the bug only shows up on the failure/error branch,
   not the happy path -- the error handling itself is what's wrong.
+- **`sequence-start`** -- a `uvm_sequence` is built correctly but the fix is
+  about actually running it -- `body()` never executes until something
+  calls `.start(sequencer)` on the sequence object.
 
 **Work one exercise at a time:**
 
