@@ -1,0 +1,28 @@
+--- a/exercises/csr/uvm_mem_needs_a_shadow_model.sv	2026-10-13 15:18:53
++++ b/exercises/csr/uvm_mem_needs_a_shadow_model.sv	2026-10-13 15:18:53
+@@ -52,6 +52,8 @@
+   int unsigned match_count    = 0;
+   int unsigned mismatch_count = 0;
+ 
++  bit [31:0] expected[bit [31:0]];
++
+   function new(string name, uvm_component parent = null);
+     super.new(name, parent);
+   endfunction
+@@ -61,8 +63,14 @@
+     ap_imp = new("ap_imp", this);
+   endfunction
+ 
+-  // write write(mem_item it), and whatever member state it needs, below
+-
++  function void write(mem_item it);
++    if (it.is_read) begin
++      if (expected.exists(it.addr) && expected[it.addr] == it.data) match_count++;
++      else mismatch_count++;
++    end else begin
++      expected[it.addr] = it.data;
++    end
++  endfunction
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

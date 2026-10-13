@@ -22,10 +22,10 @@ it looks like it's testing. That last category shows up constantly across
 `exercises/`, not as an afterthought.
 
 The goal is a growing set of real interview and practice problems across
-SystemVerilog, UVM, and register-map (CSR) verification. SV and UVM are here
-today; CSR is next (see [Tracks](#tracks) below). Coverage in both keeps
-growing too. Starting narrow and adding real gotchas over time beats trying
-to launch complete.
+SystemVerilog, UVM, and register-map (CSR) verification. All three tracks are
+underway (see [Tracks](#tracks) below); CSR is the newest and smallest of the
+three. Coverage in all of them keeps growing. Starting narrow and adding real
+gotchas over time beats trying to launch complete.
 
 Companion to [chipdv.io](https://chipdv.io) -- real DV engineering, worked
 all the way through, not tutorials. A full multi-file testbench (broken RTL
@@ -73,9 +73,10 @@ Two top-level tracks, split by **audience**, not topic:
     and precedence, factory-override ordering, objection lifecycle errors,
     analysis-port aliasing, scoreboard correlation design, virtual-sequencer
     handshake timing. `make list TRACK=uvm` shows the current set with tags.
-  - **`exercises/csr/`** -- `uvm_reg` / register-map exercises: access-policy
-    mistakes, `mirror()` vs `desired()` confusion, predictor gaps. (Not yet
-    populated.)
+  - **`exercises/csr/`** -- `uvm_reg` / register-map exercises: `uvm_mem`'s
+    missing mirror state, predictor/mirror synchronization gaps, access-policy
+    mistakes, coverage sampling that silently never fires. `make list
+    TRACK=csr` shows the current set with tags.
 
 ## Requirements
 
@@ -182,6 +183,13 @@ UVM-track tags:
 - **`sequence-start`** -- a `uvm_sequence` is built correctly but the fix is
   about actually running it -- `body()` never executes until something
   calls `.start(sequencer)` on the sequence object.
+
+CSR-track tags:
+
+- **`mem-model`** -- correctness depends on knowing what `uvm_mem` does and
+  doesn't track for you -- unlike `uvm_reg`, it has no mirror/desired state
+  at all; any "what should this address currently hold" has to be modeled
+  by hand.
 
 **Work one exercise at a time:**
 
@@ -313,7 +321,9 @@ looks like a tooling quirk rather than the intended lesson:
 - **A `rand`-sized dynamic array combined with a `.sum()`/`.product()`
   reduction constraint over its own contents never solves**, even with
   explicit `solve ... before` ordering hints. The real fix is pinning the
-  array's size, not a smarter ordering hint. Not built into an exercise.
+  array's size, not a smarter ordering hint. Filed upstream as
+  [verilator/verilator#8195](https://github.com/verilator/verilator/issues/8195).
+  Not built into an exercise.
 - **`randomize(field)` does not hold other `rand` fields as state**, contrary
   to documented LRM behavior for single-variable randomization -- calling
   it re-randomizes the whole object regardless of which field was named.
