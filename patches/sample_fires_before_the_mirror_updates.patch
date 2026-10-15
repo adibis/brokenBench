@@ -1,0 +1,18 @@
+--- a/exercises/csr/sample_fires_before_the_mirror_updates.sv	2026-10-14 22:13:08
++++ b/exercises/csr/sample_fires_before_the_mirror_updates.sv	2026-10-14 22:13:08
+@@ -55,9 +55,12 @@
+     val.configure(this, 8, 0, "RW", 0, 8'h0, 1, 0, 1);
+   endfunction
+ 
+-  // override sample(uvm_reg_data_t data, uvm_reg_data_t byte_en, bit is_read, uvm_reg_map map)
+-  // below
+-
++  protected virtual function void sample (uvm_reg_data_t data, uvm_reg_data_t byte_en, bit is_read,
++                                          uvm_reg_map map);
++    uvm_reg_data_t want = expected_q.pop_front();
++    if (data == want) match_count++;
++    else mismatch_count++;
++  endfunction
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

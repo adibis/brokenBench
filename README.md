@@ -190,6 +190,13 @@ CSR-track tags:
   doesn't track for you -- unlike `uvm_reg`, it has no mirror/desired state
   at all; any "what should this address currently hold" has to be modeled
   by hand.
+- **`coverage`** -- the fix is in a register/field coverage hook
+  (`sample()`/`sample_values()`) that's empty by default and has to be
+  overridden explicitly, or a generated coverage database stays empty
+  forever despite looking fully wired up.
+- **`mirror`** -- correctness depends on exactly when a register's mirror
+  value updates relative to some other hook or call -- not just whether a
+  mirror exists.
 
 **Work one exercise at a time:**
 

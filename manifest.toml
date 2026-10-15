@@ -236,3 +236,10 @@ path  = "exercises/csr/uvm_mem_needs_a_shadow_model.sv"
 order = 1
 track = "csr"
 tags  = ["write-from-scratch", "mem-model"]
+
+[[exercise]]
+slug  = "sample_fires_before_the_mirror_updates"
+path  = "exercises/csr/sample_fires_before_the_mirror_updates.sv"
+order = 2
+track = "csr"
+tags  = ["write-from-scratch", "coverage", "mirror"]
