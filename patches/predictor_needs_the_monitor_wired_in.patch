@@ -1,0 +1,14 @@
+--- a/exercises/csr/predictor_needs_the_monitor_wired_in.sv	2026-10-14 22:35:43
++++ b/exercises/csr/predictor_needs_the_monitor_wired_in.sv	2026-10-14 22:35:43
+@@ -170,8 +170,9 @@
+     drv.seq_item_port.connect(sqr.seq_item_export);
+     blk.default_map.set_sequencer(sqr, adapter);
+ 
+-    // wire predictor.map, predictor.adapter, and drv.ap -> predictor.bus_in below
+-
++    predictor.map     = blk.default_map;
++    predictor.adapter = adapter;
++    drv.ap.connect(predictor.bus_in);
+   endfunction
+ endclass
+ 

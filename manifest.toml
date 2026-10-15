@@ -250,3 +250,10 @@ path  = "exercises/csr/write_updates_the_mirror_even_when_dropped.sv"
 order = 3
 track = "csr"
 tags  = ["write-from-scratch", "mirror", "best-practice"]
+
+[[exercise]]
+slug  = "predictor_needs_the_monitor_wired_in"
+path  = "exercises/csr/predictor_needs_the_monitor_wired_in.sv"
+order = 4
+track = "csr"
+tags  = ["predictor", "mirror", "analysis-port"]

@@ -197,6 +197,9 @@ CSR-track tags:
 - **`mirror`** -- correctness depends on exactly when a register's mirror
   value updates relative to some other hook or call -- not just whether a
   mirror exists.
+- **`predictor`** -- the fix involves wiring or configuring a
+  `uvm_reg_predictor` -- `.map`/`.adapter` set and its `bus_in` analysis
+  port actually connected, not just one or the other.
 
 **Work one exercise at a time:**
 
