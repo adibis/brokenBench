@@ -406,6 +406,15 @@ looks like a tooling quirk rather than the intended lesson:
   Homebrew Verilator (35.8%/44.7% against a 40%/40% target) -- reliable
   enough to fool a spot check, not reliable enough to trust. The exercise
   routes around it with a plain-`bit` pick mapped onto the enum afterward.
+- **A class-embedded `covergroup`'s `get_coverage()` returns 0.0 regardless
+  of how many samples actually hit a bin** -- confirmed on 5.050, with and
+  without the `--coverage` flag, both module-scope and class-scope
+  covergroups, `option.per_instance` set or not. Nothing errors; the
+  simulation just reports no coverage ever, permanently. Not built into its
+  own exercise; this is why `sample_fires_before_the_mirror_updates` tracks
+  what `uvm_reg::sample()` is told via a plain queue instead of a real SV
+  covergroup -- native functional coverage isn't trustworthy enough here to
+  build a checker against.
 
 This list is Verilator-specific gaps only. For general SystemVerilog
 language semantics that are just as easy to mistake for a tool bug --
