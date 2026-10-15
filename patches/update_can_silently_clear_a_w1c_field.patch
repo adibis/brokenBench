@@ -1,0 +1,18 @@
+--- a/exercises/csr/update_can_silently_clear_a_w1c_field.sv	2026-10-14 22:49:26
++++ b/exercises/csr/update_can_silently_clear_a_w1c_field.sv	2026-10-14 22:49:26
+@@ -37,8 +37,13 @@
+     super.new(name, parent);
+   endfunction
+ 
+-  // write enable_device(uvm_reg r, uvm_reg_field enable, uvm_reg_map map) below
+-
++  task enable_device(uvm_reg r, uvm_reg_field enable, uvm_reg_map map);
++    uvm_status_e status;
++    bit [31:0] rdata;
++    r.read(status, rdata, UVM_FRONTDOOR, map, null);
++    enable.set(1);
++    r.update(status, UVM_FRONTDOOR, map, null);
++  endtask
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---

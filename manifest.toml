@@ -257,3 +257,10 @@ path  = "exercises/csr/predictor_needs_the_monitor_wired_in.sv"
 order = 4
 track = "csr"
 tags  = ["predictor", "mirror", "analysis-port"]
+
+[[exercise]]
+slug  = "update_can_silently_clear_a_w1c_field"
+path  = "exercises/csr/update_can_silently_clear_a_w1c_field.sv"
+order = 5
+track = "csr"
+tags  = ["write-from-scratch", "w1c", "access-policy"]

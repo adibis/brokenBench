@@ -200,6 +200,13 @@ CSR-track tags:
 - **`predictor`** -- the fix involves wiring or configuring a
   `uvm_reg_predictor` -- `.map`/`.adapter` set and its `bus_in` analysis
   port actually connected, not just one or the other.
+- **`w1c`** -- correctness depends on write-one-to-clear field semantics --
+  `update()`/`XupdateX()` behavior for a W1C field is not the same as for
+  a plain RW one, and the difference bites hardest when it's a field
+  nobody meant to touch at all.
+- **`access-policy`** -- the fix depends on a `uvm_reg_field` access-policy
+  string (`RW`, `W1C`, `RC`, and friends) actually meaning something
+  specific, not just being a label.
 
 **Work one exercise at a time:**
 
