@@ -243,3 +243,10 @@ path  = "exercises/csr/sample_fires_before_the_mirror_updates.sv"
 order = 2
 track = "csr"
 tags  = ["write-from-scratch", "coverage", "mirror"]
+
+[[exercise]]
+slug  = "write_updates_the_mirror_even_when_dropped"
+path  = "exercises/csr/write_updates_the_mirror_even_when_dropped.sv"
+order = 3
+track = "csr"
+tags  = ["write-from-scratch", "mirror", "best-practice"]

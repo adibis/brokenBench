@@ -1,0 +1,19 @@
+--- a/exercises/csr/write_updates_the_mirror_even_when_dropped.sv	2026-10-14 22:24:44
++++ b/exercises/csr/write_updates_the_mirror_even_when_dropped.sv	2026-10-14 22:24:44
+@@ -44,8 +44,14 @@
+     super.new(name, parent);
+   endfunction
+ 
+-  // write verify_write(uvm_reg r, uvm_reg_map map, bit [7:0] data) below
+-
++  task verify_write(uvm_reg r, uvm_reg_map map, bit [7:0] data);
++    uvm_status_e status;
++    bit [31:0] rdata;
++    r.write(status, data, UVM_FRONTDOOR, map, null);
++    r.read(status, rdata, UVM_FRONTDOOR, map, null);
++    if (rdata[7:0] == data) confirmed_count++;
++    else dropped_count++;
++  endtask
+ endclass
+ 
+ // ---8<--- checker below: don't edit ---
