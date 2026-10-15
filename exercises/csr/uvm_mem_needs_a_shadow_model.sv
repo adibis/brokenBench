@@ -1,18 +1,21 @@
 // =================================================================================================
-// write mem_checker so it catches a real address-decode corruption bug -- uvm_mem itself keeps
-// no record of what any address should currently hold
+// extend uvm_mem so it catches a real address-decode corruption bug -- the base class keeps no
+// record of what any address should currently hold
 // =================================================================================================
 //
 // uvm_reg has a mirror: ask a field what it should currently read, and the register layer answers
-// from its own tracked state. uvm_mem has no such thing. A uvm_mem object is a placeholder for an
-// address range and nothing else -- every write/read just moves data across the bus layer, and the
-// instant it's done, nothing in the register model remembers what any given address was last set
-// to. If a scoreboard needs to know whether a later read came back correct, that expected state has
-// to be built by hand, keyed by address, from scratch.
+// from its own tracked state. uvm_mem has no such thing -- it's a placeholder for an address range
+// and nothing else. Every write/read just moves data across the bus layer, and the instant it's
+// done, nothing in the base class remembers what any given address was last set to. If something
+// needs to know whether a later read came back correct, that expected state has to be built by
+// hand, keyed by address, from scratch.
 //
-// `mem_checker` sits on the driver's analysis port and sees every completed access, write and read
-// alike, in the order they actually happen on the bus. Implement `write(mem_item it)` (and whatever
-// member state you need) so that:
+// uvm_mem does give you a real hook for this: `post_write(uvm_reg_item rw)` and
+// `post_read(uvm_reg_item rw)` are both called automatically, from inside the base class's own
+// do_write()/do_read() tasks, after every real access through this memory -- frontdoor or back,
+// whatever map it came through. `rw.get_offset()` is the address; `rw.get_value(0)` is the data
+// that was just written, or just read back. Override both (and add whatever member state you need)
+// on `tracked_mem` so that:
 //
 //   1. A write at some address records what that address should read back as -- and that recorded
 //      value survives any number of *other* addresses being written in between, right up until a
@@ -27,10 +30,26 @@
 // Target: after the exact access sequence below the checker marker runs, `match_count` must be 4
 // and `mismatch_count` must be 1 -- not merely nonzero. One of those five reads really does land on
 // corrupted data (a real address-decode bug in the driver, not a bug in your checker), and your
-// checker has to be the thing that catches it.
+// override has to be the thing that catches it.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;
+
+class tracked_mem extends uvm_mem;
+
+  int unsigned match_count    = 0;
+  int unsigned mismatch_count = 0;
+
+  function new(string name, longint unsigned size, int unsigned n_bits, string access = "RW");
+    super.new(name, size, n_bits, access);
+  endfunction
+
+  // override post_write(uvm_reg_item rw) and post_read(uvm_reg_item rw), and whatever member
+  // state they need, below
+
+endclass
+
+// ---8<--- checker below: don't edit ---
 
 class mem_item extends uvm_sequence_item;
   `uvm_object_utils(mem_item)
@@ -44,29 +63,6 @@ class mem_item extends uvm_sequence_item;
   endfunction
 endclass
 
-class mem_checker extends uvm_component;
-  `uvm_component_utils(mem_checker)
-
-  uvm_analysis_imp#(mem_item, mem_checker) ap_imp;
-
-  int unsigned match_count    = 0;
-  int unsigned mismatch_count = 0;
-
-  function new(string name, uvm_component parent = null);
-    super.new(name, parent);
-  endfunction
-
-  function void build_phase(uvm_phase phase);
-    super.build_phase(phase);
-    ap_imp = new("ap_imp", this);
-  endfunction
-
-  // write write(mem_item it), and whatever member state it needs, below
-
-endclass
-
-// ---8<--- checker below: don't edit ---
-
 class mem_sequencer extends uvm_sequencer #(mem_item);
   `uvm_component_utils(mem_sequencer)
 
@@ -78,8 +74,6 @@ endclass
 class mem_driver extends uvm_driver #(mem_item);
   `uvm_component_utils(mem_driver)
 
-  uvm_analysis_port #(mem_item) ap;
-
   // 16 real storage locations, decoded off addr[3:0] only -- a classic incomplete
   // address-decode bug. Any address with the same low 4 bits aliases the same word.
   bit [31:0] storage[0:15];
@@ -88,18 +82,12 @@ class mem_driver extends uvm_driver #(mem_item);
     super.new(name, parent);
   endfunction
 
-  function void build_phase(uvm_phase phase);
-    super.build_phase(phase);
-    ap = new("ap", this);
-  endfunction
-
   virtual task run_phase(uvm_phase phase);
     mem_item it;
     forever begin
       seq_item_port.get_next_item(it);
       if (it.is_read) it.data = storage[it.addr[3:0]];
       else storage[it.addr[3:0]] = it.data;
-      ap.write(it);
       seq_item_port.item_done();
     end
   endtask
@@ -135,7 +123,7 @@ endclass
 class mem_block extends uvm_reg_block;
   `uvm_object_utils(mem_block)
 
-  uvm_mem m;
+  tracked_mem m;
 
   function new(string name = "mem_block");
     super.new(name, UVM_NO_COVERAGE);
@@ -157,7 +145,6 @@ class env extends uvm_component;
   mem_sequencer sqr;
   mem_driver    drv;
   mem_adapter   adapter;
-  mem_checker   chk;
 
   function new(string name, uvm_component parent = null);
     super.new(name, parent);
@@ -171,13 +158,11 @@ class env extends uvm_component;
     sqr     = mem_sequencer::type_id::create("sqr", this);
     drv     = mem_driver::type_id::create("drv", this);
     adapter = mem_adapter::type_id::create("adapter");
-    chk     = mem_checker::type_id::create("chk", this);
   endfunction
 
   function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
     drv.seq_item_port.connect(sqr.seq_item_export);
-    drv.ap.connect(chk.ap_imp);
     blk.default_map.set_sequencer(sqr, adapter);
   endfunction
 endclass
@@ -232,12 +217,12 @@ class test extends uvm_test;
 
     #1;
 
-    if (e.chk.match_count != 4) begin
-      $display("FAIL: match_count=%0d, want 4", e.chk.match_count);
+    if (e.blk.m.match_count != 4) begin
+      $display("FAIL: match_count=%0d, want 4", e.blk.m.match_count);
       $fatal(1);
     end
-    if (e.chk.mismatch_count != 1) begin
-      $display("FAIL: mismatch_count=%0d, want 1", e.chk.mismatch_count);
+    if (e.blk.m.mismatch_count != 1) begin
+      $display("FAIL: mismatch_count=%0d, want 1", e.blk.m.mismatch_count);
       $fatal(1);
     end
     $display("PASS: match_count=4, mismatch_count=1 -- shadow model caught the real corruption");
