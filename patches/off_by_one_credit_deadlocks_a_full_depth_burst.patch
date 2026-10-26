@@ -1,0 +1,11 @@
+--- a/exercises/sv/off_by_one_credit_deadlocks_a_full_depth_burst.sv	2026-10-26 12:17:10
++++ b/exercises/sv/off_by_one_credit_deadlocks_a_full_depth_burst.sv	2026-10-26 12:17:10
+@@ -27,7 +27,7 @@
+   int flits_received;
+ 
+   function new();
+-    credits        = DEPTH - 1;  // 15
++    credits        = DEPTH;  // 16
+     flits_received = 0;
+   endfunction
+ 

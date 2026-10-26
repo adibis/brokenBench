@@ -189,6 +189,13 @@ track = "sv"
 tags  = ["best-practice", "multi-constraint", "plausible-pass"]
 
 [[exercise]]
+slug  = "off_by_one_credit_deadlocks_a_full_depth_burst"
+path  = "exercises/sv/off_by_one_credit_deadlocks_a_full_depth_burst.sv"
+order = 12
+track = "sv"
+tags  = ["best-practice", "plausible-pass"]
+
+[[exercise]]
 slug  = "factory_override"
 path  = "exercises/uvm/factory_override.sv"
 order = 1
