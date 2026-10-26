@@ -1,13 +1,11 @@
---- a/exercises/sv/unchecked_randomize_hides_unsat_conflict.sv	2026-10-26 08:26:08
-+++ b/exercises/sv/unchecked_randomize_hides_unsat_conflict.sv	2026-10-26 08:26:08
-@@ -28,8 +28,8 @@
+--- a/exercises/sv/unchecked_randomize_hides_unsat_conflict.sv	2026-10-26 09:18:22
++++ b/exercises/sv/unchecked_randomize_hides_unsat_conflict.sv	2026-10-26 09:18:36
+@@ -33,7 +33,7 @@
  
    constraint c_region {addr inside {[32'h1000 : 32'h1FFF]};}
    constraint c_no_wrap {
 -    addr + len <= 32'h2000;
--  }  // window ceiling -- last updated before the min-length bump
 +    addr + len <= 32'h3000;
-+  }  // window ceiling, widened for the new minimum length
+   }  // must not run past the end of the underlying buffer
    constraint c_min_len {len >= 16'd4097;}  // minimum burst granularity, per the latest spec rev
  endclass
- 

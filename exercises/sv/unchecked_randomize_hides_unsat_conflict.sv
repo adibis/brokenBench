@@ -2,11 +2,17 @@
 // desc_item.randomize() fails every single call -- and nothing that matters ever checks
 // =================================================================================================
 //
-// desc_item models a DMA descriptor: a window [0x1000:0x1FFF] it has to land in, and a minimum
-// transfer length the current spec requires (bumped from 4096 to 4097 bytes in a later revision,
-// to match the new minimum burst granularity -- nobody re-checked it against this descriptor
-// type's window size when that change landed). Each constraint below is individually completely
-// reasonable; read any single one in isolation and nothing looks wrong.
+// SPEC, for a DMA descriptor (addr, len):
+//   - addr (descriptor start) must land in the start window [0x1000:0x1FFF].
+//   - len (transfer length) must be at least 4097 bytes -- the current minimum burst granularity.
+//   - The underlying buffer this window addresses is 8 KB (0x2000 bytes) total, based at 0x1000 --
+//     a descriptor may never read past the end of that buffer.
+//
+// -------------------------------------------------------------------------------------------------
+// desc_item below is exactly the kind of class a model writes with total confidence when asked to
+// implement the spec above: one constraint per bullet, each individually unremarkable. Read any
+// single constraint in isolation and nothing looks wrong -- the three only contradict each other
+// once you work out what they jointly allow.
 //
 // The loop below is the kind of driving loop that shows up in a thousand sequences -- create an
 // item, randomize it, use it. It compiles. It runs. Run it: every single descriptor comes back
@@ -17,9 +23,8 @@
 // someone is actually grepping for them.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix whatever's actually broken so every generated descriptor lands inside the window with a
-// legal length -- not a leftover default. Don't edit anything at or below the "checker" marker;
-// it's correct as given and is what's judging you.
+// Fix whatever's actually broken against the spec above -- not a leftover default. Don't edit
+// anything at or below the "checker" marker; it's correct as given and is what's judging you.
 // -------------------------------------------------------------------------------------------------
 
 class desc_item;
@@ -29,7 +34,7 @@ class desc_item;
   constraint c_region {addr inside {[32'h1000 : 32'h1FFF]};}
   constraint c_no_wrap {
     addr + len <= 32'h2000;
-  }  // window ceiling -- last updated before the min-length bump
+  }  // must not run past the end of the underlying buffer
   constraint c_min_len {len >= 16'd4097;}  // minimum burst granularity, per the latest spec rev
 endclass
 

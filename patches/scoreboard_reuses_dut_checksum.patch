@@ -1,6 +1,6 @@
---- a/exercises/uvm/scoreboard_reuses_dut_checksum.sv	2026-10-26 08:20:46
-+++ b/exercises/uvm/scoreboard_reuses_dut_checksum.sv	2026-10-26 08:20:46
-@@ -39,7 +39,15 @@
+--- a/exercises/uvm/scoreboard_reuses_dut_checksum.sv	2026-10-26 09:19:01
++++ b/exercises/uvm/scoreboard_reuses_dut_checksum.sv	2026-10-26 09:19:35
+@@ -42,7 +42,15 @@
    endfunction
  
    function bit [7:0] predict(bit [7:0] data[]);

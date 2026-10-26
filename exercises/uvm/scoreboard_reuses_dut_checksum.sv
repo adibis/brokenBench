@@ -2,17 +2,20 @@
 // the scoreboard's predictor calls the same CRC-8 function the "DUT" does -- of course they agree
 // =================================================================================================
 //
-// Spec: CRC-8/SMBUS over the packet payload -- polynomial x^8 + x^2 + x + 1 (0x07), MSB-first bit
-// processing, initial value 0x00, no input or output reflection, no final XOR. This is the
-// standard packet-error-check byte used on SMBus; the public catalog check value for ASCII
-// "123456789" under this exact definition is 0xF4 -- verify any from-scratch implementation
-// against that before trusting it against anything else.
+// SPEC: CRC-8/SMBUS over the packet payload.
+//   - polynomial x^8 + x^2 + x + 1 (0x07)
+//   - MSB-first bit processing
+//   - initial value 0x00
+//   - no input or output reflection, no final XOR
+//   - public catalog check value, for verifying any from-scratch implementation before trusting
+//     it against anything else: CRC-8/SMBUS(ASCII "123456789") = 0xF4
 //
-// dut_pkg::crc8() (a separate file, compiled alongside this one -- open it if you want to read it,
-// but you don't need to in order to find the bug) is the behavioral stand-in for what this
-// revision's CRC-8 hardware block computes. sb::predict() calls it too, because it's already
-// written and "obviously" implements CRC-8 -- a reasonable thing to reach for when the alternative
-// is re-deriving polynomial division by hand. Run this: every single comparison matches.
+// -------------------------------------------------------------------------------------------------
+// sb::predict() below is exactly the kind of predictor a model writes with total confidence when
+// asked to check CRC-8 against the spec above: dut_pkg::crc8() (a separate file, compiled alongside
+// this one -- open it if you want to, but you don't need to in order to find the bug) is already
+// written, already named crc8, already the obvious thing to reach for instead of re-deriving
+// polynomial division by hand. Run this: every single comparison matches.
 //
 // A scoreboard whose predictor calls the DUT's own function has no way to disagree with it, no
 // matter what that function actually computes. Reading predict() in isolation won't tell you
