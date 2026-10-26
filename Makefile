@@ -90,7 +90,8 @@ run:
 	echo "=== $$name ==="; \
 	uvm_files=""; \
 	grep -q '^import uvm_pkg' "$$f" && uvm_files="$(UVM_PKG)"; \
-	$(VERILATOR) $(VFLAGS) $$uvm_files $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
+	support_files=$$($(PYTHON) $(SCRIPTS)/find_exercise.py --support "$(EX)"); \
+	$(VERILATOR) $(VFLAGS) $$uvm_files $$support_files $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
 	build_ok=$$?; \
 	if [ $$build_ok -ne 0 ]; then \
 		grep -A4 "%Error" $(BUILD_DIR)/$$name/build.log || tail -20 $(BUILD_DIR)/$$name/build.log; \
@@ -202,7 +203,8 @@ check:
 		echo "=== [$$idx/$$total] $$name ==="; \
 		uvm_files=""; \
 		grep -q '^import uvm_pkg' "$$f" && uvm_files="$(UVM_PKG)"; \
-		$(VERILATOR) $(VFLAGS) $$uvm_files $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
+		support_files=$$($(PYTHON) $(SCRIPTS)/find_exercise.py --support "$$name"); \
+		$(VERILATOR) $(VFLAGS) $$uvm_files $$support_files $$f --top-module top -o sim -Mdir $(BUILD_DIR)/$$name > $(BUILD_DIR)/$$name/build.log 2>&1; \
 		if [ $$? -ne 0 ]; then \
 			grep -A4 "%Error" $(BUILD_DIR)/$$name/build.log || tail -20 $(BUILD_DIR)/$$name/build.log; \
 			echo ""; \

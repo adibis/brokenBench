@@ -2,16 +2,21 @@
 // confirm_write() checks the mirror right after the write that set it -- of course it always agrees
 // =================================================================================================
 //
-// val is modeled as a plain 8-bit RW field, but bit[7] of the real register is wired off in this
-// revision of the silicon: it always reads back 0, no matter what gets written to it. Nobody
-// updated the register model to say so -- it still claims all 8 bits are writable. With
-// auto-prediction on (the default), r.write() sets the mirror directly from the data you handed
-// it, before the bus transaction even happens -- the mirror is a prediction of what you asked for,
-// not a report of what hardware actually did.
+// status_reg packs two things into one byte, per the register map doc: a 7-bit cfg field (bits
+// 6:0), general configuration, and a lock bit (bit 7) -- "write 1 to lock permanently prevents
+// further configuration changes until the next reset." With auto-prediction on (the default),
+// r.write() sets the mirror directly from the data you handed it, before the bus transaction even
+// happens -- the mirror is a prediction of what you asked for, not a report of what hardware
+// actually did.
+//
+// What the doc sentence above doesn't settle: does "further configuration changes" mean changes
+// requested by a *later* write, or does locking take effect immediately enough to veto a cfg
+// change riding in the very same transaction that sets the lock bit? reg_bus_driver (a separate
+// file, compiled alongside this one) is the actual hardware behavior -- read it if you need to.
 //
 // confirmer::confirm_write() is supposed to prove a write actually landed as intended. Run this as
-// shipped: it reports confirmed_count=2, flagged_count=0 -- every write "confirmed," including the
-// one that tried to set the reserved bit and silently didn't.
+// shipped: it reports confirmed_count=3, flagged_count=0 -- every write "confirmed," including the
+// ones that tried to change cfg and lock in the same transaction, and silently didn't change cfg.
 //
 // -------------------------------------------------------------------------------------------------
 // Fix confirm_write() so it checks what the bus actually reports -- an actual frontdoor read, not
@@ -36,46 +41,12 @@ class status_reg extends uvm_reg;
   endfunction
 endclass
 
-class reg_bus_item extends uvm_sequence_item;
-  `uvm_object_utils(reg_bus_item)
-
-  rand bit [31:0] addr;
-  rand bit [31:0] data;
-  bit is_read;
-
-  function new(string name = "reg_bus_item");
-    super.new(name);
-  endfunction
-endclass
-
 class reg_bus_sequencer extends uvm_sequencer #(reg_bus_item);
   `uvm_component_utils(reg_bus_sequencer)
 
   function new(string name, uvm_component parent = null);
     super.new(name, parent);
   endfunction
-endclass
-
-class reg_bus_driver extends uvm_driver #(reg_bus_item);
-  `uvm_component_utils(reg_bus_driver)
-
-  // bit[7] is wired off in the real silicon -- a write never actually sets it, regardless of
-  // what the bus asked for
-  bit [7:0] storage = 8'h00;
-
-  function new(string name, uvm_component parent = null);
-    super.new(name, parent);
-  endfunction
-
-  virtual task run_phase(uvm_phase phase);
-    reg_bus_item it;
-    forever begin
-      seq_item_port.get_next_item(it);
-      if (it.is_read) it.data = storage;
-      else storage = it.data[7:0] & 8'h7F;
-      seq_item_port.item_done();
-    end
-  endtask
 endclass
 
 class reg_bus_adapter extends uvm_reg_adapter;
@@ -179,22 +150,26 @@ class test extends uvm_test;
   virtual task run_phase(uvm_phase phase);
     phase.raise_objection(this);
 
-    reg_write(8'hFF);  // tries to set every bit, including the wired-off one
-    cfm.confirm_write(blk.r, blk.default_map, 8'hFF);
+    reg_write(8'h2A);  // cfg=0x2A, lock=0 -- unlocked, this one genuinely lands
+    cfm.confirm_write(blk.r, blk.default_map, 8'h2A);
 
-    reg_write(8'h3C);  // touches no reserved bits -- this one genuinely lands as written
-    cfm.confirm_write(blk.r, blk.default_map, 8'h3C);
+    reg_write(8'hBB);  // cfg=0x3B, lock=1 -- same transaction sets lock AND tries to change cfg
+    cfm.confirm_write(blk.r, blk.default_map, 8'hBB);
 
-    if (cfm.confirmed_count != 1 || cfm.flagged_count != 1) begin
-      $display($sformatf({"FAIL: confirmed_count=%0d, flagged_count=%0d -- want 1 and 1. The ",
-                          "0xFF write didn't land as written (bit 7 is wired off) and must be ",
-                          "flagged; the 0x3C write genuinely landed and must be confirmed"},
+    reg_write(8'hCC);  // cfg=0x4C, lock=1 -- already locked from the write above
+    cfm.confirm_write(blk.r, blk.default_map, 8'hCC);
+
+    if (cfm.confirmed_count != 1 || cfm.flagged_count != 2) begin
+      $display($sformatf({"FAIL: confirmed_count=%0d, flagged_count=%0d -- want 1 and 2. Only the ",
+                          "first write (unlocked) actually lands as written; the next two set the ",
+                          "lock bit in the same transaction as a cfg change, and hardware vetoes ",
+                          "that cfg change on the spot -- an independent check must catch both"},
                            cfm.confirmed_count, cfm.flagged_count));
       $fatal(1);
     end
 
-    $display("PASS: confirmed_count=1, flagged_count=1 -- confirm_write checked the bus, not ",
-             "its own mirror");
+    $display("PASS: confirmed_count=1, flagged_count=2 -- confirm_write checked the bus, not its ",
+             "own mirror");
     phase.drop_objection(this);
   endtask
 endclass

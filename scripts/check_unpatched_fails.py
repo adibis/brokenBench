@@ -29,11 +29,13 @@ VFLAGS = ["--binary", "--timing", "-j", "0", "-Wno-fatal", "-Wno-IMPLICITSTATIC"
 UVM_PKG = os.path.join(ROOT, "vendor", "uvm", "uvm_pkg.svh")
 
 
-def uvm_files_for(sv_path):
+def extra_files_for(entry, sv_path):
+    files = []
     with open(sv_path) as f:
         if "import uvm_pkg" in f.read():
-            return [UVM_PKG]
-    return []
+            files.append(UVM_PKG)
+    files += [os.path.join(ROOT, rel) for rel in entry.get("support", [])]
+    return files
 
 COMPILE_TIMEOUT_S = 60
 # uvm/ and csr/ exercises compile the whole ~47k-line vendored UVM package
@@ -72,9 +74,10 @@ def all_exercises():
     return json.loads(result.stdout)
 
 
-def run_one(sv_path):
+def run_one(entry):
+    sv_path = os.path.join(ROOT, entry["path"])
     name = os.path.splitext(os.path.basename(sv_path))[0]
-    extra_files = uvm_files_for(sv_path)
+    extra_files = extra_files_for(entry, sv_path)
     compile_timeout = UVM_COMPILE_TIMEOUT_S if extra_files else COMPILE_TIMEOUT_S
     with tempfile.TemporaryDirectory() as builddir:
         try:
@@ -101,8 +104,7 @@ def main():
     problems = []
     entries = all_exercises()
     for e in entries:
-        sv_path = os.path.join(ROOT, e["path"])
-        name, ok, detail = run_one(sv_path)
+        name, ok, detail = run_one(e)
         status = "fails as expected" if ok else "*** PROBLEM ***"
         print(f"{name}: {status} ({detail})", flush=True)
         if not ok:

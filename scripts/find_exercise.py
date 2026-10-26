@@ -51,6 +51,10 @@ def parse_manifest(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--slug", help="resolve a single exercise's path by its slug")
+    parser.add_argument("--support", metavar="SLUG",
+                         help="print this exercise's support-file paths (manifest's "
+                              "`support` list), space-separated on one line, or nothing "
+                              "if it has none -- for Makefile word-splitting, not --json")
     parser.add_argument("--after", help="resolve the path of the exercise immediately "
                          "after this slug, within the same track (prints nothing, exits "
                          "0, if this slug is the last one in its track -- that's a normal "
@@ -66,6 +70,14 @@ def main():
     args = parser.parse_args()
 
     exercises = parse_manifest(MANIFEST_PATH)
+
+    if args.support:
+        matches = [e for e in exercises if e["slug"] == args.support]
+        if not matches:
+            print(f"no exercise with slug '{args.support}' in manifest.toml", file=sys.stderr)
+            sys.exit(1)
+        print(" ".join(matches[0].get("support", [])))
+        return
 
     if args.after:
         matches = [e for e in exercises if e["slug"] == args.after]

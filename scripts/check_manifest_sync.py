@@ -26,7 +26,10 @@ def main():
         print(result.stderr, file=sys.stderr)
         sys.exit(1)
     entries = json.loads(result.stdout)
-    manifest_paths = {e["path"] for e in entries}
+    manifest_paths = set()
+    for e in entries:
+        manifest_paths.add(e["path"])
+        manifest_paths.update(e.get("support", []))
 
     disk_paths = set()
     for pattern in ("learn/*.sv", "exercises/**/*.sv"):
@@ -47,7 +50,8 @@ def main():
             print(f"SYNC ERROR: {p}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"manifest.toml in sync with disk: {len(manifest_paths)} exercises, both directions")
+    print(f"manifest.toml in sync with disk: {len(entries)} exercises, "
+          f"{len(manifest_paths) - len(entries)} support file(s), both directions")
 
 
 if __name__ == "__main__":

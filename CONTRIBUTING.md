@@ -24,6 +24,18 @@ the unpatched version and passes unambiguously once it's fixed.
   solution exists in the repo.
 - A `manifest.toml` entry: `slug`, `path`, `order` within its track,
   `track`, and `tags`.
+- Optionally, one or more support files under
+  `exercises/<track>/support/<slug>/`, listed in the manifest entry's
+  `support` array (paths relative to the repo root). These compile
+  alongside the main exercise file -- before it, same as the UVM package
+  -- and are never part of the broken artifact: no checker marker, no
+  patch ever touches them, nothing in them is something the candidate is
+  being tested on. They exist for one reason -- to put a "reference" an
+  exercise's buggy code calls into a real, separate file instead of right
+  there in the same file where its proximity gives the game away. A
+  predictor that calls a function three lines above it is obviously
+  calling something; a predictor that calls into an imported package
+  someone has to go open is a realistic reuse mistake, not a hint.
 
 Build the fix first, as a real working reference, outside the repo (a
 scratch directory is fine) -- then decide what to strip out of it to make

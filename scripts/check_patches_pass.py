@@ -25,11 +25,13 @@ VFLAGS = ["--binary", "--timing", "-j", "0", "-Wno-fatal", "-Wno-IMPLICITSTATIC"
 UVM_PKG = os.path.join(ROOT, "vendor", "uvm", "uvm_pkg.svh")
 
 
-def uvm_files_for(sv_path):
+def extra_files_for(entry, sv_path, base_dir):
+    files = []
     with open(sv_path) as f:
         if "import uvm_pkg" in f.read():
-            return [UVM_PKG]
-    return []
+            files.append(UVM_PKG)
+    files += [os.path.join(base_dir, rel) for rel in entry.get("support", [])]
+    return files
 
 
 COMPILE_TIMEOUT_S = 60
@@ -93,7 +95,7 @@ def main():
             if e.get("requires_patched_verilator"):
                 continue
             sv_path = os.path.join(scratch, e["path"])
-            extra_files = uvm_files_for(sv_path)
+            extra_files = extra_files_for(e, sv_path, scratch)
             compile_timeout = UVM_COMPILE_TIMEOUT_S if extra_files else COMPILE_TIMEOUT_S
             with tempfile.TemporaryDirectory() as builddir:
                 try:

@@ -1,12 +1,13 @@
---- a/exercises/sv/unchecked_randomize_hides_unsat_conflict.sv	2026-10-25 22:51:37
-+++ b/exercises/sv/unchecked_randomize_hides_unsat_conflict.sv	2026-10-25 22:51:58
-@@ -22,9 +22,6 @@
+--- a/exercises/sv/unchecked_randomize_hides_unsat_conflict.sv	2026-10-26 08:26:08
++++ b/exercises/sv/unchecked_randomize_hides_unsat_conflict.sv	2026-10-26 08:26:08
+@@ -28,8 +28,8 @@
  
-   constraint c_aligned {addr[1:0] == 2'b00;}
    constraint c_region {addr inside {[32'h1000 : 32'h1FFF]};}
--
--  // added later, for a narrower test case -- still active for everyone else
--  constraint c_narrow {addr inside {[32'h0000 : 32'h0FFF]};}
+   constraint c_no_wrap {
+-    addr + len <= 32'h2000;
+-  }  // window ceiling -- last updated before the min-length bump
++    addr + len <= 32'h3000;
++  }  // window ceiling, widened for the new minimum length
+   constraint c_min_len {len >= 16'd4097;}  // minimum burst granularity, per the latest spec rev
  endclass
  
- module top;
