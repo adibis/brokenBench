@@ -1,0 +1,14 @@
+--- a/exercises/csr/confirm_write_trusts_the_mirror_not_the_bus.sv	2026-10-25 23:05:53
++++ b/exercises/csr/confirm_write_trusts_the_mirror_not_the_bus.sv	2026-10-25 23:05:53
+@@ -130,7 +130,10 @@
+   int unsigned flagged_count   = 0;
+ 
+   task confirm_write(uvm_reg r, uvm_reg_map map, bit [7:0] expected);
+-    if (r.get_mirrored_value() == expected) confirmed_count++;
++    uvm_status_e status;
++    bit [31:0] rdata;
++    r.read(status, rdata, UVM_FRONTDOOR, map, null);
++    if (rdata[7:0] == expected) confirmed_count++;
+     else flagged_count++;
+   endtask
+ endclass

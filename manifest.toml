@@ -182,6 +182,13 @@ requires_patched_verilator = true
 verilator_broken_as_of     = "5.050"
 
 [[exercise]]
+slug  = "unchecked_randomize_hides_unsat_conflict"
+path  = "exercises/sv/unchecked_randomize_hides_unsat_conflict.sv"
+order = 11
+track = "sv"
+tags  = ["best-practice", "multi-constraint", "plausible-pass"]
+
+[[exercise]]
 slug  = "factory_override"
 path  = "exercises/uvm/factory_override.sv"
 order = 1
@@ -231,6 +238,13 @@ track = "uvm"
 tags  = ["write-from-scratch", "virtual-sequencer", "fork-join"]
 
 [[exercise]]
+slug  = "scoreboard_reuses_dut_checksum"
+path  = "exercises/uvm/scoreboard_reuses_dut_checksum.sv"
+order = 8
+track = "uvm"
+tags  = ["scoreboard", "plausible-pass"]
+
+[[exercise]]
 slug  = "uvm_mem_needs_a_shadow_model"
 path  = "exercises/csr/uvm_mem_needs_a_shadow_model.sv"
 order = 1
@@ -264,3 +278,10 @@ path  = "exercises/csr/update_can_silently_clear_a_w1c_field.sv"
 order = 5
 track = "csr"
 tags  = ["write-from-scratch", "w1c", "access-policy"]
+
+[[exercise]]
+slug  = "confirm_write_trusts_the_mirror_not_the_bus"
+path  = "exercises/csr/confirm_write_trusts_the_mirror_not_the_bus.sv"
+order = 6
+track = "csr"
+tags  = ["predictor", "access-policy", "plausible-pass"]

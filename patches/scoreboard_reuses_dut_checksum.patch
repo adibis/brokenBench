@@ -1,0 +1,13 @@
+--- a/exercises/uvm/scoreboard_reuses_dut_checksum.sv	2026-10-25 22:58:20
++++ b/exercises/uvm/scoreboard_reuses_dut_checksum.sv	2026-10-25 22:57:39
+@@ -40,7 +40,9 @@
+   endfunction
+ 
+   function bit [7:0] predict(bit [7:0] data[]);
+-    return dut_pkg::checksum(data);
++    automatic bit [7:0] acc = 8'h00;
++    foreach (data[i]) acc ^= data[i];
++    return acc;
+   endfunction
+ 
+   function void check(bit [7:0] data[], bit [7:0] actual);

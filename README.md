@@ -141,6 +141,13 @@ Tags in play right now:
   hierarchy.
 - **`best-practice`** -- a methodology habit or pitfall, not tied to one
   specific language construct.
+- **`plausible-pass`** -- the broken version compiles, runs, and would
+  survive a casual read or a single smoke-test run; nothing about it looks
+  wrong until you apply the kind of check that would actually catch it --
+  a return value nobody checked, many trials histogrammed instead of one,
+  an independent reference implementation instead of a shared one. The
+  lesson lives in the checking discipline itself, not just the language
+  construct. Track-agnostic -- shows up across `sv`, `uvm`, and `csr`.
 
 UVM-track tags:
 
