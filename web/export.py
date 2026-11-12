@@ -33,6 +33,7 @@ WEB_TEXT = [
     (re.compile(r"""\s*[Dd]on't edit anything at or below the "checker" marker[^.]*\."""), ""),
     (re.compile(r"below the (checker )?marker"), "in the test"),
     (re.compile(r"the checker can already see"), "the test can already see"),
+    (re.compile(r" so the check after (it|them) passes\."), "."),
 ]
 
 
@@ -103,6 +104,9 @@ def header(code):
         i += 1
     blocks = []
     for line in lines[i:]:
+        if not line.strip():
+            blocks.append(None)
+            continue
         if not line.startswith("//"):
             break
         raw = "" if RULE.match(line) else line[2:].rstrip()
