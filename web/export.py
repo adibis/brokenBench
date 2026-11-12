@@ -3,12 +3,13 @@
 
     python3 web/export.py > ../chipdv.io.private/data/brokenbench/exercises.json
 
-For each exercise: its place in the manifest, the editable code above the
-checker marker, the checker itself, any support files, the spec from the
-header comment, and the solution (the exercise's patch applied to a scratch
-copy, never to this tree).
+For each exercise: its place in the manifest, the spec from the header
+comment, the code that follows the header up to the checker marker, any
+support files, and the solution (the exercise's patch applied to a scratch
+copy, never to this tree) with its diff against that code.
 """
 
+import difflib
 import json
 import os
 import re
@@ -139,6 +140,15 @@ def header(code):
     return title, spec
 
 
+def body(code):
+    """The code after the header comment: the page shows the header as the spec."""
+    lines = code.splitlines()
+    i = 0
+    while i < len(lines) and (not lines[i].strip() or lines[i].lstrip().startswith("//")):
+        i += 1
+    return "\n".join(lines[i:]) + "\n"
+
+
 def solution(ex):
     patch = os.path.join(REPO, "patches", ex["slug"] + ".patch")
     if not os.path.exists(patch):
@@ -155,15 +165,10 @@ def solution(ex):
             return split(f.read())[0]
 
 
-def fix(ex):
-    """The solution patch's hunks, without file headers: what actually changes."""
-    patch = os.path.join(REPO, "patches", ex["slug"] + ".patch")
-    if not os.path.exists(patch):
-        return None
-    with open(patch) as f:
-        lines = f.read().splitlines()
-    start = next(i for i, l in enumerate(lines) if l.startswith("@@"))
-    return "\n".join(lines[start:]) + "\n"
+def fix(code, sol):
+    """What the solution changes, as diff hunks against the code the editor starts with."""
+    d = difflib.unified_diff(code.splitlines(), sol.splitlines(), n=2, lineterm="")
+    return "\n".join(list(d)[2:]) + "\n"
 
 
 def main():
@@ -172,9 +177,11 @@ def main():
                      key=lambda e: (["learn", "sv", "uvm", "csr"].index(e["track"]), e["order"])):
         with open(os.path.join(REPO, ex["path"])) as f:
             text = f.read()
-        code = web_comments(split(text)[0])
+        full = web_comments(split(text)[0])
+        title, spec = header(full)
+        code = body(full)
         sol = solution(ex)
-        title, spec = header(code)
+        sol = sol and body(web_comments(sol))
         support = []
         for p in ex.get("support", []):
             with open(os.path.join(REPO, p)) as f:
@@ -185,8 +192,8 @@ def main():
             "uvm": bool(re.search(r"^import uvm_pkg", text, re.M)),
             "needs_patched_verilator": ex.get("requires_patched_verilator", False),
             "code": code, "support": support,
-            "solution": sol and web_comments(sol),
-            "fix": fix(ex),
+            "solution": sol,
+            "fix": sol and fix(code, sol),
         })
     json.dump(out, sys.stdout, indent=1)
     sys.stdout.write("\n")
