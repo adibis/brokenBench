@@ -49,7 +49,7 @@ MAX_CODE = 64 * 1024
 MAX_OUTPUT = 32 * 1024
 MAX_LOG = 1024 * 1024
 CACHE_FAIL_UNDER = 3.0  # s of simulation; well inside the solver's 10 s
-CACHE_FORMAT = 2  # bump to drop every cached result
+CACHE_FORMAT = 3  # bump to drop every cached result
 
 
 def load_exercises():
@@ -154,6 +154,19 @@ LIMIT_HIT = {
 }
 
 
+def tagged_pass(log, tag):
+    # The whole file, not just the head read back: output before the PASS
+    # line can run past MAX_LOG.
+    want = ("\n" + tag + "PASS:").encode()
+    with open(log, "rb") as f:
+        prev = b"\n"
+        while chunk := f.read(1 << 20):
+            if want in prev[-len(want):] + chunk:
+                return True
+            prev = chunk
+    return False
+
+
 def clean_compile_log(log, work):
     log = log.replace(work + "/", "").replace(REPO + "/", "")
     lines = log.splitlines()
@@ -198,10 +211,15 @@ def run_exercise(ex, code, args, times, stage=lambda name, **info: None):
     stage is told as each step starts, with how long that step usually takes.
     """
     work = tempfile.mkdtemp(prefix="bb-")
+    # The checker's PASS line carries a tag only this run knows. Exit code 0
+    # alone isn't a pass: a UVM_FATAL or the visitor's own $finish ends the
+    # sim with 0 before the checker runs, and code above the marker can print
+    # an untagged "PASS:" of its own.
+    tag = f"bb{secrets.token_hex(8)}:"
     try:
         src = os.path.join(work, os.path.basename(ex["path"]))
         with open(src, "w") as f:
-            f.write(code.rstrip() + "\n\n" + ex["checker"])
+            f.write(code.rstrip() + "\n\n" + ex["checker"].replace('"PASS:', f'"{tag}PASS:', 1))
         files = ([UVM_PKG] if ex["uvm"] else []) + \
                 [os.path.join(REPO, s) for s in ex.get("support", [])] + [src]
         # Verilator runs make with at least two jobs; a second -j caps it, so
@@ -233,6 +251,7 @@ def run_exercise(ex, code, args, times, stage=lambda name, **info: None):
                     "output": clean_compile_log(log, work) + LIMIT_HIT.get(-rc, "")}
         # A failed build stops early, so only a finished one says how long building takes.
         TIMINGS.add(build, times["compile"])
+        os.remove(src)  # the tag is in it
         stage("simulating", usual=TIMINGS.usual(ex["slug"]))
         env = dict(os.environ, VERILATOR_SOLVER=SOLVER)
         t0 = time.monotonic()
@@ -240,7 +259,11 @@ def run_exercise(ex, code, args, times, stage=lambda name, **info: None):
                                         os.path.join(work, "run.log"), args.run_timeout,
                                         args.run_timeout, args.run_mem, 64, args.contained)
         times["run"] = time.monotonic() - t0
-        out = clean_run_log(log)
+        passed = rc == 0 and tagged_pass(os.path.join(work, "run.log"), tag)
+        out = clean_run_log(log.replace(tag, ""))
+        if rc == 0 and not passed:
+            out += "\n\nFAIL: the simulation ended before the checker printed PASS" \
+                   " (a UVM_FATAL or a $finish ends it early)."
         if not timed_out:
             TIMINGS.add(ex["slug"], times["run"])
         if timed_out:
@@ -249,7 +272,7 @@ def run_exercise(ex, code, args, times, stage=lambda name, **info: None):
         # A pass can't come from load. A fail can, if the constraint solver
         # ran out of time on a busy machine, so only a quick fail is kept.
         quick = times["run"] < CACHE_FAIL_UNDER
-        return {"status": "pass" if rc == 0 else "fail", "cacheable": rc == 0 or (rc > 0 and quick),
+        return {"status": "pass" if passed else "fail", "cacheable": passed or (rc > 0 and quick),
                 "output": out + LIMIT_HIT.get(-rc, "")}
     finally:
         shutil.rmtree(work, ignore_errors=True)
