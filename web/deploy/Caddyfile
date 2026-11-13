@@ -3,6 +3,8 @@
 		max_size 80KB
 	}
 	reverse_proxy runner:8787 {
+		# Pass each progress line of a run on as it arrives.
+		flush_interval -1
 		transport http {
 			response_header_timeout 15m
 		}

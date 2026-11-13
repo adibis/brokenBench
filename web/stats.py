@@ -25,7 +25,7 @@ def main():
     days = int(args[args.index("--days") + 1]) if "--days" in args else None
     since = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days)
              if days else None)
-    runs, refused, checks = [], [], []
+    runs, refused, checks, left = [], [], [], []
     with open(args[0]) as f:
         for line in f:
             try:
@@ -36,6 +36,8 @@ def main():
                 continue
             if r["event"] == "verify":
                 checks.append(r)
+            elif r["event"] == "left":
+                left.append(r)
             else:
                 (runs if r["event"] == "run" else refused).append(r)
 
@@ -47,7 +49,8 @@ def main():
     for r in refused:
         by_day[r["t"][:10]]["refused"] += 1
 
-    print(f"{len(runs)} runs, {len(refused)} turned away")
+    print(f"{len(runs)} runs, {len(refused)} turned away, "
+          f"{len(left)} left before their build started")
     bad = [c for c in checks if not c["agree"]]
     print(f"cache checks: {len(checks)} rebuilt, {len(bad)} disagreed"
           + "".join(f"\n  MISMATCH {c['t']} {c['slug']}: served {c['served']}, fresh {c['fresh']}"

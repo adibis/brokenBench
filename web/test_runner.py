@@ -68,6 +68,15 @@ def main():
         expect("syntax error", post(base, {"slug": first["slug"],
                "code": first["code"] + "\nclass ;\n"})[1].get("status"), "compile_error")
 
+        # A page that asks for progress hears each stage, then the result.
+        body = json.dumps({"slug": first["slug"], "code": first["solution"]}).encode()
+        req = urllib.request.Request(base + "/run", body, {"Content-Type": "application/json",
+                                                           "Accept": "application/x-ndjson"})
+        with urllib.request.urlopen(req, timeout=600) as r:
+            lines = [json.loads(line) for line in r]
+        expect("streamed stages", [j.get("stage") or j.get("status") for j in lines],
+               ["compiling", "simulating", "pass"])
+
         # A second run from the same address while the first is still going.
         slow = next(e for e in exercises.values() if e["uvm"])
         t = threading.Thread(target=post, args=(base, {"slug": slow["slug"], "code": slow["code"]}))

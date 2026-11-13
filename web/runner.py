@@ -173,8 +173,31 @@ def clean_run_log(log):
     return "\n".join(keep).strip()
 
 
-def run_exercise(ex, code, args, times):
-    """Build and run; times gets the seconds spent compiling and simulating."""
+class Timings:
+    """Recent compile and simulation times, so a page can say how long a stage usually takes."""
+
+    def __init__(self, keep=20):
+        self.lock = threading.Lock()
+        self.seen = defaultdict(lambda: deque(maxlen=keep))
+
+    def add(self, key, seconds):
+        with self.lock:
+            self.seen[key].append(seconds)
+
+    def usual(self, key):
+        with self.lock:
+            s = sorted(self.seen.get(key, ()))
+        return round(s[len(s) // 2]) if s else None
+
+
+TIMINGS = Timings()
+
+
+def run_exercise(ex, code, args, times, stage=lambda name, **info: None):
+    """Build and run; times gets the seconds spent compiling and simulating.
+
+    stage is told as each step starts, with how long that step usually takes.
+    """
     work = tempfile.mkdtemp(prefix="bb-")
     try:
         src = os.path.join(work, os.path.basename(ex["path"]))
@@ -193,6 +216,8 @@ def run_exercise(ex, code, args, times):
         env = dict(os.environ)
         if args.objcache:
             env["OBJCACHE"] = args.objcache
+        build = "uvm" if ex["uvm"] else "sv"
+        stage("compiling", uvm=ex["uvm"], usual=TIMINGS.usual(build))
         t0 = time.monotonic()
         rc, log, timed_out = run_capped(cmd, REPO, env, os.path.join(work, "compile.log"),
                                         args.compile_timeout, args.compile_timeout * 2,
@@ -207,6 +232,9 @@ def run_exercise(ex, code, args, times):
             own = re.search(r"^%Error(-\w+)?: [^\s:]+:\d+", log, re.M) and "'make " not in log
             return {"status": "compile_error", "cacheable": bool(own and rc > 0),
                     "output": clean_compile_log(log, work) + LIMIT_HIT.get(-rc, "")}
+        # A failed build stops early, so only a finished one says how long building takes.
+        TIMINGS.add(build, times["compile"])
+        stage("simulating", usual=TIMINGS.usual(ex["slug"]))
         env = dict(os.environ, VERILATOR_SOLVER=SOLVER)
         t0 = time.monotonic()
         rc, log, timed_out = run_capped([os.path.join(work, "obj", "sim")], work, env,
@@ -214,6 +242,8 @@ def run_exercise(ex, code, args, times):
                                         args.run_timeout, args.run_mem, 64, args.contained)
         times["run"] = time.monotonic() - t0
         out = clean_run_log(log)
+        if not timed_out:
+            TIMINGS.add(ex["slug"], times["run"])
         if timed_out:
             return {"status": "timeout", "stage": "run",
                     "output": out + f"\n\nSimulation ran longer than {args.run_timeout} s and was stopped."}
@@ -481,8 +511,10 @@ class Gate:
     """At most `slots` builds at once, `queue` waiting, one per address, and a per-address rate."""
 
     def __init__(self, slots, queue, per_minute, max_in_flight=1):
-        self.sem = threading.BoundedSemaphore(slots)
+        self.slots = slots
         self.lock = threading.Lock()
+        self.turns = threading.Condition(self.lock)
+        self.line = deque()  # builds waiting, first come first served
         self.waiting = 0
         self.running = 0
         self.contained = False
@@ -516,18 +548,50 @@ class Gate:
             if not self.in_flight[ip]:
                 del self.in_flight[ip]
 
-    def __enter__(self):
-        self.sem.acquire()
-        with self.lock:
-            self.waiting -= 1
-            self.running += 1
+    def turn(self, report=lambda ahead: None):
+        """Wait for a build slot in arrival order; report hears how many runs are ahead.
 
-    def __exit__(self, *exc):
+        report runs without the lock held, since it may write to a slow client.
+        If it raises (the client left), this run gives up its place.
+        """
+        me = object()
         with self.lock:
+            self.line.append(me)
+        told = None
+        try:
+            while True:
+                with self.turns:
+                    if self.line[0] is me and self.running < self.slots:
+                        self.line.popleft()
+                        self.waiting -= 1
+                        self.running += 1
+                        self.turns.notify_all()
+                        return
+                    ahead = self.line.index(me) + self.running
+                    if ahead == told:
+                        self.turns.wait(5)
+                        continue
+                told = ahead
+                report(ahead)
+        except BaseException:
+            with self.turns:
+                self.line.remove(me)
+                self.waiting -= 1
+                self.turns.notify_all()
+            raise
+
+    def release(self):
+        with self.turns:
             self.running -= 1
             if self.contained and self.running == 0:
                 kill_strays()
-        self.sem.release()
+            self.turns.notify_all()
+
+    def __enter__(self):
+        self.turn()
+
+    def __exit__(self, *exc):
+        self.release()
 
 
 class Server(ThreadingHTTPServer):
@@ -546,7 +610,7 @@ def make_handler(exercises, gate, runlog, cache, checks, args):
                 self.send_header("Access-Control-Allow-Origin", origin)
                 self.send_header("Vary", "Origin")
                 self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-                self.send_header("Access-Control-Allow-Headers", "Content-Type")
+                self.send_header("Access-Control-Allow-Headers", "Content-Type, Accept")
                 # Chrome asks before a public page may reach a runner on this machine.
                 if self.headers.get("Access-Control-Request-Private-Network") == "true":
                     self.send_header("Access-Control-Allow-Private-Network", "true")
@@ -559,6 +623,17 @@ def make_handler(exercises, gate, runlog, cache, checks, args):
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
             self.wfile.write(data)
+
+        def start_stream(self):
+            self.send_response(200)
+            self.cors()
+            self.send_header("Content-Type", "application/x-ndjson")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+
+        def send_line(self, body):
+            self.wfile.write(json.dumps(body).encode() + b"\n")
+            self.wfile.flush()
 
         def do_OPTIONS(self):
             self.send_response(204)
@@ -608,12 +683,25 @@ def make_handler(exercises, gate, runlog, cache, checks, args):
             if refused:
                 runlog.write(ip, event="refused", reason=refused, slug=slug)
                 return self.reply(429, {"error": REFUSED[refused]})
+            # A page that asks for a stream hears each stage as it starts,
+            # then the result; anything else gets the result alone.
+            stream = "application/x-ndjson" in self.headers.get("Accept", "")
+            if stream:
+                self.start_stream()
+            say = self.send_line if stream else lambda body: None
             t0 = time.monotonic()
             times = {}
             try:
-                with gate:
+                gate.turn(lambda ahead: say({"stage": "queued", "ahead": ahead}))
+                try:
                     waited = time.monotonic() - t0
-                    result = run_exercise(ex, code, args, times)
+                    result = run_exercise(ex, code, args, times,
+                                          lambda name, **info: say({"stage": name, **info}))
+                finally:
+                    gate.release()
+            except (BrokenPipeError, ConnectionResetError):
+                runlog.write(ip, event="left", slug=slug)
+                return
             finally:
                 gate.done(ip)
             cache.put(ex, code, result)
@@ -625,7 +713,13 @@ def make_handler(exercises, gate, runlog, cache, checks, args):
                 result["output"] = result["output"][:MAX_OUTPUT] + "\n\n[output cut at 32 KB]"
             result["seconds"] = round(time.monotonic() - t0, 1)
             result["uvm"] = ex["uvm"]
-            self.reply(200, result)
+            if stream:
+                try:
+                    self.send_line(result)
+                except (BrokenPipeError, ConnectionResetError):
+                    pass
+            else:
+                self.reply(200, result)
 
         def log_message(self, fmt, *a):
             sys.stderr.write("%s %s\n" % (self.address_string(), fmt % a))
