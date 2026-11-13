@@ -1,0 +1,41 @@
+# The runner behind Caddy. The runner sits on an internal network with no
+# route out, so code it compiles and runs can't reach the internet.
+#   SITE_ADDRESS=run.chipdv.io docker compose up -d --build
+services:
+  caddy:
+    image: caddy:2.10
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-run.chipdv.io}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    networks: [public, internal]
+
+  runner:
+    build:
+      context: ../..
+      dockerfile: web/deploy/Dockerfile
+    restart: unless-stopped
+    command: ["--contained", "--origin", "https://chipdv.io", "--trust-proxy", "--slots", "1", "--jobs", "1"]
+    init: true
+    read_only: true
+    tmpfs: ["/tmp:size=64m"]
+    volumes: [work:/work]
+    mem_limit: 3500m
+    memswap_limit: 3500m
+    pids_limit: 256
+    cpus: 2
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    networks: [internal]
+
+networks:
+  public:
+  internal:
+    internal: true
+
+volumes:
+  caddy-data:
+  work:

@@ -15,6 +15,7 @@ import re
 import socket
 import subprocess
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -66,6 +67,14 @@ def main():
                "code": first["code"] + runner.MARKER + "\n"})[0], 400)
         expect("syntax error", post(base, {"slug": first["slug"],
                "code": first["code"] + "\nclass ;\n"})[1].get("status"), "compile_error")
+
+        # A second run from the same address while the first is still going.
+        slow = next(e for e in exercises.values() if e["uvm"])
+        t = threading.Thread(target=post, args=(base, {"slug": slow["slug"], "code": slow["code"]}))
+        t.start()
+        time.sleep(1)
+        expect("second run in flight", post(base, {"slug": first["slug"], "code": first["code"]})[0], 429)
+        t.join()
 
         for e in exercises.values():
             if e["track"] not in ("learn", "sv") and "--all" not in sys.argv:

@@ -12,6 +12,7 @@ PASS always means the real checker passed.
 - `test_runner.py`: starts the runner and checks that every stub fails, every
   solution passes, and the request guards hold. `--all` includes the UVM and
   CSR tracks, which take about 25 s each to compile.
+- `deploy/`: the container and its Caddy front end.
 
 ## Local mode
 
@@ -30,12 +31,33 @@ to an exercise page's address to point it at another runner.
 
 ## Limits
 
-One build at a time (`--slots`), eight waiting (`--queue`), ten runs per
-client address per minute (`--per-minute`), 300 s to compile, 30 s to run,
-64 KB of code. Locally the build runs directly on your machine. Deployed,
-the runner will sit in a container with no network, a read-only file
-system and memory and CPU limits, because a Verilator build of submitted
-code is submitted code running on the server.
+One build at a time (`--slots`), eight waiting (`--queue`), one run in flight
+and ten runs a minute per client address (`--per-minute`), 120 s to compile,
+60 s to run, 64 KB of code. Builds are compiled at `-O0`: an unoptimised UVM build
+takes half the time and half the memory (about 1.8 GB for g++ with `--jobs 1`),
+and the simulations run no slower, since the long ones spend their time in
+the constraint solver.
+
+Every build step runs under CPU-time, memory and file-size limits, and its
+output is read back only up to 1 MB. With `--contained` (in the container,
+never on your own machine) each run is also held to 128 processes, and
+whatever it leaves running is killed when it ends.
+
+## Deploy
+
+`deploy/` holds the container: Verilator built from a pinned release, z3 and
+this repo, behind Caddy for HTTPS. The runner's network has no route out, its
+file system is read-only apart from a work volume, and it runs unprivileged
+with memory and process limits.
+
+```sh
+cd web/deploy
+SITE_ADDRESS=run.chipdv.io docker compose up -d --build
+curl https://run.chipdv.io/health
+```
+
+On a 2-core, 4 GB server keep `--slots 1 --jobs 1`: two g++ processes on a
+UVM build don't fit in memory.
 
 `dma_ring_allocator` needs an unreleased Verilator fix
 ([verilator#8100](https://github.com/verilator/verilator/pull/8100)); its
