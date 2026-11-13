@@ -14,9 +14,12 @@ service runs inside a locked-down container (see web/README.md).
 """
 
 import argparse
+import datetime
+import hashlib
 import json
 import os
 import re
+import secrets
 import shutil
 import signal
 import subprocess
@@ -162,7 +165,8 @@ def clean_run_log(log):
     return "\n".join(keep).strip()
 
 
-def run_exercise(ex, code, args):
+def run_exercise(ex, code, args, times):
+    """Build and run; times gets the seconds spent compiling and simulating."""
     work = tempfile.mkdtemp(prefix="bb-")
     try:
         src = os.path.join(work, os.path.basename(ex["path"]))
@@ -178,9 +182,11 @@ def run_exercise(ex, code, args):
         env = dict(os.environ)
         if args.objcache:
             env["OBJCACHE"] = args.objcache
+        t0 = time.monotonic()
         rc, log, timed_out = run_capped(cmd, REPO, env, os.path.join(work, "compile.log"),
                                         args.compile_timeout, args.compile_timeout * 2,
                                         args.compile_mem, 512, args.contained)
+        times["compile"] = time.monotonic() - t0
         if timed_out:
             return {"status": "timeout", "stage": "compile",
                     "output": f"Compile took longer than {args.compile_timeout} s and was stopped."}
@@ -188,9 +194,11 @@ def run_exercise(ex, code, args):
             return {"status": "compile_error",
                     "output": clean_compile_log(log, work) + LIMIT_HIT.get(-rc, "")}
         env = dict(os.environ, VERILATOR_SOLVER=SOLVER)
+        t0 = time.monotonic()
         rc, log, timed_out = run_capped([os.path.join(work, "obj", "sim")], work, env,
                                         os.path.join(work, "run.log"), args.run_timeout,
                                         args.run_timeout, args.run_mem, 64, args.contained)
+        times["run"] = time.monotonic() - t0
         out = clean_run_log(log)
         if timed_out:
             return {"status": "timeout", "stage": "run",
@@ -198,6 +206,46 @@ def run_exercise(ex, code, args):
         return {"status": "pass" if rc == 0 else "fail", "output": out + LIMIT_HIT.get(-rc, "")}
     finally:
         shutil.rmtree(work, ignore_errors=True)
+
+
+REFUSED = {
+    "rate": "Too many runs from your address; wait a minute and try again.",
+    "in_flight": "Your previous run is still going; wait for it to finish.",
+    "busy": "The runner is busy; try again in a moment.",
+}
+
+
+class RunLog:
+    """One JSON line per request, for usage numbers, without addresses.
+
+    A visitor is a hash of their address with a random salt that changes
+    each UTC day and is never stored: distinct visitors can be counted
+    within a day, but no address can be recovered or followed across days.
+    """
+
+    def __init__(self, path):
+        self.path = path
+        self.lock = threading.Lock()
+        self.day = None
+        self.salt = b""
+
+    def visitor(self, ip):
+        day = datetime.datetime.now(datetime.timezone.utc).date()
+        if day != self.day:
+            self.day, self.salt = day, secrets.token_bytes(16)
+        return hashlib.sha256(self.salt + ip.encode()).hexdigest()[:12]
+
+    def write(self, ip, **fields):
+        if not self.path:
+            return
+        with self.lock:
+            rec = {"t": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+                   "visitor": self.visitor(ip), **fields}
+            try:
+                with open(self.path, "a") as f:
+                    f.write(json.dumps(rec) + "\n")
+            except OSError as e:
+                sys.stderr.write(f"run log: {e}\n")
 
 
 class Gate:
@@ -222,12 +270,12 @@ class Gate:
             while h and now - h[0] > 60:
                 h.popleft()
             if len(h) >= self.per_minute:
-                return "Too many runs from your address; wait a minute and try again."
+                return "rate"
             # One run at a time per address, so one client can't fill the queue.
             if self.in_flight[ip] >= self.max_in_flight:
-                return "Your previous run is still going; wait for it to finish."
+                return "in_flight"
             if self.waiting >= self.queue:
-                return "The runner is busy; try again in a moment."
+                return "busy"
             h.append(now)
             self.waiting += 1
             self.in_flight[ip] += 1
@@ -258,7 +306,7 @@ class Server(ThreadingHTTPServer):
     request_queue_size = 128
 
 
-def make_handler(exercises, gate, args):
+def make_handler(exercises, gate, runlog, args):
     class Handler(BaseHTTPRequestHandler):
         server_version = "brokenbench-runner"
         timeout = 20  # a client that stalls mid-request is dropped, not waited on
@@ -316,13 +364,19 @@ def make_handler(exercises, gate, args):
                 ip = self.headers.get("X-Forwarded-For", ip).split(",")[-1].strip()
             refused = gate.admit(ip)
             if refused:
-                return self.reply(429, {"error": refused})
+                runlog.write(ip, event="refused", reason=refused, slug=slug)
+                return self.reply(429, {"error": REFUSED[refused]})
             t0 = time.monotonic()
+            times = {}
             try:
                 with gate:
-                    result = run_exercise(ex, code, args)
+                    waited = time.monotonic() - t0
+                    result = run_exercise(ex, code, args, times)
             finally:
                 gate.done(ip)
+            runlog.write(ip, event="run", slug=slug, track=ex["track"], status=result["status"],
+                         wait=round(waited, 1), compile=round(times.get("compile", 0), 1),
+                         sim=round(times.get("run", 0), 1))
             if len(result["output"]) > MAX_OUTPUT:
                 result["output"] = result["output"][:MAX_OUTPUT] + "\n\n[output cut at 32 KB]"
             result["seconds"] = round(time.monotonic() - t0, 1)
@@ -354,6 +408,7 @@ def main():
     ap.add_argument("--contained", action="store_true",
                     help="alone in a container: cap each run's processes and kill whatever a run "
                          "leaves behind (never use this outside a container)")
+    ap.add_argument("--log", help="append a JSON line per request here (no addresses; see RunLog)")
     ap.add_argument("--verilator", default="verilator")
     ap.add_argument("--trust-proxy", action="store_true",
                     help="take the client address from X-Forwarded-For (only behind a proxy that sets it)")
@@ -368,7 +423,7 @@ def main():
     exercises = load_exercises()
     gate = Gate(args.slots, args.queue, args.per_minute, args.max_in_flight)
     gate.contained = args.contained
-    srv = Server((args.host, args.port), make_handler(exercises, gate, args))
+    srv = Server((args.host, args.port), make_handler(exercises, gate, RunLog(args.log), args))
     print(f"brokenbench runner ({args.version}): {len(exercises)} exercises on http://{args.host}:{args.port}, "
           f"origins {', '.join(args.origin)}", file=sys.stderr)
     srv.serve_forever()

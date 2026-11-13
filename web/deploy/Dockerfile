@@ -16,13 +16,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     && rm -rf /var/lib/apt/lists/*
 COPY --from=verilator /opt/verilator /opt/verilator
 ENV PATH=/opt/verilator/bin:$PATH TMPDIR=/work
-RUN useradd --system --home /nonexistent runner && mkdir /work && chown runner /work
+RUN useradd --system --home /nonexistent runner && mkdir /work /logs && chown runner /work /logs
 COPY manifest.toml /bb/
 COPY scripts /bb/scripts
 COPY exercises /bb/exercises
 COPY learn /bb/learn
 COPY vendor /bb/vendor
-COPY web/runner.py /bb/web/
+COPY web/runner.py web/stats.py /bb/web/
 USER runner
 WORKDIR /bb
 EXPOSE 8787

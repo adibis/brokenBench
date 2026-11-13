@@ -18,11 +18,12 @@ services:
       context: ../..
       dockerfile: web/deploy/Dockerfile
     restart: unless-stopped
-    command: ["--contained", "--origin", "https://chipdv.io", "--trust-proxy", "--slots", "1", "--jobs", "1"]
+    command: ["--contained", "--origin", "https://chipdv.io", "--trust-proxy", "--slots", "1", "--jobs", "1",
+              "--log", "/logs/runs.jsonl"]
     init: true
     read_only: true
     tmpfs: ["/tmp:size=64m"]
-    volumes: [work:/work]
+    volumes: [work:/work, logs:/logs]
     mem_limit: 3500m
     memswap_limit: 3500m
     pids_limit: 256
@@ -39,3 +40,4 @@ networks:
 volumes:
   caddy-data:
   work:
+  logs:
