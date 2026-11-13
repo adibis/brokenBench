@@ -49,8 +49,7 @@ MAX_CODE = 64 * 1024
 MAX_OUTPUT = 32 * 1024
 MAX_LOG = 1024 * 1024
 CACHE_FAIL_UNDER = 3.0  # s of simulation; well inside the solver's 10 s
-CACHE_FORMAT = 1  # bump to drop every cached result
-MAX_PROCS = 128  # per run, contained; the container allows twice that
+CACHE_FORMAT = 2  # bump to drop every cached result
 
 
 def load_exercises():
@@ -116,14 +115,14 @@ def run_capped(cmd, cwd, env, log, timeout, cpu, mem_mb, fsize_mb, contained):
     one. Output goes to a file under the size limit and only its head is
     read back, so a flood of output can't grow this process. The command
     gets its own session, killed afterwards so nothing it left running
-    outlives the run. Contained (alone in a container), the run is also held
-    to a process count, and the session is swept until empty, since a fork
-    bomb outruns a single kill.
+    outlives the run. Contained (alone in a container), the session is swept
+    until empty, since a fork bomb outruns a single kill; the container's own
+    process limit caps the bomb meanwhile. A per-user ulimit can't do that
+    here: it counts this server's threads too, so a burst of connections
+    would make honest builds fail to fork.
     """
     # macOS refuses -v; there it's local mode, on the user's own machine.
     limits = f"ulimit -t {cpu}; ulimit -v {mem_mb * 1024} 2>/dev/null; ulimit -f {fsize_mb * 2048}"
-    if contained:
-        limits += f"; ulimit -u {MAX_PROCS}"
     with open(log, "wb") as f:
         p = subprocess.Popen(["sh", "-c", limits + '; exec "$@"', "sh", *cmd], cwd=cwd, env=env,
                              stdout=f, stderr=subprocess.STDOUT, start_new_session=True)

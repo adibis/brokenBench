@@ -57,8 +57,8 @@ long ones spend their time in the constraint solver.
 
 Every build step runs under CPU-time, memory and file-size limits, and its
 output is read back only up to 1 MB. With `--contained` (in the container,
-never on your own machine) each run is also held to 128 processes, and
-whatever it leaves running is killed when it ends.
+never on your own machine) whatever a run leaves running is killed when it
+ends, and the container's process limit caps how many it can start.
 
 ## Deploy
 
