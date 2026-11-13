@@ -32,11 +32,11 @@ to an exercise page's address to point it at another runner.
 ## Limits
 
 One build at a time (`--slots`), eight waiting (`--queue`), one run in flight
-and ten runs a minute per client address (`--per-minute`), 120 s to compile,
-60 s to run, 64 KB of code. Builds are compiled at `-O0`: an unoptimised UVM build
-takes half the time and half the memory (about 1.8 GB for g++ with `--jobs 1`),
-and the simulations run no slower, since the long ones spend their time in
-the constraint solver.
+per client address (`--max-in-flight`) and ten a minute (`--per-minute`),
+120 s to compile, 60 s to run, 64 KB of code. Builds are compiled at `-O0`:
+an unoptimised UVM build takes half the time and half the memory (about
+1.8 GB for g++ with `--jobs 1`), and the simulations run no slower, since the
+long ones spend their time in the constraint solver.
 
 Every build step runs under CPU-time, memory and file-size limits, and its
 output is read back only up to 1 MB. With `--contained` (in the container,

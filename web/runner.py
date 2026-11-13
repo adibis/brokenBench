@@ -203,7 +203,7 @@ def run_exercise(ex, code, args):
 class Gate:
     """At most `slots` builds at once, `queue` waiting, one per address, and a per-address rate."""
 
-    def __init__(self, slots, queue, per_minute):
+    def __init__(self, slots, queue, per_minute, max_in_flight=1):
         self.sem = threading.BoundedSemaphore(slots)
         self.lock = threading.Lock()
         self.waiting = 0
@@ -213,6 +213,7 @@ class Gate:
         self.per_minute = per_minute
         self.hits = defaultdict(deque)
         self.in_flight = defaultdict(int)
+        self.max_in_flight = max_in_flight
 
     def admit(self, ip):
         now = time.monotonic()
@@ -223,7 +224,7 @@ class Gate:
             if len(h) >= self.per_minute:
                 return "Too many runs from your address; wait a minute and try again."
             # One run at a time per address, so one client can't fill the queue.
-            if self.in_flight[ip]:
+            if self.in_flight[ip] >= self.max_in_flight:
                 return "Your previous run is still going; wait for it to finish."
             if self.waiting >= self.queue:
                 return "The runner is busy; try again in a moment."
@@ -344,6 +345,8 @@ def main():
     ap.add_argument("--jobs", default="0", help="compiler jobs per build (0: one per core)")
     ap.add_argument("--queue", type=int, default=8, help="builds allowed to wait")
     ap.add_argument("--per-minute", type=int, default=10, help="runs per client address per minute")
+    ap.add_argument("--max-in-flight", type=int, default=1,
+                    help="runs one client address may have queued or running at once")
     ap.add_argument("--compile-timeout", type=int, default=120)
     ap.add_argument("--run-timeout", type=int, default=60)  # constraint-heavy SV runs take ~25 s
     ap.add_argument("--compile-mem", type=int, default=3072, help="MB of address space per compile step")
@@ -363,7 +366,7 @@ def main():
     args.version = subprocess.run([args.verilator, "--version"], capture_output=True,
                                   text=True).stdout.strip()
     exercises = load_exercises()
-    gate = Gate(args.slots, args.queue, args.per_minute)
+    gate = Gate(args.slots, args.queue, args.per_minute, args.max_in_flight)
     gate.contained = args.contained
     srv = Server((args.host, args.port), make_handler(exercises, gate, args))
     print(f"brokenbench runner ({args.version}): {len(exercises)} exercises on http://{args.host}:{args.port}, "
