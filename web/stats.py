@@ -25,7 +25,7 @@ def main():
     days = int(args[args.index("--days") + 1]) if "--days" in args else None
     since = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days)
              if days else None)
-    runs, refused = [], []
+    runs, refused, checks = [], [], []
     with open(args[0]) as f:
         for line in f:
             try:
@@ -34,7 +34,10 @@ def main():
                 continue
             if since and datetime.datetime.fromisoformat(r["t"]) < since:
                 continue
-            (runs if r["event"] == "run" else refused).append(r)
+            if r["event"] == "verify":
+                checks.append(r)
+            else:
+                (runs if r["event"] == "run" else refused).append(r)
 
     by_day = defaultdict(lambda: {"runs": 0, "visitors": set(), "refused": 0})
     for r in runs:
@@ -45,6 +48,10 @@ def main():
         by_day[r["t"][:10]]["refused"] += 1
 
     print(f"{len(runs)} runs, {len(refused)} turned away")
+    bad = [c for c in checks if not c["agree"]]
+    print(f"cache checks: {len(checks)} rebuilt, {len(bad)} disagreed"
+          + "".join(f"\n  MISMATCH {c['t']} {c['slug']}: served {c['served']}, fresh {c['fresh']}"
+                    for c in bad))
     print("\nday         visitors  runs  turned away")
     for day in sorted(by_day):
         d = by_day[day]
@@ -55,11 +62,14 @@ def main():
     if not runs:
         return
     print("results:", dict(Counter(r["status"] for r in runs)))
+    built = [r for r in runs if not r.get("cached")]
+    print(f"prebuilt results served: {len(runs) - len(built)} of {len(runs)}")
 
-    print("\nseconds        median   p95   max")
-    for key in ("wait", "compile", "sim"):
-        xs = [r[key] for r in runs]
-        print(f"{key:12} {statistics.median(xs):7.1f} {pct(xs, 95):5.1f} {max(xs):5.1f}")
+    if built:
+        print("\nseconds (builds)  median   p95   max")
+        for key in ("wait", "compile", "sim"):
+            xs = [r[key] for r in built]
+            print(f"{key:15} {statistics.median(xs):7.1f} {pct(xs, 95):5.1f} {max(xs):5.1f}")
 
     print("\nexercise                                       runs  passed  visitors")
     per = defaultdict(lambda: [0, 0, set()])

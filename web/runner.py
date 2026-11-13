@@ -18,6 +18,7 @@ import datetime
 import hashlib
 import json
 import os
+import random
 import re
 import secrets
 import shutil
@@ -47,6 +48,8 @@ BUILD_OPT = ["-MAKEFLAGS", "OPT_FAST=-O0", "-MAKEFLAGS", "OPT_GLOBAL=-O0"]
 MAX_CODE = 64 * 1024
 MAX_OUTPUT = 32 * 1024
 MAX_LOG = 1024 * 1024
+CACHE_FAIL_UNDER = 3.0  # s of simulation; well inside the solver's 10 s
+CACHE_FORMAT = 1  # bump to drop every cached result
 MAX_PROCS = 128  # per run, contained; the container allows twice that
 
 
@@ -59,6 +62,11 @@ def load_exercises():
             raise SystemExit(f"{e['path']}: no checker marker")
         e["checker"] = text[text.index(MARKER):]
         e["uvm"] = bool(re.search(r"^import uvm_pkg", text, re.M))
+        h = hashlib.sha256(e["checker"].encode())
+        for s in e.get("support", []):
+            with open(os.path.join(REPO, s), "rb") as f:
+                h.update(f.read())
+        e["digest"] = h.hexdigest()  # what besides the visitor's code decides a result
         out[e["slug"]] = e
     return out
 
@@ -177,6 +185,9 @@ def run_exercise(ex, code, args, times):
         # Verilator runs make with at least two jobs; a second -j caps it, so
         # --jobs 1 really means one compiler process and its memory.
         jobs = ["-j", args.jobs] + (["-MAKEFLAGS", f"-j{args.jobs}"] if args.jobs != "0" else [])
+        if args.output_groups:
+            # More, smaller files: with several jobs, each compiler needs less memory.
+            jobs += ["--output-groups", str(args.output_groups)]
         cmd = [args.verilator, *VFLAGS, *jobs, *BUILD_OPT, *files,
                "--top-module", "top", "-o", "sim", "-Mdir", os.path.join(work, "obj")]
         env = dict(os.environ)
@@ -191,7 +202,10 @@ def run_exercise(ex, code, args, times):
             return {"status": "timeout", "stage": "compile",
                     "output": f"Compile took longer than {args.compile_timeout} s and was stopped."}
         if rc != 0:
-            return {"status": "compile_error",
+            # Verilator's own errors (file:line) are deterministic; a failed
+            # C++ build may be a compiler killed for memory, so never cached.
+            own = re.search(r"^%Error(-\w+)?: [^\s:]+:\d+", log, re.M) and "'make " not in log
+            return {"status": "compile_error", "cacheable": bool(own and rc > 0),
                     "output": clean_compile_log(log, work) + LIMIT_HIT.get(-rc, "")}
         env = dict(os.environ, VERILATOR_SOLVER=SOLVER)
         t0 = time.monotonic()
@@ -203,7 +217,11 @@ def run_exercise(ex, code, args, times):
         if timed_out:
             return {"status": "timeout", "stage": "run",
                     "output": out + f"\n\nSimulation ran longer than {args.run_timeout} s and was stopped."}
-        return {"status": "pass" if rc == 0 else "fail", "output": out + LIMIT_HIT.get(-rc, "")}
+        # A pass can't come from load. A fail can, if the constraint solver
+        # ran out of time on a busy machine, so only a quick fail is kept.
+        quick = times["run"] < CACHE_FAIL_UNDER
+        return {"status": "pass" if rc == 0 else "fail", "cacheable": rc == 0 or (rc > 0 and quick),
+                "output": out + LIMIT_HIT.get(-rc, "")}
     finally:
         shutil.rmtree(work, ignore_errors=True)
 
@@ -213,6 +231,214 @@ REFUSED = {
     "in_flight": "Your previous run is still going; wait for it to finish.",
     "busy": "The runner is busy; try again in a moment.",
 }
+
+
+# Comments that steer Verilator or other tools; they stay part of the code.
+TOOL_COMMENT = re.compile(r"verilator|synopsys|synthesis|pragma|lint|translate", re.I)
+
+
+def normalize(code):
+    """The code with comments and spacing evened out, every line kept in place.
+
+    Two submissions that differ only in indentation, spacing or ordinary
+    comments normalise the same, and line numbers in a result still point
+    at the right lines. Strings, including multi-line ones, and tool
+    comments are copied untouched.
+    """
+    out, i, n = [], 0, len(code)
+
+    def newline():
+        while out and out[-1] == " ":
+            out.pop()
+        out.append("\n")
+
+    while i < n:
+        c = code[i]
+        if code.startswith('"""', i):
+            j = code.find('"""', i + 3)
+            j = n if j < 0 else j + 3
+            out.append(code[i:j])
+            i = j
+        elif c == '"':
+            j = i + 1
+            while j < n and code[j] not in '"\n':
+                j += 2 if code[j] == "\\" else 1
+            out.append(code[i:j + 1])
+            i = j + 1
+        elif code.startswith("//", i):
+            j = code.find("\n", i)
+            j = n if j < 0 else j
+            if TOOL_COMMENT.search(code[i:j]):
+                out.append(code[i:j])
+            i = j
+        elif code.startswith("/*", i):
+            j = code.find("*/", i + 2)
+            j = n if j < 0 else j + 2
+            body = code[i:j]
+            if TOOL_COMMENT.search(body):
+                out.append(body)
+            else:
+                for _ in range(body.count("\n")):
+                    newline()
+            i = j
+        elif c == "\n":
+            newline()
+            i += 1
+        elif c in " \t\r":
+            while i < n and code[i] in " \t\r":
+                i += 1
+            if out and out[-1] != "\n":  # nothing at the start of a line
+                out.append(" ")
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out).rstrip()
+
+
+class ResultCache:
+    """Finished results, so a submission seen before comes back at once.
+
+    Keyed by the exercise, its checker, the Verilator version, the build
+    flags and the code: normalised for a pass or fail, exact for a compile
+    error, whose messages carry columns. Only deterministic outcomes are
+    kept (simulations run with a fixed seed): never a timeout or a run that
+    hit a resource limit. No code is stored, only its hash. Seeded results
+    (every exercise's starting code and solution) are kept for good; the
+    rest are dropped least recently used first above max_mb.
+    """
+
+    def __init__(self, path, version, max_mb=2048):
+        self.path = path
+        # Everything outside the exercise that can change a result.
+        h = hashlib.sha256(json.dumps([CACHE_FORMAT, version, VFLAGS, BUILD_OPT, SOLVER]).encode())
+        z3 = subprocess.run(["z3", "--version"], capture_output=True, text=True)
+        h.update(z3.stdout.encode())
+        for d, _, files in sorted(os.walk(os.path.dirname(UVM_PKG))):
+            for name in sorted(files):
+                with open(os.path.join(d, name), "rb") as f:
+                    h.update(name.encode() + f.read())
+        self.env = h.hexdigest()
+        self.max_bytes = max_mb * 1024 * 1024
+        self.writes = 0
+        self.lock = threading.Lock()
+        if path:
+            for sub in ("seed", "lru"):
+                os.makedirs(os.path.join(path, sub), exist_ok=True)
+
+    def key(self, ex, code, exact):
+        text = code.rstrip() if exact else normalize(code)
+        blob = json.dumps([ex["slug"], ex["digest"], self.env, text])
+        return hashlib.sha256(blob.encode()).hexdigest()
+
+    def get(self, ex, code):
+        if not self.path:
+            return None
+        for exact in (False, True):
+            name = self.key(ex, code, exact) + ".json"
+            for sub in ("seed", "lru"):
+                f = os.path.join(self.path, sub, name)
+                try:
+                    with open(f) as fh:
+                        hit = json.load(fh)
+                except (OSError, ValueError):
+                    continue
+                if sub == "lru":
+                    try:
+                        os.utime(f)
+                    except OSError:
+                        pass
+                return hit
+        return None
+
+    def put(self, ex, code, result, pinned=False):
+        status = result["status"]
+        if not self.path or not result.get("cacheable"):
+            return
+        sub = os.path.join(self.path, "seed" if pinned else "lru")
+        tmp = os.path.join(sub, f".{secrets.token_hex(8)}.tmp")
+        with open(tmp, "w") as f:
+            json.dump({"status": status, "output": result["output"]}, f)
+        os.replace(tmp, os.path.join(sub, self.key(ex, code, status == "compile_error") + ".json"))
+        with self.lock:
+            self.writes += 1
+            if self.writes % 100 == 0:
+                self.prune()
+
+    def drop(self, ex, code):
+        for exact in (False, True):
+            for sub in ("seed", "lru"):
+                try:
+                    os.remove(os.path.join(self.path, sub, self.key(ex, code, exact) + ".json"))
+                except OSError:
+                    pass
+
+    def prune(self):
+        sub = os.path.join(self.path, "lru")
+        files = []
+        for name in os.listdir(sub):
+            try:
+                st = os.stat(os.path.join(sub, name))
+                files.append((st.st_mtime, st.st_size, name))
+            except OSError:
+                pass
+        total = sum(s for _, s, _ in files)
+        for _, size, name in sorted(files):
+            if total <= self.max_bytes * 0.8:
+                break
+            try:
+                os.remove(os.path.join(sub, name))
+                total -= size
+            except OSError:
+                pass
+
+
+def seed(exercises, gate, cache, args):
+    """Build every exercise's starting code and solution into the cache.
+
+    Runs through the same gate as visitors, one build at a time, so it never
+    competes with a visitor's build for memory; already cached entries are
+    skipped, so a restart resumes where it stopped.
+    """
+    pages = json.loads(subprocess.check_output([sys.executable, os.path.join(REPO, "web", "export.py")]))
+    solutions = {p["slug"]: p["solution"] for p in pages}
+    todo = [(exercises[p["slug"]], c) for p in pages if not p["needs_patched_verilator"]
+            for c in (p["code"], p["solution"]) if c]
+    todo = [(ex, c) for ex, c in todo if cache.get(ex, c) is None]
+    sys.stderr.write(f"seeding {len(todo)} results\n")
+    for i, (ex, code) in enumerate(todo, 1):
+        with gate.lock:
+            gate.waiting += 1
+        with gate:
+            result = run_exercise(ex, code, args, {})
+        if code == solutions[ex["slug"]] and result["status"] != "pass":
+            sys.stderr.write(f"NOT SEEDED: {ex['slug']} solution gave {result['status']}\n")
+            continue
+        cache.put(ex, code, result, pinned=True)
+        sys.stderr.write(f"seeded {i}/{len(todo)} {ex['slug']}: {result['status']}\n")
+
+
+def verify_cached(queue, gate, cache, runlog, args):
+    """Rebuild a sample of cache hits while the runner is idle.
+
+    If a fresh build disagrees with what was served, the entry is dropped
+    and the mismatch logged, so a wrong cached result can't live on.
+    """
+    while True:
+        time.sleep(5)
+        with gate.lock:
+            idle = gate.running == 0 and gate.waiting == 0
+        if not idle or not queue:
+            continue
+        ex, code, served = queue.popleft()
+        with gate.lock:
+            gate.waiting += 1
+        with gate:
+            fresh = run_exercise(ex, code, args, {})
+        agree = fresh["status"] == served["status"]
+        if not agree and fresh["status"] != "timeout":
+            cache.drop(ex, code)
+        runlog.write("verify", event="verify", slug=ex["slug"], served=served["status"],
+                     fresh=fresh["status"], agree=agree)
 
 
 class RunLog:
@@ -306,7 +532,7 @@ class Server(ThreadingHTTPServer):
     request_queue_size = 128
 
 
-def make_handler(exercises, gate, runlog, args):
+def make_handler(exercises, gate, runlog, cache, checks, args):
     class Handler(BaseHTTPRequestHandler):
         server_version = "brokenbench-runner"
         timeout = 20  # a client that stalls mid-request is dropped, not waited on
@@ -362,6 +588,14 @@ def make_handler(exercises, gate, runlog, args):
                 # The proxy appends the address it saw; anything before it is
                 # whatever the client claimed.
                 ip = self.headers.get("X-Forwarded-For", ip).split(",")[-1].strip()
+            hit = cache.get(ex, code)
+            if hit:
+                # Costs nothing to serve, so it skips the queue and the limits.
+                runlog.write(ip, event="run", slug=slug, track=ex["track"], status=hit["status"],
+                             cached=True)
+                if random.random() < args.verify_rate:
+                    checks.append((ex, code, hit))
+                return self.reply(200, {**hit, "seconds": 0.1, "uvm": ex["uvm"], "cached": True})
             refused = gate.admit(ip)
             if refused:
                 runlog.write(ip, event="refused", reason=refused, slug=slug)
@@ -374,6 +608,8 @@ def make_handler(exercises, gate, runlog, args):
                     result = run_exercise(ex, code, args, times)
             finally:
                 gate.done(ip)
+            cache.put(ex, code, result)
+            result.pop("cacheable", None)
             runlog.write(ip, event="run", slug=slug, track=ex["track"], status=result["status"],
                          wait=round(waited, 1), compile=round(times.get("compile", 0), 1),
                          sim=round(times.get("run", 0), 1))
@@ -397,6 +633,8 @@ def main():
                     help="allowed browser origin (repeatable); default: local Hugo servers")
     ap.add_argument("--slots", type=int, default=1, help="builds at once")
     ap.add_argument("--jobs", default="0", help="compiler jobs per build (0: one per core)")
+    ap.add_argument("--output-groups", type=int, default=0,
+                    help="split the generated C++ into this many files (0: Verilator's default)")
     ap.add_argument("--queue", type=int, default=8, help="builds allowed to wait")
     ap.add_argument("--per-minute", type=int, default=10, help="runs per client address per minute")
     ap.add_argument("--max-in-flight", type=int, default=1,
@@ -408,6 +646,13 @@ def main():
     ap.add_argument("--contained", action="store_true",
                     help="alone in a container: cap each run's processes and kill whatever a run "
                          "leaves behind (never use this outside a container)")
+    ap.add_argument("--cache", help="directory of finished results for exact starting code and solutions")
+    ap.add_argument("--cache-mb", type=int, default=2048,
+                    help="size above which visitors' cached results are dropped, oldest first")
+    ap.add_argument("--verify-rate", type=float, default=0.05,
+                    help="share of cache hits rebuilt while idle to confirm the cached result")
+    ap.add_argument("--seed", action="store_true",
+                    help="build every exercise's starting code and solution into --cache, in the background")
     ap.add_argument("--log", help="append a JSON line per request here (no addresses; see RunLog)")
     ap.add_argument("--verilator", default="verilator")
     ap.add_argument("--trust-proxy", action="store_true",
@@ -416,6 +661,8 @@ def main():
     # was built in, which is gone by the next run, and clang rejects it.
     ap.add_argument("--objcache", help="compiler cache for Verilator's C++ build, e.g. ccache")
     args = ap.parse_args()
+    if args.seed and not args.cache:
+        ap.error("--seed needs --cache")
     args.origin = args.origin or [f"http://{h}:{p}" for h in ("localhost", "127.0.0.1")
                                   for p in (1313, 1316)]
     args.version = subprocess.run([args.verilator, "--version"], capture_output=True,
@@ -423,7 +670,15 @@ def main():
     exercises = load_exercises()
     gate = Gate(args.slots, args.queue, args.per_minute, args.max_in_flight)
     gate.contained = args.contained
-    srv = Server((args.host, args.port), make_handler(exercises, gate, RunLog(args.log), args))
+    cache = ResultCache(args.cache, args.version, args.cache_mb)
+    runlog = RunLog(args.log)
+    checks = deque(maxlen=50)
+    srv = Server((args.host, args.port), make_handler(exercises, gate, runlog, cache, checks, args))
+    if args.cache:
+        threading.Thread(target=verify_cached, args=(checks, gate, cache, runlog, args),
+                         daemon=True).start()
+    if args.seed:
+        threading.Thread(target=seed, args=(exercises, gate, cache, args), daemon=True).start()
     print(f"brokenbench runner ({args.version}): {len(exercises)} exercises on http://{args.host}:{args.port}, "
           f"origins {', '.join(args.origin)}", file=sys.stderr)
     srv.serve_forever()

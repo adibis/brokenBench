@@ -56,8 +56,15 @@ SITE_ADDRESS=run.chipdv.io docker compose up -d --build
 curl https://run.chipdv.io/health
 ```
 
-On a 2-core, 4 GB server keep `--slots 1 --jobs 1`: two g++ processes on a
-UVM build don't fit in memory.
+On a 2-core, 4 GB server use `--slots 1 --jobs 2 --output-groups 8`: split
+into eight files, a UVM build's two g++ processes need about 1 GB each and
+finish in 130 s instead of 185 s; with the default grouping they need 2.6 GB
+each and don't fit.
+
+`--cache` keeps finished results so a submission seen before, up to spacing
+and comments, returns at once, and `--seed` prebuilds every exercise's
+starting code and solution. Only deterministic results are kept, and a
+sample of hits is rebuilt while idle to confirm them.
 
 `dma_ring_allocator` needs an unreleased Verilator fix
 ([verilator#8100](https://github.com/verilator/verilator/pull/8100)); its

@@ -12,17 +12,18 @@ RUN git clone --depth 1 --branch "$VERILATOR_TAG" https://github.com/verilator/v
 
 FROM ubuntu:24.04
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      g++ make perl python3 z3 libfl2 zlib1g \
+      g++ make perl python3 z3 patch libfl2 zlib1g \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=verilator /opt/verilator /opt/verilator
 ENV PATH=/opt/verilator/bin:$PATH TMPDIR=/work
-RUN useradd --system --home /nonexistent runner && mkdir /work /logs && chown runner /work /logs
+RUN useradd --system --home /nonexistent runner && mkdir /work /logs /cache && chown runner /work /logs /cache
 COPY manifest.toml /bb/
 COPY scripts /bb/scripts
 COPY exercises /bb/exercises
 COPY learn /bb/learn
 COPY vendor /bb/vendor
-COPY web/runner.py web/stats.py /bb/web/
+COPY patches /bb/patches
+COPY web/runner.py web/stats.py web/export.py /bb/web/
 USER runner
 WORKDIR /bb
 EXPOSE 8787
