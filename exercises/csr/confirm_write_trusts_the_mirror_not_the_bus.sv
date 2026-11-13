@@ -1,29 +1,25 @@
 // =================================================================================================
-// confirm_write() checks the mirror right after the write that set it -- of course it always agrees
+// confirm_write() checks the mirror right after the write that set it -- of course it agrees
 // =================================================================================================
 //
 // SPEC, per the register map doc, status_reg packs one byte into two fields:
-//   - cfg: bits [6:0], general configuration, RW.
-//   - lock: bit [7] -- "write 1 to lock permanently prevents further configuration changes until
+//   - cfg: bits [6:0], configuration, RW.
+//   - lock: bit [7]. "Write 1 to lock permanently prevents further configuration changes until
 //     the next reset."
-//   - NOT settled by that sentence: does "further configuration changes" mean changes requested by
-//     a *later* write, or does locking take effect immediately enough to veto a cfg change riding
-//     in the very same transaction that sets the lock bit? reg_bus_driver (a separate file,
-//     compiled alongside this one) is the actual hardware behavior -- read it if you need to.
+//   - Not settled by that sentence: does locking veto a cfg change in the same write that sets
+//     the lock bit, or only later writes? reg_bus_driver, in the support file compiled
+//     alongside, is the actual hardware behavior.
 //
 // -------------------------------------------------------------------------------------------------
-// confirmer::confirm_write() below is exactly the kind of helper a model writes with total
-// confidence when asked to prove a write landed as intended: with auto-prediction on (the
-// default), r.write() sets the mirror directly from the data you handed it, before the bus
-// transaction even happens, so checking the mirror right after your own write will always agree
-// with what you just told it. Run this as shipped: it reports confirmed_count=3, flagged_count=0 --
-// every write "confirmed," including the ones that tried to change cfg and lock in the same
-// transaction, and silently didn't change cfg.
+// confirmer::confirm_write() is what a model writes with confidence to prove a write landed. With
+// auto-prediction on, as the env sets it, r.write() sets the mirror from the data you passed,
+// whatever the hardware did, so reading the mirror back always agrees. Right now it reports
+// confirmed_count=3, flagged_count=0, including the writes that set cfg and lock together and
+// left cfg unchanged.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix confirm_write() so it checks what the bus actually reports -- an actual frontdoor read, not
-// the mirror -- against `expected`. Don't edit anything at or below the "checker" marker; it's
-// correct as given and is what's judging you.
+// Fix confirm_write() so it compares `expected` with a frontdoor read, not the mirror. Don't edit
+// anything at or below the "checker" marker; it's correct as given.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

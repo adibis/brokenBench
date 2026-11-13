@@ -1,7 +1,7 @@
 diff --git a/exercises/sv/dma_ring_allocator.sv b/exercises/sv/dma_ring_allocator.sv
 --- a/exercises/sv/dma_ring_allocator.sv
 +++ b/exercises/sv/dma_ring_allocator.sv
-@@ -62,7 +62,26 @@
+@@ -49,7 +49,26 @@
      }
    }
  

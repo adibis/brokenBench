@@ -2,31 +2,25 @@
 // write a function that makes randomize() reproducible
 // =================================================================================================
 //
-// `handle.randomize()` and `handle.srandom(seed)` do two different jobs, and it's easy to mix
-// them up:
+// Two separate calls on a handle:
 //
-//   handle.randomize()   -- rolls new values into the object's `rand`/`randc` fields, using
-//                            whatever PRNG state the object currently has. You call this every
-//                            time you want a new random result.
-//   handle.srandom(seed) -- doesn't randomize anything itself. It resets the object's internal
-//                            PRNG to a state fully determined by `seed`. Call it once, and every
-//                            randomize() call on that object afterward follows a reproducible
-//                            sequence -- same seed in, same sequence of results out, every time.
+//   handle.randomize()    -- rolls new values into the rand fields from the object's current
+//                            PRNG state.
+//   handle.srandom(seed)  -- randomizes nothing. It resets the object's PRNG from `seed`, so
+//                            every later randomize() follows the same sequence for that seed.
 //
-// They're two separate calls on the handle, not composable -- srandom(seed) is not an argument
-// you pass into randomize(); randomize() only takes an optional list of field names to restrict
-// which fields get re-rolled.
+// srandom() isn't an argument to randomize(); call it on the handle first.
 //
-// Fix the function below so the check after it passes.
+// Fix the function below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write make_seeded_item() from scratch:
+// Requirements for make_seeded_item():
 //
-//   1. it must return a valid (non-null) handle.
-//   2. two calls with the same seed must make every later randomize() on that object follow the
-//      same sequence of results.
-//   3. two calls with different seeds must diverge.
+//   1. It returns a valid (non-null) handle.
+//   2. Two calls with the same seed give objects whose later randomize() calls produce the same
+//      sequence.
+//   3. Two calls with different seeds give sequences that diverge.
 // -------------------------------------------------------------------------------------------------
 class data_item;
   rand bit [31:0] data;

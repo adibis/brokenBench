@@ -2,7 +2,7 @@ diff --git a/exercises/uvm/deferred_subscriber_needs_clone.sv b/exercises/uvm/de
 index b00d68e..882c70a 100644
 --- a/exercises/uvm/deferred_subscriber_needs_clone.sv
 +++ b/exercises/uvm/deferred_subscriber_needs_clone.sv
-@@ -28,6 +28,14 @@ class xact extends uvm_object;
+@@ -26,6 +26,14 @@ class xact extends uvm_object;
    function new(string name = "xact");
      super.new(name);
    endfunction
@@ -17,7 +17,7 @@ index b00d68e..882c70a 100644
  endclass
  
  class imm_sub extends uvm_component;
-@@ -68,7 +76,9 @@ class batch_sub extends uvm_component;
+@@ -66,7 +74,9 @@ class batch_sub extends uvm_component;
    endfunction
  
    virtual function void write(xact t);

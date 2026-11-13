@@ -2,50 +2,37 @@
 // three techniques, one class, all of them have to actually work together
 // =================================================================================================
 //
-// REQUIRES A PATCHED VERILATOR -- see the note in README.md before you spend time on this one.
-// `unique{}` on a foreach-indexed row of a 2D array crashes the compiler outright on every
-// released Verilator as of this writing (an internal fault, not a graceful error) -- the same bug
-// `thermal_power_fuzzer` avoids entirely by using pairwise inequality instead. This exercise is
-// that same construct, at real scale, combined with everything else below:
+// REQUIRES A PATCHED VERILATOR: see README.md first. `unique{}` on a foreach-indexed row of a 2D
+// array crashes the compiler on every released Verilator as of this writing, the same bug
+// thermal_power_fuzzer avoids with pairwise inequality. This exercise uses it at full scale:
 //
 //   make run EX=dma_ring_allocator VERILATOR=/path/to/patched/verilator_bin
 //
-// A DMA scheduler's allocation grid: 4 channels, each with 4 ring-buffer slots, each slot holding
-// an 8-bit physical-block pointer. Nothing here is individually exotic -- row/column uniqueness,
-// a weighted mode pick, a conditional bound, a conditional sum -- but getting all three to hold at
-// once, in the same randomize() call, is where it actually gets hard.
+// A DMA scheduler's allocation grid: 4 channels of 4 ring-buffer slots, each holding an 8-bit
+// block pointer. Each requirement is ordinary; making them all hold in one randomize() is the
+// hard part.
 //
-//   - every channel (row) must route to entirely distinct blocks, AND every slot-index across
-//     channels (column) must too. A row has a natural answer -- `grid[i]` is already a valid
-//     array-typed slice, so `unique {grid[i]}` names the whole row in one shot. A column doesn't:
-//     there's no `grid[:][j]` slicing syntax in SystemVerilog, so unique{}'s range_list has to be
-//     given the column's elements explicitly, one by one, inside something that iterates the
-//     column index. IEEE 1800-2023 18.5.4 is the section to read if you want to know why a whole
-//     row and a single cell inside a foreach over that row aren't equivalent.
-//   - qos_mode has to land on BURST_MODE 70% of the time and SPARSE_MODE 30%, and which
-//     bound/sum requirement applies depends on which mode was picked -- `solve ... before` has to
-//     sequence qos_mode ahead of dma_grid, or nothing downstream is guaranteed to see a settled
-//     value to condition on.
-//   - the BURST_MODE sum is over channel 1's whole row UNION slot 3's whole column -- not the sum
-//     of both taken separately. Row 1 and column 3 share exactly one cell (dma_grid[1][3]); count
-//     it once. Summing all 4 row cells plus all 4 column cells adds that shared cell twice, which
-//     quietly makes the >1000 requirement easier to satisfy than it's supposed to be -- exactly
-//     the kind of bug that still passes a handful of manual spot checks.
+//   - Rows and columns must both be distinct. `grid[i]` is already an array, so
+//     `unique {grid[i]}` covers a row. There's no `grid[:][j]` column slice, so a column's
+//     elements have to be listed explicitly inside something that iterates the column index.
+//     IEEE 1800-2023 18.5.4 explains why a whole row and one cell inside a foreach over it differ.
+//   - Which bound applies depends on qos_mode, so `solve ... before` has to settle qos_mode
+//     ahead of dma_grid.
+//   - The BURST_MODE sum is over row 1 union column 3. They share dma_grid[1][3]; count it once.
+//     Counting it twice makes the >1000 bound easier to meet than intended.
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the class so, on every randomize() call:
+// Requirements, on every randomize() call:
 //
-//   1. every dma_grid[ch][slot] is inside [1:255].
-//   2. within any one channel (row), all 4 slot values are distinct. Within any one slot-index
-//      (column), all 4 channel values are distinct. Use unique{} for both, not pairwise
-//      inequality.
-//   3. qos_mode resolves to BURST_MODE 70% of the time, SPARSE_MODE 30% of the time.
-//   4. if qos_mode == SPARSE_MODE, every cell in the grid is inside [1:20].
-//   5. if qos_mode == BURST_MODE, the sum of the 7 distinct cells in channel 1's row union slot
-//      3's column (not 8 -- the shared cell counts once) is strictly greater than 1000.
+//   1. Every dma_grid[ch][slot] is in [1:255].
+//   2. Each row's 4 values are distinct, and each column's 4 values are distinct, using
+//      unique{} for both, not pairwise inequality.
+//   3. qos_mode is BURST_MODE 70% of the time, SPARSE_MODE 30%.
+//   4. In SPARSE_MODE, every cell is in [1:20].
+//   5. In BURST_MODE, the 7 distinct cells of row 1 union column 3 sum to more than 1000.
 // -------------------------------------------------------------------------------------------------
 class DmaRingAllocator;
   rand bit [7:0] dma_grid[4][4];

@@ -2,21 +2,18 @@
 // the test's override compiles clean, runs clean, and still silently loses
 // =================================================================================================
 //
-// Early in `build_phase`, the test sets a broad default for everything under the agent -- config
-// that predates this test and is meant to apply hierarchy-wide. Further down the same
-// `build_phase`, the test sets a specific override for this run, scoped directly through the agent
-// handle it just created, since that's the most precise handle available.
+// Early in `build_phase`, the test sets a hierarchy-wide default for everything under the agent.
+// Further down, it sets this run's override, scoped through the agent handle it just created.
 //
-// Run this: the override is 7. `a.channel_id` comes out 999 -- the broad default -- instead.
+// Right now: the override is 7, but `a.channel_id` comes out 999, the default.
 //
-// `uvm_config_db::set()` computes precedence from the depth of the component passed as its first
-// argument, not from which call is more specific or which one runs last. A call scoped through a
-// deeper component's handle gets a lower precedence than one scoped through a shallower one, even
-// when the deeper call is the one meant to win.
+// `uvm_config_db::set()` takes its precedence from the depth of the component passed as its
+// first argument, not from which call is more specific or runs last. A call scoped through a
+// deeper component gets lower precedence than one through a shallower component.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix the test's override so `a.channel_id` ends up 7. Don't touch `chan_agent`, and don't edit
-// anything at or below the "checker" marker.
+// Fix the test's override so `a.channel_id` ends up 7. Don't touch `chan_agent`, and don't
+// edit anything at or below the "checker" marker.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

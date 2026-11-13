@@ -1,33 +1,28 @@
 // =================================================================================================
-// wire up a uvm_reg_predictor -- in explicit-prediction mode, it's the only thing that ever
-// updates the mirror, and "the fields look set up right" doesn't mean it's actually connected
+// wire up a uvm_reg_predictor -- with explicit prediction, nothing else updates the mirror
 // =================================================================================================
 //
-// `blk`'s map runs with auto-prediction off (`set_auto_predict(0)`, below the marker) -- a
-// deliberate choice real testbenches make when something other than this register model's own
-// write()/read() calls can also touch the DUT, and the mirror has to track reality from observed
-// bus traffic instead of just trusting its own API calls. With auto-prediction off, calling
-// `blk.r.write(...)` still genuinely writes through the bus -- but it does *not* touch the mirror
-// at all. The only thing that can ever update it is a `uvm_reg_predictor` that's actually wired
-// up: `.map` and `.adapter` set, *and* something feeding it real bus transactions through its
-// `bus_in` analysis port.
+// `blk`'s map runs with auto-prediction off (`set_auto_predict(0)`, below the checker marker),
+// as real testbenches do when something besides the register model can touch the DUT and the
+// mirror has to follow observed bus traffic. `blk.r.write(...)` still writes over the bus but
+// leaves the mirror alone. Only a `uvm_reg_predictor` updates it, and only once it has `.map`
+// and `.adapter` set and bus transactions arriving on `bus_in`.
 //
-// `predictor` is already constructed for you (see `env::build_phase`, below the marker) -- an
-// unconfigured, unconnected `uvm_reg_predictor#(reg_bus_item)` sitting there doing nothing. Finish
-// wiring it up in `env::connect_phase`, below, so that:
+// `predictor` is already constructed in `env::build_phase` (below the checker marker), but not
+// configured or connected.
 //
-//   1. `predictor.map` and `predictor.adapter` are set to the same map/adapter the bus itself uses.
-//   2. `drv.ap` (the driver's own analysis port -- every access it completes gets broadcast there)
-//      is connected to `predictor.bus_in`.
+// Requirements, in `env::connect_phase`:
 //
-// Run this as shipped: it reports `mirror=0 after first write, want aa` -- setting .map/.adapter
-// alone isn't enough either; the predictor's write() callback never even gets called until its
-// bus_in import actually has something connected to it.
+//   1. `predictor.map` and `predictor.adapter` are the map and adapter the bus uses.
+//   2. `drv.ap`, where the driver broadcasts every access it completes, is connected to
+//      `predictor.bus_in`.
+//
+// Right now: `mirror=0 after first write, want aa`. Setting .map and .adapter alone isn't
+// enough: the predictor's write() is never called until bus_in has a connection.
 // -------------------------------------------------------------------------------------------------
-// Target: after each of two writes below the marker, blk.r.get_mirrored_value() must equal exactly
-// what was just written. Leaving out either .map/.adapter or the bus_in connection leaves the
-// mirror stuck at its reset value (0) forever, regardless of how many writes actually succeed on
-// the bus.
+// Done when: after each of the two writes below the checker marker,
+// blk.r.get_mirrored_value() equals what was just written. Missing either piece leaves the
+// mirror at its reset value, 0.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

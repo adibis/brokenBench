@@ -2,54 +2,37 @@
 // aggregate constraints on an array of structs: what with() can and can't do here
 // =================================================================================================
 //
-// Array reduction/locator methods (`sum()`, `find()`, ... `with (...)`) are the normal SystemVerilog
-// tool for aggregate constraints -- "exactly N elements satisfy X," "the total of some field stays
-// under a cap." On the current toolchain, none of that machinery works reliably once the array
-// holds a STRUCT instead of a plain scalar type -- confirmed directly, not assumed:
+// Reduction and locator methods with `with (...)` are the usual tool for aggregate constraints
+// ("exactly N elements are X", "the total stays under a cap"). On the current toolchain they
+// don't work here, confirmed directly:
 //
-//   - `array.find() with (...)` inside a constraint block compiles, but is silently dropped --
-//     `%Warning-CONSTRAINTIGN: Unsupported: randomizing this expression, treating as state`. It
-//     reports randomize() success while enforcing nothing. This is true for locator methods on
-//     any array, struct-typed or not.
-//   - `struct_array.sum() with (...)` -- for ANY struct-typed array, regardless of what the with
-//     expression computes -- generates a malformed query the solver itself rejects
-//     (`Sorts (...) are incompatible`), and randomize() reports failure (returns 0) instead of
-//     succeeding. Confirmed down to the simplest possible case: a one-field struct, summed with
-//     no cast, no filter, no transformation at all. This is specific to the array holding a
-//     struct -- the identical reduction on a plain (non-struct) array of the same element type
-//     works correctly.
-//   - Comparing an enum-typed field against an enum value (`item.cmd_type == WRITE`) inside ANY
-//     with (...) clause crashes the compiler outright, independent of the struct issue above --
-//     reproduces on a bare enum array too, not just a struct field.
+//   - `find() with` in a constraint compiles but is dropped (CONSTRAINTIGN): randomize()
+//     succeeds and enforces nothing. True for any array.
+//   - `sum() with` on any struct-typed array, even a one-field struct with no cast, produces a
+//     query the solver rejects ("Sorts ... are incompatible"), and randomize() returns 0. The same
+//     reduction on a plain array works.
+//   - Comparing an enum field to an enum value (`item.cmd_type == WRITE`) inside any with (...)
+//     crashes the compiler, struct or not.
 //
-// So for this class, every aggregate requirement below needs a different tool. The alternative
-// that actually works: express a running total as its own `rand int` array, one element per
-// cmd_list entry, related to its neighbor by an ordinary per-element constraint inside `foreach`
-// (`running[i] == running[i-1] + (...)`) -- a "prefix sum," built entirely from plain equality
-// constraints the solver already handles correctly, with no with (...) clause anywhere. The last
-// element of that running array is the total you actually want to bound.
+// What works is a prefix sum: a separate `rand int` array, one element per cmd_list entry, each
+// tied to the one before it in a foreach (`running[i] == running[i-1] + (...)`). Its last
+// element is the total to bound.
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the constraints so:
+// Requirements:
 //
-//   1. cmd_list.size() is randomized to somewhere between 15 and 20 elements, inclusive. Keep
-//      hi_count and dma_running the same length as cmd_list -- they're prefix-sum helper arrays,
-//      one running total per position, per the note above.
-//   2. Every element's cmd_type is READ, WRITE, or FLUSH -- never INVALID.
-//   3. Exactly 3 elements have prio == PRIO_HIGH, via hi_count's prefix-sum recurrence:
-//      hi_count[0] is 1 or 0 depending on cmd_list[0].prio, and each later hi_count[i] is
-//      hi_count[i-1] plus 1 or 0 depending on cmd_list[i].prio. The last element of hi_count must
-//      equal 3.
-//   4. Among elements with prio == PRIO_LOW, cmd_type should favor READ and WRITE over FLUSH,
-//      roughly 3:3:1.
-//   5. dma_running is the same prefix-sum idea, but summing dma_size for WRITE elements only
-//      (0 contribution from non-WRITE elements). The last element of dma_running -- the total
-//      WRITE bandwidth across the whole stream -- must not exceed 4096. Watch the width: dma_size
-//      is only 8 bits, so accumulating into it directly overflows well before 4096; dma_running is
-//      declared as a plain int specifically so the running total doesn't wrap.
+//   1. cmd_list.size() is between 15 and 20, inclusive; hi_count and dma_running, the prefix-sum
+//      arrays, are the same length.
+//   2. Every cmd_type is READ, WRITE or FLUSH, never INVALID.
+//   3. Exactly 3 elements have prio == PRIO_HIGH, counted in hi_count: hi_count[0] is 1 or 0 from
+//      cmd_list[0].prio, each later hi_count[i] adds 1 or 0 to hi_count[i-1], and the last is 3.
+//   4. Among PRIO_LOW elements, cmd_type favors READ and WRITE over FLUSH, about 3:3:1.
+//   5. dma_running sums dma_size over WRITE elements only, the same way, and its last element
+//      (total WRITE bandwidth) is at most 4096. dma_size is 8 bits and would wrap; dma_running is
+//      an int so the total doesn't.
 // -------------------------------------------------------------------------------------------------
 typedef enum bit [1:0] {
   READ,

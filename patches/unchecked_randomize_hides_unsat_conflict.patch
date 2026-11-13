@@ -1,6 +1,6 @@
 --- a/exercises/sv/unchecked_randomize_hides_unsat_conflict.sv	2026-10-26 09:18:22
 +++ b/exercises/sv/unchecked_randomize_hides_unsat_conflict.sv	2026-10-26 09:18:36
-@@ -33,7 +33,7 @@
+@@ -27,7 +27,7 @@
  
    constraint c_region {addr inside {[32'h1000 : 32'h1FFF]};}
    constraint c_no_wrap {

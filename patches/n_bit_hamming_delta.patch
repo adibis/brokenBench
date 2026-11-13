@@ -1,7 +1,7 @@
 diff --git a/exercises/sv/n_bit_hamming_delta.sv b/exercises/sv/n_bit_hamming_delta.sv
 --- a/exercises/sv/n_bit_hamming_delta.sv
 +++ b/exercises/sv/n_bit_hamming_delta.sv
-@@ -36,7 +36,17 @@
+@@ -29,7 +29,17 @@
    rand bit   [ 5:0] toggle_target;
    rand bit          changed_bits  [32];
  

@@ -1,22 +1,19 @@
 // =================================================================================================
-// dropping an objection that was never raised doesn't just do nothing -- it's a fatal
+// dropping an objection that was never raised is a fatal, not a no-op
 // =================================================================================================
 //
-// `raise_objection()`/`drop_objection()` aren't independent calls -- together they form a counter
-// UVM uses to decide when a phase is allowed to end. Every `raise_objection()` has to be matched by
-// exactly one `drop_objection()`. Drop one more time than you raised, and UVM doesn't quietly clamp
-// the counter at zero -- it reports a real `UVM_FATAL` (`OBJTN_ZERO`), because an objection count
-// going negative means something in the testbench's bookkeeping is already wrong, and continuing to
-// run on top of that isn't safe.
+// `raise_objection()` and `drop_objection()` drive a counter that decides when a phase may end,
+// so every raise needs exactly one drop. Drop more than you raised and UVM reports `UVM_FATAL`
+// (`OBJTN_ZERO`) rather than clamping the count at zero.
 //
-// `run_phase` below does its real work (`recorded = 42;`) correctly, then drops an objection it
-// never raised.
+// `run_phase` does its work (`recorded = 42;`) correctly, then drops an objection it never
+// raised.
 //
-// Run this: `recorded` does become 42 -- that part isn't the problem -- but a `UVM_FATAL` fires
-// right after it.
+// Right now: `recorded` becomes 42, then a `UVM_FATAL` fires.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix `run_phase` so no `UVM_FATAL` occurs. Don't edit anything at or below the "checker" marker.
+// Fix `run_phase` so no `UVM_FATAL` occurs. Don't edit anything at or below the "checker"
+// marker.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

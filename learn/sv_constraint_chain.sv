@@ -2,20 +2,19 @@
 // write three constraints from scratch, each with its own name
 // =================================================================================================
 //
-// Every constraint block in a class needs its own name, the same as any other class member --
-// two blocks sharing a name isn't two constraints being combined, it's a redefinition error.
-// Beyond that, this is just ordinary constraint-writing: a range needs `inside`, and a field
-// pinned to one exact value needs `==`, not `=` (which isn't a valid constraint operator at all).
+// Each constraint block is a class member and needs its own name: two blocks with the same name
+// are a redefinition error, not one combined constraint. A range needs `inside`; pinning a field
+// to one value needs `==` (`=` isn't a constraint operator).
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write three constraints from scratch, each in its own uniquely-named constraint block:
+// Requirements, each in its own named constraint block:
 //
-//   1. priority_lo must stay in [0:3].
-//   2. priority_hi must stay in [4:7].
-//   3. mode must always equal 2'b01.
+//   1. priority_lo stays in [0:3].
+//   2. priority_hi stays in [4:7].
+//   3. mode always equals 2'b01.
 // -------------------------------------------------------------------------------------------------
 class sched_item;
   rand bit [2:0] priority_lo;

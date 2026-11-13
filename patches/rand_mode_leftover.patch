@@ -1,7 +1,7 @@
 diff --git a/learn/rand_mode_leftover.sv b/learn/rand_mode_leftover.sv
 --- a/learn/rand_mode_leftover.sv
 +++ b/learn/rand_mode_leftover.sv
-@@ -27,6 +27,7 @@
+@@ -23,6 +23,7 @@
      // left over from debugging a channel-0-only issue
      this.rand_mode(0);
      this.channel.rand_mode(1);

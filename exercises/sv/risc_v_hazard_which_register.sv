@@ -2,28 +2,22 @@
 // when a hazard happens, decide which register(s) it hits
 // =================================================================================================
 //
-// A pipeline hazard test needs instructions that deliberately depend on each other's registers,
-// not just random independent ones. A read-after-write hazard is exactly that: an instruction
-// reads a register that the instruction immediately before it is about to write. gen_hazard
-// decides whether this instruction hazards against the one before it at all, at whatever rate you
-// choose. That part's the easy half -- GIVEN gen_hazard is 1, the hazard still has to land
-// somewhere: on src_reg_0 alone, src_reg_1 alone, or both, and real pipelines don't split that
-// three ways evenly.
+// A read-after-write hazard: an instruction reads a register the instruction before it writes.
+// gen_hazard decides whether this instruction hazards at all. Given that it does, the hazard
+// lands on src_reg_0, src_reg_1 or both, and real pipelines don't split that evenly.
 //
-// A real sequence doesn't reuse one transaction object and re-randomize() it -- it constructs a
-// fresh instr_item for every instruction. Whatever holds "what did the previous instruction
-// write" has to survive that: an ordinary (non-static) member resets to its default on every
-// new(), so it forgets the previous instruction the moment a new object exists. It needs to be
-// shared across every instance instead.
+// A sequence constructs a fresh instr_item per instruction, so "what the previous instruction
+// wrote" can't live in an ordinary member that new() resets. It has to be shared by every
+// instance.
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the constraints so that, among instructions where gen_hazard is 1 (and there was a
-// previous instruction), roughly 20% hazard on src_reg_0 only, 50% on src_reg_1 only, and 30% on
-// both -- and never on neither. Registers that aren't hazarding shouldn't coincidentally match the
-// previous instruction's dst_reg either.
+// Requirements, among instructions with gen_hazard set and a previous instruction:
+//
+//   1. About 20% hazard on src_reg_0 only, 50% on src_reg_1 only, 30% on both; never neither.
+//   2. A source register that isn't hazarding doesn't happen to match the previous dst_reg.
 // -------------------------------------------------------------------------------------------------
 class instr_item;
   rand bit [4:0] dst_reg;

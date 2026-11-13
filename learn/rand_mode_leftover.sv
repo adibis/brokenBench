@@ -2,22 +2,18 @@
 // rand_mode(0) left on from a debug helper
 // =================================================================================================
 //
-// rand_mode() turns randomization for a specific field on or off without touching its declaration.
-// It's genuinely useful -- pin a field to a known value while debugging everything around it --
-// which is exactly why it's dangerous to leave behind: the field is still declared `rand`, still
-// compiles, still shows up in every dump, and every OTHER field in the class keeps randomizing
-// normally. Nothing about the class itself looks broken.
+// rand_mode() switches randomization of a field off or on without touching its declaration.
+// That's handy for pinning a field while debugging, and easy to leave behind: the field is still
+// declared `rand`, still compiles, and every other field keeps randomizing.
 //
-// Look at the constructor: there are two rand_mode() calls, one broader and one narrower. One
-// disables randomization for the whole object, the other re-enables it for a single field. Which
-// field ends up silently pinned to one value forever, and which one actually stays random?
+// The constructor makes two rand_mode() calls: one turns randomization off for the whole object,
+// the other turns it back on for one field. Which field is left pinned?
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// This class is over-constrained today. Fix it so seq_num actually varies across repeated
-// randomize() calls, the same way channel already does.
+// Requirement: seq_num varies across repeated randomize() calls, as channel already does.
 // -------------------------------------------------------------------------------------------------
 class frame_item;
   rand bit [7:0] seq_num;

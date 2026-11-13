@@ -1,7 +1,7 @@
 diff --git a/learn/missing_seed_reproducibility.sv b/learn/missing_seed_reproducibility.sv
 --- a/learn/missing_seed_reproducibility.sv	2026-08-16 23:04:53
 +++ b/learn/missing_seed_reproducibility.sv	2026-08-16 23:05:03
-@@ -34,7 +34,8 @@
+@@ -28,7 +28,8 @@
  
  function data_item make_seeded_item(int seed);
    data_item item;

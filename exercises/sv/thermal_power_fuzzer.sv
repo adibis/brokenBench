@@ -2,36 +2,27 @@
 // uniqueness scoped to the wrong dimension
 // =================================================================================================
 //
-// A `foreach (grid[i])` loop iterating rows and constraining each row's three cells to be
-// mutually different does exactly what it says -- every row genuinely has no repeated values in
-// it. Nothing about that constraint says anything about column 0 of row 0 versus column 0 of row
-// 1, though. Adding a matching column-scoped check closes that gap too, but even ROW-unique AND
-// COLUMN-unique together still isn't the same as GRID-unique: two cells that share neither a row
-// nor a column -- the two ends of a diagonal, for instance -- never get compared by either check,
-// and can still collide. The only way to be sure no two cells anywhere in the grid share a value
-// is to check every pair against every other pair directly, not to assemble the guarantee out of
-// row-shaped and column-shaped pieces that each stop short of the real requirement.
+// Making each row's cells differ leaves the columns free to repeat. Adding the same check per
+// column still isn't grid-unique: two cells that share neither a row nor a column, such as the
+// ends of a diagonal, are never compared. The only sure way is to compare every pair of cells.
 //
-// (`unique{}` isn't used here on purpose: on the current toolchain, using unique{} on a row-slice
-// of a 2D array crashes the compiler outright -- a real, current tool limitation, not a design
-// choice. Pairwise != is the working alternative here.)
+// `unique{}` isn't used on purpose: on the current toolchain, unique{} over a row of a 2D array
+// crashes the compiler. Pairwise != works.
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the constraints so:
+// Requirements:
 //
-//   1. every core_power[i][j] is between 1 and 9, inclusive.
-//   2. every one of the 9 values is different from every other one -- genuinely unique across the
-//      whole grid, not just within its own row or column. Check every pair directly.
-//   3. every row sums to exactly 15.
-//   4. every column sums to exactly 15.
-//   5. both main diagonals (top-left to bottom-right, and top-right to bottom-left) sum to
-//      exactly 15.
+//   1. Every core_power[i][j] is between 1 and 9, inclusive.
+//   2. All 9 values are different from each other across the whole grid. Compare every pair.
+//   3. Every row sums to exactly 15.
+//   4. Every column sums to exactly 15.
+//   5. Both main diagonals sum to exactly 15.
 //
-// No array-reduction methods (sum() with (...), find() with (...)) anywhere in this one -- direct
-// algebraic expressions and index-based foreach only.
+// No array-reduction methods (sum() with, find() with): plain expressions and index-based
+// foreach only.
 // -------------------------------------------------------------------------------------------------
 class ThermalPowerFuzzer;
   rand bit [3:0] core_power[3][3];

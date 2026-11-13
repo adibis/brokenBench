@@ -1,7 +1,7 @@
 diff --git a/learn/inherited_constraints_stack.sv b/learn/inherited_constraints_stack.sv
 --- a/learn/inherited_constraints_stack.sv	2026-08-17 17:48:28
 +++ b/learn/inherited_constraints_stack.sv	2026-08-17 17:48:28
-@@ -35,7 +35,12 @@
+@@ -24,7 +24,12 @@
  endclass
  
  class wide_item extends base_item;

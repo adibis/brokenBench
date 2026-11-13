@@ -2,22 +2,19 @@
 // the link never deadlocks under everyday traffic -- only a full-depth burst finds it
 // =================================================================================================
 //
-// SPEC: at reset, credits must equal DEPTH (16) -- the receive buffer's actual physical capacity,
-// since nothing is in flight yet. A full-depth burst is one indivisible 16-flit transfer: the
-// receiver returns no credit for any of it until all 16 flits have landed, then returns all 16 at
-// once. (Everyday, non-burst traffic acks per flit and never approaches this limit -- it isn't
-// modeled here because it isn't where the bug lives.)
+// SPEC: at reset, credits equal DEPTH (16), the receive buffer's capacity, since nothing is in
+// flight. A full-depth burst is one 16-flit transfer: the receiver returns no credit until all 16
+// flits land, then returns all 16. (Everyday traffic acks per flit and never nears the limit, so
+// it isn't modeled.)
 //
 // -------------------------------------------------------------------------------------------------
-// link_model below is exactly the kind of class a model writes with total confidence when asked to
-// implement the spec above: `credits = DEPTH - 1` reads like the array-index idiom that's correct
-// everywhere else in a file like this one (`buf[DEPTH-1]` is the last valid index) -- it just isn't
-// an index here, it's a count, and a count has to equal the thing it's counting. Run this: the
-// burst never completes.
+// link_model is what a model writes with confidence from that spec: `credits = DEPTH - 1` reads
+// like the index idiom used everywhere else (`buf[DEPTH-1]` is the last slot). But credits is a
+// count, not an index. Right now the burst never completes.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix link_model so a full-depth burst actually completes. Don't edit anything at or below the
-// "checker" marker; it's correct as given and is what's judging you.
+// Fix link_model so a full-depth burst completes. Don't edit anything at or below the "checker"
+// marker; it's correct as given.
 // -------------------------------------------------------------------------------------------------
 
 class link_model;

@@ -1,20 +1,18 @@
 // =================================================================================================
-// write a foreach constraint, and an inline randomize() with{} constraint
+// write a foreach constraint, and an inline randomize() with {} constraint
 // =================================================================================================
 //
-// `foreach (arr[i]) ...` introduces `i` as a loop variable scoped to that constraint, usable to
-// index the same array on each pass. Separately, `randomize() with { ... }` adds a one-off
-// constraint for a single call without touching the class itself -- useful for pinning a `rand`
-// field to a specific value just for that call.
+// `foreach (arr[i])` gives the constraint a loop variable `i` to index the array with.
+// `randomize() with { ... }` adds a constraint for one call only, without changing the class.
 //
-// Fix the class and function below so the check after it passes.
+// Fix the class and function below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the constraint and the inline randomize() call from scratch:
+// Requirements:
 //
-//   1. every element of lens must stay in [1:100].
-//   2. tag_item() must randomize item so that tag ends up equal to the target argument.
+//   1. Every element of lens stays in [1:100].
+//   2. tag_item() randomizes item so that tag equals the target argument.
 // -------------------------------------------------------------------------------------------------
 class pkt_item;
   rand bit [7:0] lens[4];

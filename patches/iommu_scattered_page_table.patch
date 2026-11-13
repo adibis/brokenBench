@@ -1,7 +1,7 @@
 diff --git a/exercises/sv/iommu_scattered_page_table.sv b/exercises/sv/iommu_scattered_page_table.sv
 --- a/exercises/sv/iommu_scattered_page_table.sv
 +++ b/exercises/sv/iommu_scattered_page_table.sv
-@@ -42,7 +42,40 @@
+@@ -34,7 +34,40 @@
  class IommuTranslationTable;
    rand map_entry_s page_table[];
  

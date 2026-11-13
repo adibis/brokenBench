@@ -2,7 +2,7 @@ diff --git a/exercises/uvm/agent_ids_via_config_db.sv b/exercises/uvm/agent_ids_
 index 74a53ec..b76aec4 100644
 --- a/exercises/uvm/agent_ids_via_config_db.sv
 +++ b/exercises/uvm/agent_ids_via_config_db.sv
-@@ -69,10 +69,9 @@ class test extends uvm_test;
+@@ -66,10 +66,9 @@ class test extends uvm_test;
  
    function void build_phase(uvm_phase phase);
      super.build_phase(phase);
@@ -16,7 +16,7 @@ index 74a53ec..b76aec4 100644
      e = dma_env::type_id::create("e", this);
    endfunction
  
-@@ -86,11 +85,11 @@ class test extends uvm_test;
+@@ -83,11 +82,11 @@ class test extends uvm_test;
      // fix this: sanity-check every channel agent's own configured id, concurrently
      // ---------------------------------------------------------------------------------------------
      foreach (e.channels[k]) begin

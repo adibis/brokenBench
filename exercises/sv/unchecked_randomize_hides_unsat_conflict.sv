@@ -1,30 +1,24 @@
 // =================================================================================================
-// desc_item.randomize() fails every single call -- and nothing that matters ever checks
+// three sensible constraints that can never all hold -- and nobody checks randomize()
 // =================================================================================================
 //
 // SPEC, for a DMA descriptor (addr, len):
-//   - addr (descriptor start) must land in the start window [0x1000:0x1FFF].
-//   - len (transfer length) must be at least 4097 bytes -- the current minimum burst granularity.
-//   - The underlying buffer this window addresses is 8 KB (0x2000 bytes) total, based at 0x1000 --
-//     a descriptor may never read past the end of that buffer.
+//   - addr (descriptor start) lands in the start window [0x1000:0x1FFF].
+//   - len (transfer length) is at least 4097 bytes, the current minimum burst.
+//   - The buffer this window addresses is 8 KB (0x2000 bytes), based at 0x1000; a descriptor
+//     never reads past its end.
 //
 // -------------------------------------------------------------------------------------------------
-// desc_item below is exactly the kind of class a model writes with total confidence when asked to
-// implement the spec above: one constraint per bullet, each individually unremarkable. Read any
-// single constraint in isolation and nothing looks wrong -- the three only contradict each other
-// once you work out what they jointly allow.
+// desc_item is what a model writes with confidence from that spec: one constraint per bullet,
+// each fine on its own. They only contradict each other together.
 //
-// The loop below is the kind of driving loop that shows up in a thousand sequences -- create an
-// item, randomize it, use it. It compiles. It runs. Run it: every single descriptor comes back
-// with addr == 0 and len == 0, and the return value randomize() hands back -- the one piece of
-// information that would have said so directly -- is never looked at. Verilator itself prints an
-// UNSATCONSTR warning on every failed call; that's realistic, not a tell -- a plain $warning never
-// fails a regression, and a log with warnings scrolling by looks identical to a clean one unless
-// someone is actually grepping for them.
+// The loop that drives it is the usual create, randomize, use. Right now every descriptor comes
+// back with addr == 0 and len == 0, and randomize()'s return value, which says so, is never
+// read. Verilator prints an UNSATCONSTR warning each time, but a warning fails no regression.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix whatever's actually broken against the spec above -- not a leftover default. Don't edit
-// anything at or below the "checker" marker; it's correct as given and is what's judging you.
+// Fix what's actually broken against the spec, not a leftover default. Don't edit anything at or
+// below the "checker" marker; it's correct as given.
 // -------------------------------------------------------------------------------------------------
 
 class desc_item;

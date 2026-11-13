@@ -1,6 +1,6 @@
 --- a/exercises/csr/update_can_silently_clear_a_w1c_field.sv	2026-10-14 22:49:26
 +++ b/exercises/csr/update_can_silently_clear_a_w1c_field.sv	2026-10-14 22:49:26
-@@ -37,8 +37,13 @@
+@@ -28,8 +28,13 @@
      super.new(name, parent);
    endfunction
  

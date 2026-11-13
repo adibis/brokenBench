@@ -2,21 +2,18 @@
 // uvm_config_db::get() works fine -- nobody ever called set()
 // =================================================================================================
 //
-// `uvm_config_db` is just a global, hierarchy-scoped lookup table: `set()` writes an entry keyed by
-// (component path, field name), `get()` reads one back. The two calls aren't a matched pair the way
-// a constructor and a destructor are -- `get()` doesn't require a `set()` to exist. If no entry
-// matches, `get()` returns 0 and quietly leaves the variable it was given exactly as it was. No
-// error, no warning, nothing -- the component just keeps running with whatever default it already
-// had.
+// `uvm_config_db` is a lookup table keyed by component path and field name: `set()` writes an
+// entry, `get()` reads one. `get()` doesn't need a matching `set()`: with no entry it returns
+// 0 and leaves its variable unchanged, with no error or warning.
 //
-// `worker` below reads its own `mode` via `uvm_config_db#(int)::get()` in its own `build_phase()`.
-// That's correct, working code -- the bug isn't there.
+// `worker` reads its `mode` with `uvm_config_db#(int)::get()` in its `build_phase()`. That
+// code is correct.
 //
-// Run this: `w.mode` stays -1, `worker`'s uninitialized default, instead of becoming 1.
+// Right now: `w.mode` stays -1, `worker`'s default, instead of becoming 1.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix `test::build_phase()` so `w.mode` ends up 1. Don't touch `worker`, and don't edit anything at
-// or below the "checker" marker.
+// Fix `test::build_phase()` so `w.mode` ends up 1. Don't touch `worker`, and don't edit
+// anything at or below the "checker" marker.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

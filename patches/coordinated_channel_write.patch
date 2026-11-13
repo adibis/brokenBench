@@ -2,7 +2,7 @@ diff --git a/exercises/uvm/coordinated_channel_write.sv b/exercises/uvm/coordina
 index 5dbf832..289a20e 100644
 --- a/exercises/uvm/coordinated_channel_write.sv
 +++ b/exercises/uvm/coordinated_channel_write.sv
-@@ -107,7 +107,24 @@ class coord_vseq extends uvm_sequence #(item);
+@@ -102,7 +102,24 @@ class coord_vseq extends uvm_sequence #(item);
    endfunction
  
    virtual task body();

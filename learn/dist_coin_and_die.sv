@@ -2,29 +2,22 @@
 // write two `dist` clauses from scratch: a fair coin, and a loaded die
 // =================================================================================================
 //
-// `dist` takes two different weight operators, and they mean different things once one side of
-// an entry is a range instead of a single value:
+// `dist` has two weight operators, and they differ once an entry is a range:
 //
-//   value := weight        -- that value gets exactly this weight, full stop.
-//   [lo:hi] := weight       -- every value in the range gets this weight EACH (so a wider range
-//                              gets proportionally more of the total).
-//   [lo:hi] :/ weight       -- the range gets this weight TOTAL, divided evenly across every
-//                              value in it (so a wider range does NOT get more weight overall --
-//                              each individual value inside it gets less).
+//   value   := weight   -- that value gets this weight.
+//   [lo:hi] := weight   -- every value in the range gets this weight each, so a wider range
+//                          gets more of the total.
+//   [lo:hi] :/ weight   -- the range gets this weight in total, split evenly across its values.
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write two constraints from scratch:
+// Requirements:
 //
-//   1. `coin` is a fair coin flip -- 0 and 1 need to come up about equally often. Two single
-//      values, each with the same weight, is exactly what `:=` is for.
-//   2. `roll` is a loaded six-sided die, values 1 through 6. It should land on 6 about half the
-//      time. The OTHER half of the time, it should be anything from 1 to 5, with all five of
-//      those values getting an even share of that other half -- not each individually getting
-//      the same weight as 6 itself. That's the difference between `:=` and `:/ ` on a range: get
-//      this one backwards and 1-5 either vanish entirely or swamp 6's intended 50%.
+//   1. `coin` is a fair coin: 0 and 1 come up about equally often.
+//   2. `roll` is a loaded die, always 1 to 6. It lands on 6 about half the time; the other half
+//      is spread evenly over 1 to 5, so each of those comes up about a tenth of the time.
 // -------------------------------------------------------------------------------------------------
 class dist_practice;
   rand bit coin;

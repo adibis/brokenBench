@@ -1,37 +1,31 @@
 // =================================================================================================
-// override uvm_reg's own sample() hook correctly -- it runs before the mirror it would be tempting
-// to read from has actually been updated
+// override uvm_reg's sample() hook -- it runs before the mirror updates
 // =================================================================================================
 //
-// uvm_reg::sample() is a real hook, called automatically from inside the base class's own
-// do_write()/do_read() -- but only once a map has auto-prediction turned on (`set_auto_predict(1)`,
-// already done for you below the marker), and its default body is empty. A register-model generator
-// builds the covergroup and wires sample() to it for you in the real world; by hand, nothing
-// populates any coverage database at all until sample() is actually overridden.
+// uvm_reg::sample() is called from the base class's do_write()/do_read() once a map has
+// auto-prediction on (`set_auto_predict(1)`, done below the checker marker), and its default body
+// is empty. A register-model generator normally wires it to a covergroup; by hand, nothing is
+// sampled until you override it.
 //
-// The obvious-looking way to fill it in is to ask the field what it's currently worth --
-// `val.get_mirrored_value()`. That's wrong, and not for a subtle reason: sample() is called with the
-// access's own `data` argument *before* do_predict() runs, every single time, for every access,
-// frontdoor or back. The field's mirror you'd be reading from still holds whatever the *previous*
-// access left it at. Override `sample(uvm_reg_data_t data, uvm_reg_data_t byte_en, bit is_read,
-// uvm_reg_map map)` on `cov_reg` (and whatever member state it needs) so that:
+// The obvious body asks the field for `val.get_mirrored_value()`. That's wrong: sample() gets
+// the access's own `data` before do_predict() runs, on every access, so the mirror still holds
+// what the previous access left.
 //
-//   1. Every real access to this register is recorded at all -- the stub below does nothing, so
-//      nothing ever gets counted.
-//   2. What gets recorded is the value *this* access actually carried -- not whatever the field's
-//      own mirror happens to say at that moment, which is always one access behind.
+// Requirements, overriding `sample(uvm_reg_data_t data, uvm_reg_data_t byte_en, bit is_read,
+// uvm_reg_map map)` on `cov_reg` with whatever state it needs:
 //
-// `expected_q` is a queue of what each access, in order, actually carries -- already populated by
-// the sequence below the marker before each write/read fires. Compare what `sample()` is told
-// against the front of that queue: `match_count++` if they agree, `mismatch_count++` otherwise.
+//   1. Every access to this register is recorded.
+//   2. What's recorded is the value this access carried, not the field's mirror.
 //
-// Run this as shipped: it reports `match_count=0, want 5` -- the stub never touches either counter.
+// `expected_q` holds what each access carries, in order, filled before each access fires.
+// Compare sample()'s value with its front: `match_count++` if they agree, `mismatch_count++`
+// if not.
+//
+// Right now: `match_count=0, want 5`. The stub touches neither counter.
 // -------------------------------------------------------------------------------------------------
-// Target: after the exact sequence below the checker marker runs (four writes, then one read),
-// match_count must be 5 and mismatch_count must be 0. A mirror-based implementation gets this
-// wrong on every single write (mismatch_count=4) and only gets the trailing read right by
-// coincidence (match_count=1) -- the mirror happens to have caught up to the last write's value by
-// the time anything reads it back.
+// Done when: after the four writes and one read below the checker marker, match_count is 5 and
+// mismatch_count is 0. Reading the mirror gets every write wrong and the read right only by luck
+// (match_count=1, mismatch_count=4).
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

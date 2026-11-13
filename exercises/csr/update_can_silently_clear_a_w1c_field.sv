@@ -1,31 +1,22 @@
 // =================================================================================================
-// enable a device through update() without silently clearing a real pending interrupt sitting in
-// the same register
+// enable a device through update() without clearing a pending interrupt in the same register
 // =================================================================================================
 //
-// `ctrl_reg` packs two fields into one register: `enable` (plain RW) and `irq_pending` (W1C --
-// write 1 to clear, matching real hardware: a bus write with that bit set clears the real pending
-// flag). `uvm_reg::update()` is supposed to be the convenient way to push only what you changed --
-// but it computes what to write for *every* field in the register, not just the one you touched.
-// For a W1C field, that computation inverts whatever `desired` currently holds: `desired=0`
-// becomes a write of 1 (assert clear). If `irq_pending` was never read first, its `desired` still
-// sits at its reset default (0) -- not because anyone decided "clear this," but simply because
-// nothing ever told the model otherwise. `update()` can't tell the difference, and silently clears
-// a real, currently-pending interrupt nobody asked it to touch.
+// `ctrl_reg` has two fields: `enable` (RW) and `irq_pending` (W1C: writing 1 clears the
+// pending flag in hardware). `uvm_reg::update()` writes the whole register, computing a value
+// for every field. For a W1C field it inverts `desired`, so `desired=0` becomes a write of 1.
+// If `irq_pending` was never read, its `desired` is still the reset default 0, and update()
+// clears a real pending interrupt nobody asked it to touch.
 //
-// Write `enabler::enable_device(uvm_reg r, uvm_reg_field enable, uvm_reg_map map)` so that it
-// enables the device (`enable` ends up set) *without* corrupting whatever `irq_pending` actually
-// holds in hardware at the time. The fix is one extra call, in the right place, before anything
-// else -- think about what has to happen before `desired` can be trusted to mean "leave this
-// alone" for a field you never meant to touch.
+// Requirement: write `enabler::enable_device(uvm_reg r, uvm_reg_field enable, uvm_reg_map map)`
+// so it sets `enable` without disturbing what `irq_pending` holds in hardware. It takes one
+// extra call, first: what has to happen before `desired` can mean "leave this alone"?
 //
-// Run this as shipped: it reports `enable=0, want 1` -- the stub does nothing at all yet.
+// Right now: `enable=0, want 1`. The stub does nothing.
 // -------------------------------------------------------------------------------------------------
-// Target: after `enable_device` runs, a real frontdoor read-back of the register (below the
-// marker) must show enable=1 *and* irq_pending=1 -- the device is on, and the interrupt that was
-// genuinely pending before the call is still genuinely pending after it. Calling `enable.set(1)`
-// then `r.update(...)` with no read in between gets enable=1 but irq_pending=0 -- it enables the
-// device by silently acking an interrupt nobody touched.
+// Done when: a frontdoor read-back after `enable_device` (below the checker marker) shows
+// enable=1 and irq_pending=1. `enable.set(1)` then `r.update(...)` with no read first gives
+// enable=1 but irq_pending=0.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

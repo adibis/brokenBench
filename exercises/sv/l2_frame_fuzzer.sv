@@ -2,33 +2,26 @@
 // three lifecycle pieces, one class
 // =================================================================================================
 //
-// A NIC frame has an 8-bit header, a variable-length payload, and an 8-bit CRC. None of that is
-// solver work by itself -- the interesting part is where each piece has to live:
+// A NIC frame has an 8-bit header, a variable-length payload and an 8-bit CRC. The interesting
+// part is where each piece is decided:
 //
-//   - `header`'s low 4 bits come from a global mode flag (`jumbo_mode_en`), decided BEFORE the
-//     solver runs. That's pre_randomize()'s job, not a constraint -- header isn't even `rand`.
-//   - the payload's size DEPENDS on what pre_randomize() just decided, via `->`. Get the direction
-//     wrong and one branch silently swallows the other: writing only "jumbo -> big payload" and
-//     leaving the non-jumbo case as whatever the base size constraint allows still lets a non-jumbo
-//     frame roll a payload over 1500 bytes, since nothing rules it out. Both directions need their
-//     own `->`.
-//   - `crc` isn't solver output either -- it's arithmetic over values the solver already picked,
-//     computed AFTER the fact in post_randomize(), with an optional fault-injection twist.
+//   - header's low 4 bits come from a global flag (jumbo_mode_en) before the solver runs. That's
+//     pre_randomize()'s job; header isn't rand.
+//   - The payload size depends on that, through `->`. Constrain only the jumbo case and a
+//     non-jumbo frame can still roll a payload over 1500 bytes: each case needs its own `->`.
+//   - crc is arithmetic over values the solver already picked, so it belongs in post_randomize().
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the class so:
+// Requirements:
 //
-//   1. pre_randomize() sets header[3:0] to 4'b1111 if jumbo_mode_en is set, 4'b0000 otherwise.
-//      header is not rand -- this has to happen procedurally, before the solve.
-//   2. when header[3:0] == 4'b1111, payload.size() must be in [1501:2048].
-//      when header[3:0] == 4'b0000, payload.size() must be in [46:1500].
-//      Both directions need to be constrained explicitly -- don't let one fall through to whatever
-//      the base size constraint alone allows.
-//   3. post_randomize() computes crc as an 8-bit sum of header and every payload byte (let it wrap
-//      naturally on overflow), then inverts it if crc_corrupt came out set.
+//   1. pre_randomize() sets header[3:0] to 4'b1111 if jumbo_mode_en is set, else 4'b0000.
+//   2. When header[3:0] == 4'b1111, payload.size() is in [1501:2048].
+//      When header[3:0] == 4'b0000, payload.size() is in [46:1500].
+//   3. post_randomize() sets crc to the 8-bit sum (wrapping) of header and every payload byte,
+//      inverted if crc_corrupt came out set.
 // -------------------------------------------------------------------------------------------------
 
 package test_pkg;

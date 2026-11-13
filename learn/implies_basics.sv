@@ -2,20 +2,19 @@
 // write two implication constraints from scratch
 // =================================================================================================
 //
-// `a -> b` means "whenever a holds, b must also hold" -- it says nothing at all about what
-// happens when a doesn't hold, and it isn't symmetric: `a -> b` and `b -> a` are two different
-// constraints. Getting the two sides backwards from what you meant still compiles and still looks
-// reasonable at a glance; it just enforces the opposite relationship.
+// `a -> b` means "whenever a holds, b holds too". It says nothing about the case where a doesn't
+// hold, and it isn't symmetric: write the sides backwards and it still compiles, but enforces the
+// opposite rule.
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write two implication constraints from scratch:
+// Requirements:
 //
-//   1. alarm_active can only ever be true when temp_reading is over 100 -- never at a safe
-//      reading, but it doesn't have to be true just because the reading is high either.
-//   2. whenever maint_mode is true, alarm_active must be false.
+//   1. alarm_active is only ever true when temp_reading is over 100. A high reading doesn't
+//      force the alarm on.
+//   2. Whenever maint_mode is true, alarm_active is false.
 // -------------------------------------------------------------------------------------------------
 class sensor_item;
   rand bit alarm_active;

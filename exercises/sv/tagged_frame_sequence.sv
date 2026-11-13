@@ -2,39 +2,32 @@
 // one distinguished header, three different kinds of persistent state
 // =================================================================================================
 //
-// A frame stream where every frame has a header, an id, a payload, and a size. Most of that is
-// unconstrained. The interesting part only kicks in for frames whose header equals the
-// distinguished value XYZ:
+// A frame stream where each frame has a header, an id, a payload and a size. The rules only bite
+// for frames whose header is the distinguished value XYZ:
 //
-//   - consecutive XYZ frames carry a strictly increasing payload -- the first one 100, the next
-//     101, the next 102, and so on. That's state that has to survive across freshly-constructed
-//     objects (a real sequence doesn't reuse one transaction and re-randomize() it), which is why
-//     next_xyz_payload and frames_since_last_xyz below are already `static`, not something you
-//     need to invent.
-//   - XYZ frames can't come too close together -- at least 5 non-XYZ frames between any two of
-//     them -- and they can't be too far apart either: any run of 10 consecutive frames has to
-//     contain at least one. Both of those are properties of WHEN a frame is allowed to be XYZ, not
-//     properties of the frame's own fields, so they have to be enforced by constraining `header`
-//     itself against frames_since_last_xyz, not checked after the fact.
-//   - id has nothing to do with any of that -- it's a completely separate requirement that every
-//     frame's id, XYZ or not, has to differ from every id used by any earlier frame in the stream.
-//     `randc` looks tempting here, but the moment you're excluding more values than "the literal
-//     previous one" its cycling guarantee stops being reliable on this toolchain (see this repo's
-//     README, "Real, current tool limitations") -- a plain `rand` field plus a used-value queue
-//     checked with `inside {}` is the pattern that actually holds up.
+//   - XYZ frames carry a payload counting up from 100. That count has to survive across freshly
+//     constructed objects, which is why next_xyz_payload and frames_since_last_xyz are already
+//     static.
+//   - XYZ frames can't come too close together or too far apart. That's about when a frame may
+//     be XYZ, so constrain header itself against frames_since_last_xyz rather than checking
+//     afterward.
+//   - ids are a separate rule: no frame reuses an earlier frame's id. randc looks right, but its
+//     cycling isn't reliable on this toolchain once you exclude more than the last value (see
+//     the README, "Real, current tool limitations"). Use a plain rand field and a queue of used
+//     ids with `inside {}`.
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the class so, across many randomize() calls on freshly-constructed objects:
+// Requirements, across many randomize() calls on freshly constructed objects:
 //
-//   1. every frame's id differs from every id used by any earlier frame.
-//   2. header may only equal XYZ (8'hAB) if at least 5 frames have passed since the last XYZ frame
-//      (or none has happened yet), and header MUST equal XYZ once 9 frames have passed since the
-//      last one, so no run of 10 consecutive frames is ever XYZ-free.
-//   3. whenever header == XYZ, payload equals 100 for the first such frame, 101 for the second,
-//      102 for the third, and so on, counting only XYZ frames.
+//   1. Every frame's id differs from every earlier frame's id.
+//   2. header may equal XYZ (8'hAB) only if at least 5 frames have passed since the last XYZ
+//      frame (or there hasn't been one), and must equal XYZ once 9 have passed, so no run of 10
+//      frames is XYZ-free.
+//   3. When header == XYZ, payload is 100 for the first such frame, 101 for the second, and so
+//      on, counting only XYZ frames.
 // -------------------------------------------------------------------------------------------------
 class TaggedFrameSequence;
   localparam bit [7:0] XYZ = 8'hAB;

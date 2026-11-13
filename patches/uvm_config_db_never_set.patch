@@ -2,7 +2,7 @@ diff --git a/learn/uvm_config_db_never_set.sv b/learn/uvm_config_db_never_set.sv
 index f327ea0..6966d21 100644
 --- a/learn/uvm_config_db_never_set.sv
 +++ b/learn/uvm_config_db_never_set.sv
-@@ -50,6 +50,7 @@ class test extends uvm_test;
+@@ -47,6 +47,7 @@ class test extends uvm_test;
      // ---------------------------------------------------------------------------------------------
      // fix this: configure w's mode to 1 via uvm_config_db before it's created
      // ---------------------------------------------------------------------------------------------

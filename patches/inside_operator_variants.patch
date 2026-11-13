@@ -1,7 +1,7 @@
 diff --git a/learn/inside_operator_variants.sv b/learn/inside_operator_variants.sv
 --- a/learn/inside_operator_variants.sv	2026-08-16 22:54:54
 +++ b/learn/inside_operator_variants.sv	2026-08-16 22:54:54
-@@ -33,7 +33,9 @@
+@@ -29,7 +29,9 @@
    bit [7:0] low_bound = 5;
    bit [7:0] high_bound = 15;
  

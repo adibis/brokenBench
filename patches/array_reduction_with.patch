@@ -1,7 +1,7 @@
 diff --git a/learn/array_reduction_with.sv b/learn/array_reduction_with.sv
 --- a/learn/array_reduction_with.sv	2026-08-16 23:31:57
 +++ b/learn/array_reduction_with.sv	2026-08-16 23:31:57
-@@ -23,7 +23,8 @@
+@@ -20,7 +20,8 @@
  // -------------------------------------------------------------------------------------------------
  class bucket_item;
    rand bit [1:0] levels[8];

@@ -2,18 +2,17 @@
 // creating a sequence isn't the same as running it
 // =================================================================================================
 //
-// `my_seq::type_id::create()` allocates a sequence object -- it doesn't put a single item on the
-// sequencer. `body()` (where the actual item gets built and sent) only ever runs once something
-// calls `.start(sequencer)` on that object. A sequence that's created but never started just sits
-// there: no compile error, no runtime error, no `body()`, no item, nothing.
+// `my_seq::type_id::create()` only allocates the sequence. Its `body()`, which builds and sends
+// the item, runs once something calls `.start(sequencer)` on it. Created but never started, it
+// does nothing, with no error.
 //
-// `my_driver` below is correct, working code -- it pulls items off `sqr` and records the last one
-// it saw. `my_seq::body()` is correct too -- it builds one item with `value = 42` and sends it.
+// `my_driver` (pulls items off `sqr` and records the last one) and `my_seq::body()` (sends
+// one item with `value = 42`) are both correct.
 //
-// Run this: `e.drv.received_count` stays 0 -- the driver never gets anything to record.
+// Right now: `e.drv.received_count` stays 0.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix `test::run_phase()` so the driver actually receives the item. Don't touch `my_seq` or
+// Fix `test::run_phase()` so the driver receives the item. Don't touch `my_seq` or
 // `my_driver`, and don't edit anything at or below the "checker" marker.
 // -------------------------------------------------------------------------------------------------
 

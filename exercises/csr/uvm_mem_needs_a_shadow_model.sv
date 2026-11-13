@@ -1,36 +1,27 @@
 // =================================================================================================
-// extend uvm_mem so it catches a real address-decode corruption bug -- the base class keeps no
-// record of what any address should currently hold
+// extend uvm_mem to catch an address-decode bug -- the base class remembers nothing
 // =================================================================================================
 //
-// uvm_reg has a mirror: ask a field what it should currently read, and the register layer answers
-// from its own tracked state. uvm_mem has no such thing -- it's a placeholder for an address range
-// and nothing else. Every write/read just moves data across the bus layer, and the instant it's
-// done, nothing in the base class remembers what any given address was last set to. If something
-// needs to know whether a later read came back correct, that expected state has to be built by
-// hand, keyed by address, from scratch.
+// uvm_reg has a mirror: ask a field what it should read, and the register layer answers from
+// tracked state. uvm_mem has none. Each access moves data across the bus and nothing remembers
+// what any address was last set to; to check reads, you build that state yourself, by address.
 //
-// uvm_mem does give you a real hook for this: `post_write(uvm_reg_item rw)` and
-// `post_read(uvm_reg_item rw)` are both called automatically, from inside the base class's own
-// do_write()/do_read() tasks, after every real access through this memory -- frontdoor or back,
-// whatever map it came through. `rw.get_offset()` is the address; `rw.get_value(0)` is the data
-// that was just written, or just read back. Override both (and add whatever member state you need)
-// on `tracked_mem` so that:
+// uvm_mem's hooks for it: `post_write(uvm_reg_item rw)` and `post_read(uvm_reg_item rw)` run
+// from the base class's do_write()/do_read() after every access, frontdoor or back, through any
+// map. `rw.get_offset()` is the address; `rw.get_value(0)` is the data written or read back.
 //
-//   1. A write at some address records what that address should read back as -- and that recorded
-//      value survives any number of *other* addresses being written in between, right up until a
-//      write actually lands on that same address again.
-//   2. A read increments `match_count` if it returns the value last written to that same address,
-//      or `mismatch_count` otherwise -- and it's still `mismatch_count`, not something you silently
-//      drop, when the data legitimately doesn't match (that's the whole point: it means the bus
-//      actually returned something other than what was last written there).
+// Requirements, overriding both on `tracked_mem` with whatever member state you need:
 //
-// Run this as shipped: it reports `match_count=0, want 4` -- the stub doesn't track anything at all.
+//   1. A write records what its address should read back. That survives writes to other
+//      addresses until a write lands on the same address again.
+//   2. A read increments `match_count` if it returns the value last written to its address, and
+//      `mismatch_count` if it doesn't.
+//
+// Right now: `match_count=0, want 4`. The stub tracks nothing.
 // -------------------------------------------------------------------------------------------------
-// Target: after the exact access sequence below the checker marker runs, `match_count` must be 4
-// and `mismatch_count` must be 1 -- not merely nonzero. One of those five reads really does land on
-// corrupted data (a real address-decode bug in the driver, not a bug in your checker), and your
-// override has to be the thing that catches it.
+// Done when: after the access sequence below the checker marker, `match_count` is 4 and
+// `mismatch_count` is 1. One of the five reads hits data corrupted by an address-decode bug in
+// the driver, and your override is what catches it.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

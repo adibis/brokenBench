@@ -1,20 +1,18 @@
 // =================================================================================================
-// factory override compiles clean and runs clean, but the DUT's parity checker never actually
-// gets tested
+// the factory override runs clean, but the DUT's parity checker never gets tested
 // =================================================================================================
 //
-// A register-write test wants to run with an error-injecting driver instead of the normal one, so
-// the DUT's write-parity checker actually gets exercised: the error-injecting driver corrupts one
-// bit of every write, and the checker is supposed to catch it. Swapping drivers is done with a
-// factory type override -- `base_write_driver` -> `error_inject_write_driver` -- so the env's own
-// code never has to know the error-injecting variant exists.
+// A register-write test wants an error-injecting driver, which corrupts one bit of every write so
+// the DUT's write-parity checker gets exercised. It swaps drivers with a factory type override,
+// `base_write_driver` -> `error_inject_write_driver`, so the env never needs to know the
+// variant exists.
 //
-// Run this: the test believes it configured the error-injecting driver, but `env.drv` is still a
+// Right now: the test believes it configured the error-injecting driver, but `env.drv` is still a
 // plain `base_write_driver`.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix the code so `env.drv` really is an `error_inject_write_driver`. Don't edit anything at or
-// below the "checker" marker.
+// Fix the code so `env.drv` is an `error_inject_write_driver`. Don't edit anything at or below
+// the "checker" marker.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

@@ -2,7 +2,7 @@ diff --git a/exercises/uvm/scoreboard_correlate_by_id.sv b/exercises/uvm/scorebo
 index 0578cac..b31e3a1 100644
 --- a/exercises/uvm/scoreboard_correlate_by_id.sv
 +++ b/exercises/uvm/scoreboard_correlate_by_id.sv
-@@ -65,8 +65,35 @@ class sb extends uvm_component;
+@@ -57,8 +57,35 @@ class sb extends uvm_component;
      actual_export   = new("actual_export", this);
    endfunction
  

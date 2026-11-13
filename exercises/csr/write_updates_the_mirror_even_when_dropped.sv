@@ -1,35 +1,26 @@
 // =================================================================================================
-// catch a write that silently never reaches hardware -- neither write()'s own status nor the
-// register model's mirror can tell you that on their own
+// catch a write that never reaches hardware -- write()'s status and the mirror both say it did
 // =================================================================================================
 //
-// With auto-prediction on (already configured for you below the marker), uvm_reg::write() calls
-// do_predict() once the bus transaction completes -- but do_predict() only looks at whether the
-// transaction's own reported status came back UVM_IS_OK. It has no independent way to confirm the
-// hardware actually did anything: a write that's silently dropped but still completes cleanly (no
-// bus error, no timeout -- a stuck write-enable signal, a realistic hardware bug, not a contrived
-// one) still gets predicted as a success, and the register model's mirror updates to match the
-// value you *intended* to write, not whatever's actually sitting in hardware.
+// With auto-prediction on (configured below the checker marker), uvm_reg::write() calls
+// do_predict() when the bus transaction completes, and do_predict() only checks the status was
+// UVM_IS_OK. A write the hardware silently drops but completes cleanly (a stuck write-enable, say)
+// is predicted as a success, and the mirror takes the value you meant to write.
 //
-// Write `write_verifier::verify_write(uvm_reg r, uvm_reg_map map, bit [7:0] data)` so that:
+// Requirements for `write_verifier::verify_write(uvm_reg r, uvm_reg_map map, bit [7:0] data)`:
 //
-//   1. It performs the write through the register layer, same as any other frontdoor access.
-//   2. It independently confirms the write actually landed -- not by trusting write()'s own
-//      status, and not by trusting `r.get_mirrored_value()` right afterward (do_predict() already
-//      updated it to the intended value regardless of what hardware did) -- the only way to really
-//      know is to read the register back through the bus and compare what actually comes back.
-//   3. `confirmed_count` counts a write whose read-back matches; `dropped_count` counts one whose
-//      read-back doesn't -- and it's still `dropped_count`, not something silently ignored, when a
-//      write legitimately never reached hardware (that's the whole point of this check existing).
+//   1. It writes through the register layer, like any frontdoor access.
+//   2. It confirms the write landed by reading the register back over the bus and comparing:
+//      not from write()'s status, and not from `r.get_mirrored_value()`, which already holds
+//      the intended value.
+//   3. A matching read-back increments `confirmed_count`; a mismatch increments
+//      `dropped_count`.
 //
-// Run this as shipped: it reports `confirmed_count=0, want 3` -- the stub never actually checks
-// anything.
+// Right now: `confirmed_count=0, want 3`. The stub checks nothing.
 // -------------------------------------------------------------------------------------------------
-// Target: of the four registers written below the marker, exactly one (register 2) has a stuck
-// write-enable and never actually updates -- confirmed_count must be 3, dropped_count must be 1.
-// Checking get_mirrored_value() instead of reading back gets this wrong for all four registers
-// (confirmed_count=4, dropped_count=0) -- do_predict() predicts success from the transaction's
-// reported status alone, which this specific hardware bug can't help but report as clean.
+// Done when: of the four registers written below the checker marker, register 2 has a stuck
+// write-enable, so confirmed_count is 3 and dropped_count is 1. Checking the mirror instead gives
+// confirmed_count=4, dropped_count=0.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

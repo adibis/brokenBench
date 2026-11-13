@@ -1,7 +1,7 @@
 diff --git a/exercises/sv/l2_frame_fuzzer.sv b/exercises/sv/l2_frame_fuzzer.sv
 --- a/exercises/sv/l2_frame_fuzzer.sv
 +++ b/exercises/sv/l2_frame_fuzzer.sv
-@@ -45,7 +45,31 @@
+@@ -38,7 +38,31 @@
  
    constraint c_payload_base_size {payload.size() inside {[46 : 2048]};}
  

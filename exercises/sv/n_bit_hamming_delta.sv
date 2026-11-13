@@ -2,32 +2,25 @@
 // counting flipped bits with sum() with(), not $countones()
 // =================================================================================================
 //
-// $countones() would make this trivial -- but the point here is the array-reduction technique
-// itself, not the answer. `sum() with (...)` needs an actual array to reduce, and a 32-bit vector
-// isn't one: `current_data ^ previous_data` is still a single packed value, and there's no direct
-// way to hand a packed expression straight to `.sum()` (the streaming operator `{<<{...}}` can't
-// be chained into a method call, and comparing an unpacked array against a streaming expression
-// with `==` fails to compile -- both real, worth hitting once so you know what doesn't work, not
-// just what does). What DOES work: declare a plain array of individual bits, tie each element to
-// the matching XOR bit with an ordinary `foreach` constraint (not a procedural loop -- constraints
-// don't have those), and reduce that array. `sum() with (int'(item))` on a plain (non-struct)
-// array of `rand bit` elements works cleanly; casting each 1-bit element to `int` before summing
-// avoids the count silently wrapping once more than one bit is set.
+// $countones() would make this trivial; the point is the array-reduction technique. `sum() with`
+// needs an array, and `current_data ^ previous_data` is a single packed value. Two things that
+// look like they should work and don't compile: chaining the streaming operator `{<<{...}}` into
+// a method call, and comparing an unpacked array to a streaming expression with `==`.
 //
-// Fix the class below so the check after it passes.
+// What works: an array of `rand bit`, each element tied to one bit of the XOR by a foreach
+// constraint, then reduced. Cast each element with `int'(item)`, or the count wraps at 1 bit.
+//
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the constraints and lifecycle hook so:
+// Requirements:
 //
-//   1. toggle_target is randomized to somewhere between 1 and 32, inclusive.
-//   2. changed_bits[k] equals current_data[k] ^ previous_data[k] for every k -- tie each element
-//      of the helper array to the matching bit of the XOR, via foreach.
-//   3. changed_bits.sum() with (int'(item)) equals toggle_target -- the actual Hamming-distance
-//      constraint, expressed as an array reduction over changed_bits.
-//   4. post_randomize() updates previous_data to current_data, so the next randomize() call (on
-//      this object, or on a brand new one -- previous_data is static) measures its distance from
-//      what was just generated, not from whatever came before that.
+//   1. toggle_target is between 1 and 32, inclusive.
+//   2. changed_bits[k] == current_data[k] ^ previous_data[k] for every k, via foreach.
+//   3. changed_bits.sum() with (int'(item)) == toggle_target.
+//   4. post_randomize() sets previous_data to current_data, so the next randomize() measures
+//      its distance from this one. previous_data is static, so this holds across objects too.
 // -------------------------------------------------------------------------------------------------
 class PowerFuzzer;
   static bit [31:0] previous_data       = 32'h0000_0000;

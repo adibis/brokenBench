@@ -2,32 +2,21 @@
 // a subclass's new constraint doesn't replace the base class's
 // =================================================================================================
 //
-// Constraint blocks aren't like virtual methods -- a differently-named
-// constraint added in a subclass doesn't override anything in the base
-// class, it just adds another block that has to hold at the same time as
-// everything the base class already declared. Every constraint block
-// across the whole inheritance chain is ANDed together. A subclass that
-// wants a wider range than its base class can't get there by just adding
-// a second, wider constraint -- the intersection of `[0:50]` and
-// `[0:200]` is still `[0:50]`.
+// Constraint blocks aren't virtual methods. A differently named constraint in a subclass doesn't
+// override the base class's: every block in the inheritance chain is ANDed together, so adding
+// [0:200] on top of [0:50] still leaves [0:50].
 //
-// What actually works: `constraint_mode()`, the same idea as
-// `rand_mode()` but for constraint blocks instead of fields. Called on a
-// named constraint -- including one inherited from a base class --
-// `constraint_mode(0)` turns that specific block off without touching
-// its declaration. Turn the base class's range constraint off in the
-// subclass's own constructor, then a new constraint declared in the
-// subclass is the only one left applying.
+// `constraint_mode(0)` switches a named constraint block off, including an inherited one,
+// without touching its declaration: `rand_mode()` for constraints instead of fields.
 //
-// Fix the classes below so the check after them passes.
+// Fix the classes below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write constraints so that wide_item's values reach above 50:
+// Requirements, so that wide_item's value can reach above 50:
 //
-//   1. add a new constraint in wide_item allowing value up to 200.
-//   2. in wide_item's constructor, disable base_item's c_range constraint via
-//      constraint_mode(0) so it stops intersecting with the new one.
+//   1. Add a constraint in wide_item allowing value up to 200.
+//   2. In wide_item's constructor, turn off base_item's c_range with constraint_mode(0).
 // -------------------------------------------------------------------------------------------------
 class base_item;
   rand bit [7:0] value;

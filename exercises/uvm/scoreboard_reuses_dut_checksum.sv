@@ -7,26 +7,20 @@
 //   - MSB-first bit processing
 //   - initial value 0x00
 //   - no input or output reflection, no final XOR
-//   - public catalog check value, for verifying any from-scratch implementation before trusting
-//     it against anything else: CRC-8/SMBUS(ASCII "123456789") = 0xF4
+//   - catalog check value: CRC-8/SMBUS(ASCII "123456789") = 0xF4
 //
 // -------------------------------------------------------------------------------------------------
-// sb::predict() below is exactly the kind of predictor a model writes with total confidence when
-// asked to check CRC-8 against the spec above: dut_pkg::crc8() (a separate file, compiled alongside
-// this one -- open it if you want to, but you don't need to in order to find the bug) is already
-// written, already named crc8, already the obvious thing to reach for instead of re-deriving
-// polynomial division by hand. Run this: every single comparison matches.
+// sb::predict() is what a model writes with confidence from that spec: dut_pkg::crc8(), in a
+// separate file compiled alongside, is already written and already named crc8. Right now every
+// comparison matches.
 //
-// A scoreboard whose predictor calls the DUT's own function has no way to disagree with it, no
-// matter what that function actually computes. Reading predict() in isolation won't tell you
-// anything is wrong -- it calls a function named crc8 and returns what it returns. The only way to
-// know whether that's actually CRC-8/SMBUS is to implement the spec above independently and check.
+// A predictor that calls the DUT's own function can never disagree with it, whatever that
+// function computes. The only way to know it's CRC-8/SMBUS is to implement the spec independently.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix sb::predict() so it's an actual independent implementation of CRC-8/SMBUS, as specified
-// above -- not a call to dut_pkg::crc8(). Verify your implementation against the 0xF4 check value
-// before assuming it's right. Don't edit anything at or below the "checker" marker; it's correct
-// as given and is what's judging you.
+// Fix sb::predict() so it's an independent CRC-8/SMBUS implementation, not a call to
+// dut_pkg::crc8(). Check it against 0xF4 first. Don't edit anything at or below the "checker"
+// marker; it's correct as given.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

@@ -1,23 +1,20 @@
 // =================================================================================================
-// four DMA channel agents, four configured channel ids, one wrong answer reported four times
+// four DMA channel agents, four configured ids, one wrong answer reported four times
 // =================================================================================================
 //
-// A DMA subsystem env builds one agent per channel -- NUM_CHANNELS of them, each one talking to a
-// different hardware DMA channel. Every agent needs to know which channel it owns, so the test
-// configures each agent's `channel_id` via `uvm_config_db` before the env is built: channel 0 must
-// end up owning id 10, channel 1 owning 20, channel 2 owning 30, channel 3 owning 40.
+// The env builds one agent per DMA channel (NUM_CHANNELS of them). Before the env is built, the
+// test sets each agent's `channel_id` through `uvm_config_db`: channel 0 gets 10, channel 1
+// 20, channel 2 30, channel 3 40.
 //
-// Before trusting the rest of the environment to run real stimulus, `run_phase` does a standard
-// sanity check first: query every channel agent concurrently and confirm each one owns the
-// channel the test actually configured it for. Catching a wiring mistake here, before stimulus
-// starts, is a lot cheaper than debugging why traffic meant for one channel mysteriously shows up
-// on a different channel's monitor two hours into a regression.
+// Before any stimulus, `run_phase` queries every agent concurrently and checks each one owns the
+// id it was given. That's much cheaper than finding one channel's traffic on another channel's
+// monitor two hours into a regression.
 //
-// Run this: the sanity check fails, and it reports the same channel id four times.
+// Right now: the check fails, reporting the same id four times.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix the code so every channel agent reports its own configured id. Don't edit anything at or
-// below the "checker" marker.
+// Fix the code so every agent reports its own configured id. Don't edit anything at or below the
+// "checker" marker.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

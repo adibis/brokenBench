@@ -2,24 +2,21 @@
 // write post_randomize() so a queue of objects isn't full of nulls
 // =================================================================================================
 //
-// `rand Packet queue_of_pkts[$];` makes the QUEUE randomizable -- the solver can decide how many
-// elements it has and what each element's handle value is. What it can't do is construct the
-// objects those handles point to: `new()` isn't a random value, it's a statement, and the solver
-// only ever picks values, never runs code. A `rand` array/queue of class handles ends up sized
-// correctly but full of null handles unless something else builds the actual objects.
+// `rand Packet queue_of_pkts[$];` lets the solver pick the queue's size, but it can't construct
+// the objects: `new()` is code, and the solver only picks values. The queue comes out the right
+// size and full of null handles.
 //
-// `post_randomize()` is the natural place to do that -- it runs right after randomize() finishes
-// picking every random value, including the queue's own size, so by the time it runs you know
-// exactly how many elements there are to build.
+// `post_randomize()` runs right after randomize() has picked every value, including the queue's
+// size, so it knows how many objects to build.
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write post_randomize() so every element of queue_of_pkts ends up as a real, randomized object:
+// Requirements for post_randomize(), for every element of queue_of_pkts:
 //
-//   1. every element must be constructed (not null).
-//   2. every element's own fields must actually be randomized, not left at their default values.
+//   1. It is constructed (not null).
+//   2. Its own fields are randomized, not left at their defaults.
 // -------------------------------------------------------------------------------------------------
 class Packet;
   rand bit [7:0] length;

@@ -1,6 +1,6 @@
 --- a/exercises/csr/uvm_mem_needs_a_shadow_model.sv	2026-10-14 21:52:33
 +++ b/exercises/csr/uvm_mem_needs_a_shadow_model.sv	2026-10-14 21:52:33
-@@ -40,13 +40,22 @@
+@@ -31,13 +31,22 @@
    int unsigned match_count    = 0;
    int unsigned mismatch_count = 0;
  

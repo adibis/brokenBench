@@ -1,26 +1,21 @@
 // =================================================================================================
-// write coord_vseq::body() so channel B's item carries the exact value channel A's driver actually
-// processed -- not a value you compute or guess ahead of time
+// write coord_vseq::body() so channel B carries the tag channel A's driver actually saw
 // =================================================================================================
 //
-// coord_vseqr is already wired (see env below) to three things: `chan_a_sqr` and `chan_b_sqr`, the
-// two real channel sequencers to send items on, and `chan_a_drv`, channel A's driver -- the only
-// place that ever learns what tag channel A's item actually carried, once it's actually been
-// driven.
+// coord_vseqr is already wired (see env) to `chan_a_sqr` and `chan_b_sqr`, the two channel
+// sequencers, and to `chan_a_drv`, channel A's driver: the only place that learns the tag
+// channel A's item carried, once it has been driven.
 //
-// Write `coord_vseq::body()` so that:
+// Requirements for `coord_vseq::body()`:
 //
-//   1. It sends exactly one item on `p_sequencer.chan_a_sqr`, with `tag` set to any value of your
-//      choosing (e.g. `$urandom`).
-//   2. Concurrently -- via `fork`/`join`, not one item after the other -- it sends exactly one item
-//      on `p_sequencer.chan_b_sqr`, with `tag` set to the exact value `p_sequencer.chan_a_drv`
-//      recorded for channel A's item.
+//   1. Send one item on `p_sequencer.chan_a_sqr`, with any `tag` (e.g. `$urandom`).
+//   2. Concurrently, with `fork`/`join`, send one item on `p_sequencer.chan_b_sqr` whose
+//      `tag` is the value `p_sequencer.chan_a_drv` recorded for channel A's item.
 //
-// `p_sequencer.chan_a_drv.last_tag` only becomes correct once channel A's driver has actually
-// pulled the item and processed it -- not the instant you call `start_item` on channel A, and not
-// just because your channel A branch happens to be the first one written in the `fork`. Reading it
-// too early doesn't error -- it silently reads whatever channel A's driver last recorded, which at
-// the very start of the test is nothing at all.
+// `chan_a_drv.last_tag` is only right once channel A's driver has pulled and processed the item:
+// not when you call `start_item` on channel A, and not because channel A's branch comes first in
+// the `fork`. Reading it early doesn't error; it returns whatever was recorded last, which at the
+// start of the test is nothing.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

@@ -2,26 +2,22 @@
 // write three `inside` constraints from scratch, three different set shapes
 // =================================================================================================
 //
-// `inside` takes a set on its right-hand side, and that set can be built three different ways:
+// `inside` takes a set in braces, and the set can take three shapes:
 //
-//   a plain list of values      -- x inside {1, 2, 3}
+//   a list of values            -- x inside {1, 2, 3}
 //   a range mixed with values   -- x inside {[10:20], 255}
-//   a range with variable ends  -- x inside {[lo:hi]}          (lo/hi don't have to be literals)
+//   a range with variable ends  -- x inside {[lo:hi]}
 //
-// Same operator every time, always wrapped in braces, entries separated by commas, a range
-// written as [low:high] with low on the left.
-//
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the constraints so mode, address, and val each land in their intended set on every
-// randomize() call.
+// Requirements, on every randomize() call:
 //
-//   1. `mode` must be one of exactly 0, 2, 4, or 8 -- nothing else.
-//   2. `address` must be either between 10 and 20 (inclusive), or exactly 255 -- nothing else.
-//   3. `val` must fall between `low_bound` and `high_bound` (inclusive) -- using the two
-//      variables below, not the literal numbers they currently hold.
+//   1. `mode` is exactly one of 0, 2, 4 or 8.
+//   2. `address` is between 10 and 20 inclusive, or exactly 255.
+//   3. `val` is between `low_bound` and `high_bound` inclusive, using those two variables,
+//      not the numbers they currently hold.
 // -------------------------------------------------------------------------------------------------
 class cfg_item;
   rand bit [3:0] mode;

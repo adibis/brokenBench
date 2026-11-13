@@ -1,7 +1,7 @@
 diff --git a/exercises/sv/command_stream_bandwidth_cap.sv b/exercises/sv/command_stream_bandwidth_cap.sv
 --- a/exercises/sv/command_stream_bandwidth_cap.sv
 +++ b/exercises/sv/command_stream_bandwidth_cap.sv
-@@ -74,7 +74,50 @@
+@@ -57,7 +57,50 @@
    rand int   hi_count   [];  // prefix-sum helper for requirement 3
    rand int   dma_running[];  // prefix-sum helper for requirement 5
  

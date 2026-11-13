@@ -1,7 +1,7 @@
 diff --git a/learn/foreach_with_basics.sv b/learn/foreach_with_basics.sv
 --- a/learn/foreach_with_basics.sv	2026-08-16 23:04:53
 +++ b/learn/foreach_with_basics.sv	2026-08-16 23:05:03
-@@ -19,11 +19,13 @@
+@@ -17,11 +17,13 @@
  class pkt_item;
    rand bit [7:0] lens[4];
    rand bit [7:0] tag;

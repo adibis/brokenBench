@@ -1,7 +1,7 @@
 diff --git a/exercises/sv/risc_v_forwarding_window.sv b/exercises/sv/risc_v_forwarding_window.sv
 --- a/exercises/sv/risc_v_forwarding_window.sv
 +++ b/exercises/sv/risc_v_forwarding_window.sv
-@@ -62,8 +62,69 @@
+@@ -48,8 +48,69 @@
      HIT_WB,
      HIT_NONE
    } stage_target_e;

@@ -2,36 +2,28 @@
 // no sorting allowed: check every pair, not just neighbors
 // =================================================================================================
 //
-// The trick that makes nonoverlapping_address_ranges cheap -- keep the array sorted, then only
-// check each element against its immediate predecessor -- depends entirely on the array actually
-// being sorted. Take that away and the shortcut goes with it: with physical pages genuinely
-// scattered in no particular order, page 3 could overlap page 9 just as easily as page 4, and
-// there's no single neighbor whose check would have caught it. The only way to be sure none of
-// them touch is to check every pair, not just adjacent ones -- an ordinary nested `foreach`
-// (a loop inside a loop, both walking the same array) inside a `constraint` block, comparing
-// each pair once.
+// nonoverlapping_address_ranges could check each region only against its predecessor because
+// the array was sorted. Physical pages here are scattered in no order, so page 3 can overlap page
+// 9 as easily as page 4. Every pair needs checking: a nested foreach over the same array, inside
+// the constraint.
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the constraints so:
+// Requirements:
 //
-//   1. page_table.size() is randomized to somewhere between 8 and 16, inclusive.
-//   2. v_start_addr[0] is exactly 32'h1000_0000. For every later entry, v_start_addr[i] equals
-//      v_start_addr[i-1] + page_size[i-1] -- the virtual space is one unbroken continuum, no
-//      gaps and no overlaps, entry by entry.
-//   3. Every page_size is one of exactly three values: 4KB (32'h1000), 64KB (32'h10000), or
-//      2MB (32'h200000).
-//   4. Do NOT add any constraint that orders p_start_addr by index -- physical pages must be free
-//      to land anywhere, in any order.
-//   5. No two physical pages overlap. Since nothing keeps the array sorted, this means checking
-//      every pair (i, j) with i != j, not just neighbors.
-//   6. No two physical pages are adjacent either -- page i's p_start_addr must never land exactly
-//      where page j ends (p_start_addr[j] + page_size[j]), for every pair i != j.
-//   7. Every physical page fits inside [32'h0000_0000 : 32'hFFFF_FFFF]. Watch the upper bound: a
-//      naive `p_start_addr + page_size <= 32'hFFFF_FFFF` can silently wrap around 32 bits near the
-//      top of the range and let an out-of-bounds page through looking valid.
+//   1. page_table.size() is between 8 and 16, inclusive.
+//   2. v_start_addr[0] is 32'h1000_0000, and each later v_start_addr[i] is v_start_addr[i-1] +
+//      page_size[i-1]: virtual space is contiguous, with no gaps or overlaps.
+//   3. Every page_size is 4KB (32'h1000), 64KB (32'h10000) or 2MB (32'h200000).
+//   4. Nothing orders p_start_addr by index: physical pages may land anywhere, in any order.
+//   5. No two physical pages overlap, checked for every pair i != j.
+//   6. No two physical pages are adjacent: p_start_addr[i] never equals p_start_addr[j] +
+//      page_size[j], for every pair i != j.
+//   7. Every physical page fits inside [32'h0000_0000 : 32'hFFFF_FFFF]. A plain
+//      `p_start_addr + page_size <= 32'hFFFF_FFFF` wraps at 32 bits near the top and lets an
+//      out-of-range page through.
 // -------------------------------------------------------------------------------------------------
 typedef struct {
   rand bit [31:0] v_start_addr;

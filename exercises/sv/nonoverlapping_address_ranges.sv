@@ -2,40 +2,32 @@
 // sorted isn't the same as non-overlapping -- unless you check the right pair
 // =================================================================================================
 //
-// A classic memory-allocator constraint: hand out N address ranges that don't overlap. Ordering
-// just the *starts* (`regions[0].base < regions[1].base < ...`) looks like it accomplishes that --
-// nothing about the constraint is obviously wrong -- but it says nothing about where each range
-// actually *ends*. A large enough region reaches straight into the next one, sorted starting
-// addresses and all.
+// Hand out N address ranges that don't overlap. Ordering the starts
+// (`regions[0].base < regions[1].base < ...`) looks like enough, but says nothing about where
+// each range ends: a large region reaches straight into the next one.
 //
-// The fix isn't to compare every region against every other region -- once the array is genuinely
-// kept in ascending order by base_addr, checking each region only against its immediate
-// predecessor is enough: if region i doesn't reach into region i+1, and region i+1 doesn't reach
-// into region i+2, nothing earlier can reach past i+1 either, because everything is already
-// sorted. That's the whole reason to maintain the ordering in the first place -- it turns an
-// all-pairs check into an adjacent-pairs check.
+// Once the array is sorted by base_addr, each region only needs checking against its immediate
+// predecessor. That's the point of keeping it sorted: an all-pairs check becomes an
+// adjacent-pairs check.
 //
-// One more thing worth being deliberate about: `regions[i-1]` only makes sense once `i > 0`.
-// `i` in a foreach loop is unsigned, so guard that access with a real if/else, not a bare `if`
-// with nothing to fall through to at i==0 -- a stray reference to index -1 on an unsigned type
-// wraps to the largest possible value instead of going negative, the same silent-wraparound
-// trap iommu_scattered_page_table's physical-bounds check calls out for address arithmetic.
+// `regions[i-1]` only makes sense for `i > 0`, and a foreach index is unsigned: guard it with a
+// real if/else, or index -1 wraps to the largest value instead of going negative.
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the constraints so:
+// Requirements:
 //
-//   1. regions.size() is randomized to somewhere between 4 and 8, inclusive.
-//   2. regions[] stays in strictly ascending order by base_addr.
-//   3. every region's base_addr is strictly less than its own limit_addr.
-//   4. every base_addr and limit_addr stays within [32'h0000_0000 : 32'h7FFF_FFFF].
-//   5. every region's size (limit_addr - base_addr + 1 -- limit_addr is the region's last byte,
-//      inclusive) is an exact multiple of 4KB (32'h1000).
-//   6. every region's base_addr is itself 4KB-aligned (a multiple of 32'h1000), not just its size.
-//   7. no two regions overlap -- given requirement 2 already holds, this only needs checking each
-//      region's base_addr against the *previous* region's limit_addr.
+//   1. regions.size() is between 4 and 8, inclusive.
+//   2. regions[] is in strictly ascending order by base_addr.
+//   3. Every region's base_addr is strictly less than its limit_addr.
+//   4. Every base_addr and limit_addr is within [32'h0000_0000 : 32'h7FFF_FFFF].
+//   5. Every region's size (limit_addr - base_addr + 1; limit_addr is the last byte, inclusive)
+//      is a multiple of 4KB (32'h1000).
+//   6. Every base_addr is 4KB-aligned.
+//   7. No two regions overlap: with requirement 2 in place, check each base_addr against the
+//      previous region's limit_addr.
 // -------------------------------------------------------------------------------------------------
 typedef struct {
   rand bit [31:0] base_addr;

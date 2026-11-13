@@ -1,7 +1,7 @@
 diff --git a/exercises/sv/nonoverlapping_address_ranges.sv b/exercises/sv/nonoverlapping_address_ranges.sv
 --- a/exercises/sv/nonoverlapping_address_ranges.sv
 +++ b/exercises/sv/nonoverlapping_address_ranges.sv
-@@ -45,7 +45,33 @@
+@@ -37,7 +37,33 @@
  class MemoryMap;
    rand region_s regions[];
  

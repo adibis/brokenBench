@@ -2,24 +2,21 @@
 // write two `with`-transformed array reduction constraints from scratch
 // =================================================================================================
 //
-// Array reduction methods (`sum()`, `product()`, `and()`, `or()`, `xor()`) collapse a whole array
-// down to one value. On their own they reduce the raw elements -- `arr.sum()` adds up whatever's
-// actually in the array. Adding `with (expression)` changes what gets reduced: the expression is
-// evaluated once per element (the implicit name `item` stands in for that element's value), and
-// the reduction combines the RESULTS of the expression instead of the raw elements.
+// Reduction methods (`sum()`, `product()`, `and()`, `or()`, `xor()`) collapse an array to
+// one value. With `with (expr)`, they reduce the expression's result for each element instead of
+// the element itself; `item` names the element inside the expression.
 //
-// That makes `sum() with (...)` a way to count: `arr.sum() with (item == N ? 1 : 0)` turns every
-// element into a 1 (if it matches) or 0 (if it doesn't), and summing those 1s and 0s gives you
-// exactly how many elements equal N -- without touching what any individual element's value is.
+// That makes `sum() with` a counter: `arr.sum() with (item == N ? 1 : 0)` is the number of
+// elements equal to N.
 //
-// Fix the class below so the check after it passes.
+// Fix the class below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write two constraints from scratch, each using sum() with (...) to count matching elements:
+// Requirements, each a constraint using sum() with (...):
 //
-//   1. exactly 2 of the 8 elements in levels must equal 3.
-//   2. exactly 3 of the 8 elements in levels must equal 0.
+//   1. Exactly 2 of the 8 elements in levels equal 3.
+//   2. Exactly 3 of the 8 elements in levels equal 0.
 // -------------------------------------------------------------------------------------------------
 class bucket_item;
   rand bit [1:0] levels[8];

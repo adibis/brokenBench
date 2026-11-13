@@ -1,7 +1,7 @@
 diff --git a/exercises/sv/thermal_power_fuzzer.sv b/exercises/sv/thermal_power_fuzzer.sv
 --- a/exercises/sv/thermal_power_fuzzer.sv
 +++ b/exercises/sv/thermal_power_fuzzer.sv
-@@ -36,7 +36,31 @@
+@@ -27,7 +27,31 @@
  class ThermalPowerFuzzer;
    rand bit [3:0] core_power[3][3];
  

@@ -1,33 +1,25 @@
 // =================================================================================================
-// write a scoreboard that correlates two independent transaction streams by id, not by arrival
-// order
+// write a scoreboard that matches two transaction streams by id, not by arrival order
 // =================================================================================================
 //
-// A reference model publishes the expected result of every transaction; a monitor publishes what
-// actually came back from the DUT. The two streams don't arrive in the same order as each other --
-// the DUT itself reorders responses -- so a scoreboard that just compares the Nth expected item
-// against the Nth actual item will misreport perfectly correct traffic as one long string of
-// mismatches.
+// A reference model publishes each transaction's expected result; a monitor publishes what the
+// DUT returned. The DUT reorders responses, so comparing the Nth expected item with the Nth
+// actual one reports correct traffic as mismatches.
 //
-// Every transaction (`xaction`) carries an `id` -- the correlation key both sides agree on -- and a
-// `data` payload -- the value actually being checked. Write `sb`'s callbacks, and whatever internal
-// state you need, so that:
+// Each `xaction` carries an `id`, the key both sides share, and `data`, the value checked.
+// Write `sb`'s callbacks, and whatever state they need.
 //
-//   1. `write_expected(t)` and `write_actual(t)` can each arrive in any order, interleaved
-//      arbitrarily with each other and with other ids -- a transaction on one side has to wait,
-//      correctly, for its matching id to show up on the other side, however long that takes and
-//      regardless of what else arrives in between.
-//   2. Once both sides have reported the same `id`: if `data` matches on both sides, increment
-//      `match_count`. If `data` differs, increment `mismatch_count` instead -- that's still a
-//      completed, resolved comparison, not a leftover.
-//   3. The same `id` can legitimately show up more than once over the life of the test -- once a
-//      given occurrence is resolved (matched or mismatched), it's consumed. A later, independent
-//      occurrence of that same `id` starts a fresh correlation; it is never compared against
-//      whatever it was already resolved with, and never silently overwrites an *unresolved*
-//      earlier occurrence of the same `id` either -- if `id`=7 arrives twice on one side before
-//      its first occurrence has been resolved, both occurrences are still owed a match.
-//   4. `pending_count()` returns exactly how many transactions are still waiting, on either side,
-//      for their other half to show up, at whatever point it's called.
+// Requirements:
+//
+//   1. `write_expected(t)` and `write_actual(t)` arrive in any order, interleaved with each
+//      other and with other ids. Each waits for its id to show up on the other side.
+//   2. Once both sides have reported an `id`: matching `data` increments `match_count`,
+//      differing `data` increments `mismatch_count`. Either way the pair is resolved.
+//   3. An `id` can recur. A resolved occurrence is consumed, so a later one starts fresh, and an
+//      unresolved one is never overwritten: if `id`=7 arrives twice on one side before the
+//      first is resolved, both are still owed a match.
+//   4. `pending_count()` returns how many transactions, on either side, are still waiting for
+//      their other half.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

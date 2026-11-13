@@ -2,20 +2,18 @@
 // write a class, a compound constraint, and a factory function from scratch
 // =================================================================================================
 //
-// A class handle that's declared but never assigned with `new()` is null -- calling a method or
-// randomizing through it fails at runtime, not at compile time. A factory function that's supposed
-// to hand back a ready-to-use object has exactly one job it can't skip: actually constructing the
-// object before returning it.
+// A handle declared but never assigned with `new()` is null, and using it fails at runtime, not
+// at compile time. A factory function's one job is to construct the object before returning it.
 //
-// Fix the class and function below so the check after it passes.
+// Fix the class and function below.
 // Don't edit anything at or below the "checker" marker.
 
 // -------------------------------------------------------------------------------------------------
-// Write the constraint and the factory function from scratch:
+// Requirements:
 //
-//   1. addr's low 2 bits must always be 0 (addr[1:0] == 2'b00).
-//   2. size must stay between 1 and 8, inclusive.
-//   3. make_item() must return a valid (non-null) handle.
+//   1. addr's low 2 bits are always 0 (addr[1:0] == 2'b00).
+//   2. size stays between 1 and 8, inclusive.
+//   3. make_item() returns a valid (non-null) handle.
 // -------------------------------------------------------------------------------------------------
 class addr_item;
   rand bit [15:0] addr;

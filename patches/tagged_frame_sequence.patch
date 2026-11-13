@@ -1,7 +1,7 @@
 diff --git a/exercises/sv/tagged_frame_sequence.sv b/exercises/sv/tagged_frame_sequence.sv
 --- a/exercises/sv/tagged_frame_sequence.sv
 +++ b/exercises/sv/tagged_frame_sequence.sv
-@@ -48,7 +48,24 @@
+@@ -41,7 +41,24 @@
    static int        frames_since_last_xyz     = 0;
    static bit [ 7:0] used_ids_q           [$];
  

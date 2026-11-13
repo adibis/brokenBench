@@ -1,20 +1,18 @@
 // =================================================================================================
-// every deferred transaction ends up showing the very last one's data, not its own
+// every deferred transaction ends up showing the last one's data, not its own
 // =================================================================================================
 //
-// `producer` reuses a single `xact` handle across every broadcast instead of allocating a fresh one
-// each time -- a legitimate, common pattern for a monitor that samples the bus every cycle and
-// doesn't want to allocate garbage on every sample. `imm_sub` consumes each broadcast the instant
-// it arrives and is correct. `batch_sub` defers its checking to the end of the test instead --
-// nothing about that choice is wrong on its own.
+// `producer` reuses one `xact` handle for every broadcast rather than allocating a new one, a
+// common pattern for a monitor that samples every cycle. `imm_sub` handles each broadcast as it
+// arrives and is correct. `batch_sub` defers its checking to the end of the test, which is fine
+// on its own.
 //
-// Run this: `imm_sub` reports every transaction correctly. `batch_sub` reports the same, single,
-// final transaction's `id`/`data` for every entry it collected -- as if all N broadcasts had
-// carried identical data, even though the checker can already see from `imm_sub` that they didn't.
+// Right now: `imm_sub` reports every transaction correctly, but `batch_sub` reports the final
+// transaction's `id`/`data` for every entry it collected.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix the code below so `batch_sub` reports what each transaction's `id`/`data` actually were at
-// the moment it arrived. Don't edit anything at or below the "checker" marker.
+// Fix the code so `batch_sub` reports each transaction's `id`/`data` as they were when it
+// arrived. Don't edit anything at or below the "checker" marker.
 // -------------------------------------------------------------------------------------------------
 
 import uvm_pkg::*;

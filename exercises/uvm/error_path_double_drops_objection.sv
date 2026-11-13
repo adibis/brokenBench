@@ -1,16 +1,15 @@
 // =================================================================================================
-// five items, one of them bad, and the simulation dies on the bad one -- not with a checker
-// failure, with a UVM_FATAL
+// five items, one bad, and the run dies on it -- with a UVM_FATAL, not a check failure
 // =================================================================================================
 //
-// `run_phase` processes 5 items, one at a time: raise an objection for the item, process it, drop
-// the objection. Item 2 fails validation. The error-handling path added for that case works fine
-// on its own -- it's the interaction with the rest of the loop body that's wrong.
+// `run_phase` processes 5 items, each inside its own raise and drop of an objection. Item 2
+// fails validation. Its error-handling path works on its own; the trouble is how it combines with
+// the rest of the loop body.
 //
-// Run this: the test never gets past item 2.
+// Right now: the test never gets past item 2.
 //
 // -------------------------------------------------------------------------------------------------
-// Fix the code so all 5 items are processed, including the bad one, without the simulation dying.
+// Fix the code so all 5 items are processed, the bad one included, without the simulation dying.
 // Don't edit anything at or below the "checker" marker.
 // -------------------------------------------------------------------------------------------------
 

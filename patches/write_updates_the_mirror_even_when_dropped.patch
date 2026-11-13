@@ -1,6 +1,6 @@
 --- a/exercises/csr/write_updates_the_mirror_even_when_dropped.sv	2026-10-14 22:24:44
 +++ b/exercises/csr/write_updates_the_mirror_even_when_dropped.sv	2026-10-14 22:24:44
-@@ -44,8 +44,14 @@
+@@ -35,8 +35,14 @@
      super.new(name, parent);
    endfunction
  
