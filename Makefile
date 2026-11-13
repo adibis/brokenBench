@@ -57,6 +57,15 @@ help:
 # A quiet ASCII rule, not Unicode box-drawing -- has to read fine as plain
 # monochrome text in a CI log, a pipe, or NO_COLOR, none of which is
 # hypothetical here (all three are real, tested paths for this Makefile).
+# A UVM_FATAL, or any $finish, ends the sim with exit code 0 before the
+# checker runs, so only the checker's own PASS line counts as a pass.
+define require_pass
+if [ $$run_ok -eq 0 ] && ! echo "$$out" | grep -q '^PASS:'; then \
+	run_ok=1; \
+	out="$$out$$(printf '\n%s' 'FAIL: the simulation ended before the checker printed PASS (a UVM_FATAL or a $$finish ends it early)')"; \
+fi
+endef
+
 define fail_compile_banner
 echo ""; \
 echo "----------------------------------------------------------------------"; \
@@ -100,6 +109,7 @@ run:
 	fi; \
 	out=$$($(SOLVER_ENV) $(BUILD_DIR)/$$name/sim 2>&1); \
 	run_ok=$$?; \
+	$(require_pass); \
 	echo "$$out" | grep -Ev '^\[.*\] %Fatal|^%Error|^Aborting\.\.\.|^- ' \
 		| sed -E "s/^(PASS:.*)/$${GREEN}\1$${RESET}/; s/^(FAIL:.*)/$${RED}\1$${RESET}/"; \
 	if [ $$run_ok -eq 0 ]; then \
@@ -223,6 +233,7 @@ check:
 		fi; \
 		out=$$($(SOLVER_ENV) $(BUILD_DIR)/$$name/sim 2>&1); \
 		run_ok=$$?; \
+		$(require_pass); \
 		if [ $$run_ok -ne 0 ]; then \
 			echo "$$out" | grep -Ev '^\[.*\] %Fatal|^%Error|^Aborting\.\.\.|^- '; \
 			echo ""; \
