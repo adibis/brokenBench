@@ -21,6 +21,8 @@ import textwrap
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 from find_exercise import parse_manifest  # noqa: E402
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from runner import load_exercises  # noqa: E402
 
 MARKER = "// ---8<--- checker below: don't edit ---"
 RULE = re.compile(r"^//\s*[=-]{10,}\s*$")
@@ -173,6 +175,9 @@ def fix(code, sol):
 
 def main():
     out = []
+    # The runner's own fingerprint of each checker, so a page can tell a
+    # runner that grades differently (an older or newer checkout) apart.
+    digests = {s: e["digest"] for s, e in load_exercises().items()}
     for ex in sorted(parse_manifest(os.path.join(REPO, "manifest.toml")),
                      key=lambda e: (["learn", "sv", "uvm", "csr"].index(e["track"]), e["order"])):
         with open(os.path.join(REPO, ex["path"])) as f:
@@ -188,6 +193,7 @@ def main():
                 support.append({"name": os.path.basename(p), "code": f.read()})
         out.append({
             "slug": ex["slug"], "track": ex["track"], "order": ex["order"],
+            "digest": digests[ex["slug"]],
             "tags": ex.get("tags", []), "path": ex["path"], "title": title, "spec": spec,
             "uvm": bool(re.search(r"^import uvm_pkg", text, re.M)),
             "needs_patched_verilator": ex.get("requires_patched_verilator", False),

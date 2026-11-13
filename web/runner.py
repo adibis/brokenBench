@@ -544,6 +544,9 @@ def make_handler(exercises, gate, runlog, cache, checks, args):
                 self.send_header("Vary", "Origin")
                 self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
                 self.send_header("Access-Control-Allow-Headers", "Content-Type")
+                # Chrome asks before a public page may reach a runner on this machine.
+                if self.headers.get("Access-Control-Request-Private-Network") == "true":
+                    self.send_header("Access-Control-Allow-Private-Network", "true")
 
         def reply(self, code, body):
             data = json.dumps(body).encode()
@@ -561,8 +564,10 @@ def make_handler(exercises, gate, runlog, cache, checks, args):
 
         def do_GET(self):
             if self.path == "/health":
+                # digests let a page check this runner grades with the checkers it expects.
                 return self.reply(200, {"ok": True, "exercises": len(exercises),
-                                        "verilator": args.version, "waiting": gate.waiting})
+                                        "verilator": args.version, "waiting": gate.waiting,
+                                        "digests": {s: e["digest"] for s, e in exercises.items()}})
             self.reply(404, {"error": "not found"})
 
         def do_POST(self):
@@ -663,8 +668,10 @@ def main():
     args = ap.parse_args()
     if args.seed and not args.cache:
         ap.error("--seed needs --cache")
-    args.origin = args.origin or [f"http://{h}:{p}" for h in ("localhost", "127.0.0.1")
-                                  for p in (1313, 1316)]
+    # By default chipdv.io's pages may use a runner on your own machine, as
+    # may a local copy of the site.
+    args.origin = args.origin or ["https://chipdv.io"] + [
+        f"http://{h}:{p}" for h in ("localhost", "127.0.0.1") for p in (1313, 1316)]
     args.version = subprocess.run([args.verilator, "--version"], capture_output=True,
                                   text=True).stdout.strip()
     exercises = load_exercises()
