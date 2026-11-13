@@ -11,7 +11,7 @@ PASS always means the real checker passed.
   JSON for the site's pages.
 - `test_runner.py`: starts the runner and checks that every stub fails, every
   solution passes, and the request guards hold. `--all` includes the UVM and
-  CSR tracks, which take about 25 s each to compile.
+  CSR tracks, which take about 25 s each to compile on a fast machine.
 - `deploy/`: the container and its Caddy front end.
 
 ## Running on your own machine
@@ -49,7 +49,8 @@ to an exercise page's address to point it at another runner.
 
 One build at a time (`--slots`), eight waiting (`--queue`), one run in flight
 per client address (`--max-in-flight`) and ten a minute (`--per-minute`),
-120 s to compile, 60 s to run, 64 KB of code. Builds are compiled at `-O0`:
+240 s to compile, 180 s to run (about twice the slowest exercise on a 2-core
+VPS), 64 KB of code. Builds are compiled at `-O0`:
 an unoptimised UVM build takes half the time and half the memory (about
 1.8 GB for g++ with `--jobs 1`), and the simulations run no slower, since the
 long ones spend their time in the constraint solver.

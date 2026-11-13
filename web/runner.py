@@ -413,6 +413,9 @@ def seed(exercises, gate, cache, args):
         if code == solutions[ex["slug"]] and result["status"] != "pass":
             sys.stderr.write(f"NOT SEEDED: {ex['slug']} solution gave {result['status']}\n")
             continue
+        if not result.get("cacheable"):
+            sys.stderr.write(f"not cached {i}/{len(todo)} {ex['slug']}: {result['status']}\n")
+            continue
         cache.put(ex, code, result, pinned=True)
         sys.stderr.write(f"seeded {i}/{len(todo)} {ex['slug']}: {result['status']}\n")
 
@@ -644,8 +647,8 @@ def main():
     ap.add_argument("--per-minute", type=int, default=10, help="runs per client address per minute")
     ap.add_argument("--max-in-flight", type=int, default=1,
                     help="runs one client address may have queued or running at once")
-    ap.add_argument("--compile-timeout", type=int, default=120)
-    ap.add_argument("--run-timeout", type=int, default=60)  # constraint-heavy SV runs take ~25 s
+    ap.add_argument("--compile-timeout", type=int, default=240)  # UVM and CSR builds take ~135 s on a 2-core VPS
+    ap.add_argument("--run-timeout", type=int, default=180)  # dist_coin_and_die simulates for ~85 s there
     ap.add_argument("--compile-mem", type=int, default=3072, help="MB of address space per compile step")
     ap.add_argument("--run-mem", type=int, default=2048, help="MB of address space for a simulation")
     ap.add_argument("--contained", action="store_true",
