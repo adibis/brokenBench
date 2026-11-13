@@ -1,0 +1,89 @@
+name: Runner image
+
+# Publishes the runner as ghcr.io/adibis/brokenbench-runner, the image chipdv.io
+# tells visitors to run so its exercise pages can build on their own machine.
+# Each architecture builds on its own native runner: Verilator under emulation
+# would take hours, and Apple Silicon users need arm64.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - manifest.toml
+      - exercises/**
+      - learn/**
+      - vendor/**
+      - patches/**
+      - scripts/**
+      - web/**
+      - .github/workflows/runner-image.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/brokenbench-runner
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-24.04
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: web/deploy/Dockerfile
+          platforms: ${{ matrix.platform }}
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.platform }}
+      - name: Record digest
+        run: |
+          mkdir -p /tmp/digests
+          touch "/tmp/digests/${DIGEST#sha256:}"
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: digest-${{ matrix.runner }}
+          path: /tmp/digests/*
+          retention-days: 1
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: digest-*
+          path: /tmp/digests
+          merge-multiple: true
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Tag both architectures as latest
+        working-directory: /tmp/digests
+        run: |
+          docker buildx imagetools create -t "$IMAGE:latest" -t "$IMAGE:${GITHUB_SHA::12}" \
+            $(printf "$IMAGE@sha256:%s " *)

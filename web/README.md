@@ -14,6 +14,22 @@ PASS always means the real checker passed.
   CSR tracks, which take about 25 s each to compile.
 - `deploy/`: the container and its Caddy front end.
 
+## Running on your own machine
+
+The exercise pages can build on your machine instead of chipdv.io's shared
+server: choose **Run on my machine** in the editor's toolbar and start the
+runner image, which carries Verilator, z3 and the exercises.
+
+```sh
+docker run --pull always --rm -p 127.0.0.1:8787:8787 ghcr.io/adibis/brokenbench-runner
+```
+
+The page checks the runner's checker digests against its own before every
+run and refuses to use a runner whose checkers differ, so an old image can't
+report a verdict about a different exercise. `--pull always` makes the same
+command the update. The image is published by the `Runner image` workflow on
+every change to `master`.
+
 ## Local mode
 
 Run everything on your own machine: the runner here, the site from
