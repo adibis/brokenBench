@@ -55,6 +55,11 @@ endclass
 // ---8<--- checker below: don't edit ---
 
 module top;
+  function automatic bit distinct_slots();
+    bit [4:0] h[3] = advanced_instr_fuzzer::history;
+    return h[0] != 0 && h[1] != 0 && h[2] != 0 && h[0] != h[1] && h[1] != h[2] && h[0] != h[2];
+  endfunction
+
   initial begin
     advanced_instr_fuzzer stream;
     int ok;
@@ -159,6 +164,39 @@ module top;
     end
 
     if (bad_found) $fatal(1);
+
+    // A leak into another slot needs a source register to land on that slot's value by chance,
+    // which a random stream can go thousands of trials without doing. So ask for each leak
+    // directly: with three distinct nonzero slots, every request below must be unsatisfiable.
+    for (int tgt = 0; tgt < 4; tgt++) begin
+      for (int slot = 0; slot < 3; slot++) begin
+        for (int src = 0; src < 2; src++) begin
+          // Targets in enum order: EX, MEM, WB hit slots 0, 1, 2; NONE (3) hits none.
+          automatic
+          advanced_instr_fuzzer::stage_target_e
+          want = advanced_instr_fuzzer::stage_target_e'(tgt);
+          automatic bit [4:0] other;
+          if (tgt == slot) continue;  // matching the targeted slot itself is the point
+          // Some simulators shift the window even when randomize() fails, so get three
+          // distinct nonzero slots again before every request.
+          for (int t = 0; t < 1000 && !distinct_slots(); t++) begin
+            stream = new();
+            void'(stream.randomize());
+          end
+          other  = advanced_instr_fuzzer::history[slot];
+          stream = new();
+          if (stream.randomize() with {
+                target == want;
+                (src == 0) -> (src_reg_0 == other);
+                (src == 1) -> (src_reg_1 == other);
+              }) begin
+            $display("FAIL: %s allows src_reg_%0d == %0d, the value in history[%0d]", want.name(),
+                     src, other, slot);
+            $fatal(1);
+          end
+        end
+      end
+    end
 
     if (ex_cnt < (hazard_cnt * 36 / 100) || ex_cnt > (hazard_cnt * 44 / 100)) begin
       $display("FAIL: EX %0d/%0d hazards (%0d%%), expected roughly 40%%", ex_cnt, hazard_cnt,
