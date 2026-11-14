@@ -38,17 +38,20 @@ module top;
       $fatal(1);
     end
 
-    if (!item.randomize()) begin
-      $display("FAIL: randomize() returned 0");
-      $fatal(1);
+    // One call would let a missing constraint pass by luck (addr[1:0] is 0 one time in 4).
+    for (int i = 0; i < 200; i++) begin
+      if (!item.randomize()) begin
+        $display("FAIL: randomize() returned 0 on call %0d", i);
+        $fatal(1);
+      end
+      if (item.addr[1:0] != 2'b00 || item.size < 1 || item.size > 8) begin
+        $display("FAIL: addr=%0h size=%0d violates the constraint on call %0d", item.addr,
+                 item.size, i);
+        $fatal(1);
+      end
     end
 
-    if (item.addr[1:0] != 2'b00 || item.size < 1 || item.size > 8) begin
-      $display("FAIL: addr=%0h size=%0d violates the constraint", item.addr, item.size);
-      $fatal(1);
-    end
-
-    $display("PASS: addr=%0h size=%0d", item.addr, item.size);
+    $display("PASS: 200 randomizations, every addr word-aligned and size in 1..8");
     $finish;
   end
 endmodule
